@@ -9,7 +9,7 @@ Repository: `arturjanuska/ecotrip-react`, branch `feat`.
 - A Size or Specification with a single option: the select is hidden and nothing is written to the form (orders look as before). `findVariant` treats an empty selection as "any" and returns a variant only when exactly one matches.
 - Specification options are filtered by the selected size.
 - Category-level `callManager` (palettes) keeps today's UI: Amount input with the manager message.
-- `measured`: if a base lacks input (weight, or any of the three dimensions), the price is 0 (today's behaviour). Weight 0 gives 0 for the weight base.
+- `measured`: each base is priced from the input it has (weight → weight price, all three dimensions → volume price); the price is 0 only when no base has input. Weight 0 gives 0 for the weight base. (Changed from "any missing input → 0" after review: a partly filled form should still show a price.)
 - Removals 3–4 m³: 150 → 160 £/m³ (the spreadsheet's tier, per spec). Expected difference, not a bug.
 - Price direction = `route` from `transformFormDataToEndpoint.ts`: `shipmentWithAddressService` → `UK-LT`, else `direction`.
 
@@ -37,7 +37,7 @@ Repository: `arturjanuska/ecotrip-react`, branch `feat`.
 - Every row of old `products.ts` through the new `calculatePrice`; only `cover/minibuses` and `stove` second `built-in` (→ `freestanding`) may differ. Plus old vs new shipments / removals formulas on a grid.
 
 ### 5. Cleanup + i18n (after approval)
-- Delete `products.ts`, `convertSizeOptions.ts`, `getOptions.ts`, `shipmentsExlusions.ts`; keep only `extent` in `calculateShipmentPrice.ts`; drop unused enums/types in `types.ts`.
+- Owner's decision: old files are not deleted. `products.ts`, `convertSizeOptions.ts`, `getOptions.ts`, `shipmentsExlusions.ts` get a DEPRECATED comment.
 - Key `freestanding`: en «Freestanding», lt «Pastatoma», ru «Отдельностоящая».
 - Test: every non-literal catalog label (literals start with `<` or `>`) exists in en / lt / ru.
 

@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 const links = [
   { href: "/postcodes", label: "Postcodes" },
   { href: "/prices", label: "Prices" },
+  { href: "/fees", label: "Fees" },
 ];
 
 export function Sidebar() {

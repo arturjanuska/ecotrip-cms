@@ -90,7 +90,10 @@ export const PUT = withErrorHandling(
       const restored = before?.active === false && updated.active;
       await recordChange({
         page: "postcodes",
-        summary: `${restored ? "Restored" : "Edited"} postcode ${updated.postcode}`,
+        summary: {
+          key: restored ? "log.restoredPostcode" : "log.editedPostcode",
+          params: { postcode: updated.postcode },
+        },
         changes: diffPostcode(before, updated),
       });
       return NextResponse.json(updated);
@@ -131,7 +134,10 @@ export const DELETE = withErrorHandling(
 
     await recordChange({
       page: "postcodes",
-      summary: `Deleted postcode ${deleted.postcode}`,
+      summary: {
+        key: "log.deletedPostcode",
+        params: { postcode: deleted.postcode },
+      },
       changes: wasActive
         ? diffPostcode({ ...deleted, active: true }, deleted)
         : [],

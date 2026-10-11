@@ -42,25 +42,37 @@ import {
   type ImportValues,
 } from "@/lib/postcode-csv";
 import { DEFAULT_FILTERS } from "@/lib/postcode-filters";
-import { errorMessage, fetchAllPostcodes } from "@/lib/postcodes-client";
+import { fetchAllPostcodes } from "@/lib/postcodes-client";
+import {
+  NETWORK_ERROR,
+  loadProblem,
+  messageProblem,
+  problemText,
+  toFailure,
+  writeProblem,
+  type Problem,
+} from "@/lib/api-errors";
+import { useT, useHeaderT } from "@/lib/i18n/client";
+import { msg } from "@/lib/i18n/translate";
 import { cn } from "@/lib/utils";
 import { useUnsavedChanges } from "@/lib/use-unsaved-changes";
 
 const ROW_HEIGHT = 49;
 const OVERSCAN = 10;
 
-const FIELD_COLUMNS: { column: CsvColumn; label: string; width: number }[] = [
-  { column: "postcode", label: "Postcode", width: 120 },
-  { column: "town", label: "Town", width: 190 },
-  { column: "country", label: "Country", width: 100 },
-  { column: "region", label: "Region", width: 180 },
-  { column: "countryString", label: "Country name", width: 160 },
-  { column: "basicPrice", label: "Basic price", width: 170 },
-  { column: "additionalCharges", label: "Additional charges", width: 190 },
-  { column: "parcelForceZone", label: "Parcel Force zone", width: 150 },
-  { column: "discount", label: "Discount %", width: 130 },
-  { column: "calendar", label: "Calendar", width: 150 },
-  { column: "active", label: "Active", width: 110 },
+// Labels: messages postcode.<column>.
+const FIELD_COLUMNS: { column: CsvColumn; width: number }[] = [
+  { column: "postcode", width: 120 },
+  { column: "town", width: 190 },
+  { column: "country", width: 100 },
+  { column: "region", width: 180 },
+  { column: "countryString", width: 160 },
+  { column: "basicPrice", width: 170 },
+  { column: "additionalCharges", width: 190 },
+  { column: "parcelForceZone", width: 150 },
+  { column: "discount", width: 130 },
+  { column: "calendar", width: 150 },
+  { column: "active", width: 110 },
 ];
 
 // Include checkbox, row number, status.
@@ -90,10 +102,10 @@ type RowCheck = {
 type Show = "all" | ImportStatus | "excluded";
 
 const STATUS_LABELS: Record<ImportStatus, string> = {
-  new: "New",
-  update: "Update",
-  unchanged: "Unchanged",
-  error: "Error",
+  new: "importPostcodes.statusNew",
+  update: "importPostcodes.statusUpdate",
+  unchanged: "importPostcodes.statusUnchanged",
+  error: "importPostcodes.statusError",
 };
 
 const STATUS_STYLES: Record<ImportStatus, string> = {
@@ -147,6 +159,7 @@ const ImportPreviewRow = memo(function ImportPreviewRow({
   onChange,
   onToggle,
 }: PreviewRowProps) {
+  const t = useT();
   const errorList = Object.entries(check.errors);
 
   return (
@@ -159,7 +172,7 @@ const ImportPreviewRow = memo(function ImportPreviewRow({
         <input
           type="checkbox"
           className="size-4 accent-primary"
-          aria-label={`Include row ${row.row}`}
+          aria-label={t("importPostcodes.includeRow", { row: String(row.row) })}
           checked={!row.excluded}
           onChange={() => onToggle(row.id)}
         />
@@ -167,7 +180,9 @@ const ImportPreviewRow = memo(function ImportPreviewRow({
       <TableCell className="text-muted-foreground">{row.row}</TableCell>
       <TableCell className="whitespace-normal">
         {row.excluded ? (
-          <span className="text-xs text-muted-foreground">Excluded</span>
+          <span className="text-xs text-muted-foreground">
+            {t("importPostcodes.excluded")}
+          </span>
         ) : (
           <>
             <span
@@ -176,13 +191,13 @@ const ImportPreviewRow = memo(function ImportPreviewRow({
                 STATUS_STYLES[check.status],
               )}
             >
-              {STATUS_LABELS[check.status]}
+              {t(STATUS_LABELS[check.status])}
             </span>
             {errorList.length > 0 && (
               <ul className="mt-1 space-y-0.5 text-xs text-destructive">
                 {errorList.map(([column, message]) => (
                   <li key={column}>
-                    {column}: {message}
+                    {t(`postcode.${column}`)}: {t(message)}
                   </li>
                 ))}
               </ul>
@@ -209,8 +224,8 @@ const ImportPreviewRow = memo(function ImportPreviewRow({
                 {parseActive(value) === null && (
                   <option value={value}>{value || "—"}</option>
                 )}
-                <option value="true">Yes</option>
-                <option value="false">No</option>
+                <option value="true">{t("common.yes")}</option>
+                <option value="false">{t("common.no")}</option>
               </NativeSelect>
             ) : (
               <PostcodeFieldInput
@@ -229,13 +244,16 @@ const ImportPreviewRow = memo(function ImportPreviewRow({
 
 export function ImportPostcodes() {
   const { getToken } = useAuth();
+  const t = useT();
+  const th = useHeaderT();
   const [existing, setExisting] = useState<Map<
     string,
     ExistingPostcode
   > | null>(null);
-  const [loadError, setLoadError] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<Problem | null>(null);
   const [reloadExisting, setReloadExisting] = useState(0);
   const [fileName, setFileName] = useState<string | null>(null);
+  // A msg() string (lib/i18n/translate.ts).
   const [fileError, setFileError] = useState<string | null>(null);
   const [ignoredColumns, setIgnoredColumns] = useState<string[]>([]);
   const [rows, setRows] = useState<PreviewRow[]>([]);
@@ -246,7 +264,7 @@ export function ImportPostcodes() {
   const [show, setShow] = useState<Show>("all");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<{
-    text: string;
+    problem: Problem;
     error: boolean;
   } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -258,9 +276,9 @@ export function ImportPostcodes() {
 
     fetchAllPostcodes({ ...DEFAULT_FILTERS, active: "all" }, controller.signal)
       .then(({ items }) => setExisting(existingByPostcode(items)))
-      .catch((error: Error) => {
+      .catch((error: unknown) => {
         if (!controller.signal.aborted) {
-          setLoadError(error.message);
+          setLoadError(loadProblem(error, "errors.loadPostcodes"));
         }
       });
 
@@ -411,7 +429,7 @@ export function ImportPostcodes() {
 
     if (file.size > IMPORT_MAX_BYTES) {
       setFileError(
-        `The file is larger than ${IMPORT_MAX_BYTES / 1024 / 1024} MB.`,
+        msg("file.tooLarge", { size: IMPORT_MAX_BYTES / 1024 / 1024 }),
       );
       return;
     }
@@ -440,7 +458,11 @@ export function ImportPostcodes() {
 
     if (
       !window.confirm(
-        `Import ${toSend.length} rows: ${counts.new} new, ${counts.update} updated?`,
+        t("importPostcodes.confirm", {
+          count: toSend.length,
+          inserted: counts.new,
+          updated: counts.update,
+        }),
       )
     ) {
       return;
@@ -477,19 +499,19 @@ export function ImportPostcodes() {
           setServerErrors(byId);
           setShow("error");
           setMessage({
-            text: "The server found errors. Fix or exclude these rows and import again.",
+            problem: messageProblem("importPostcodes.serverErrors"),
             error: true,
           });
           return;
         }
 
         setMessage({
-          text:
-            response.status === 401
-              ? "Session expired. Sign in again in a new tab (/login), then import again."
-              : response.status === 403
-                ? "You do not have permission to import."
-                : errorMessage(body, `Import failed (HTTP ${response.status})`),
+          problem: writeProblem(
+            toFailure(response.status, body),
+            "errors.importFailed",
+            "errors.sessionExpiredImport",
+            "errors.noPermissionImport",
+          ),
           error: true,
         });
         return;
@@ -497,26 +519,30 @@ export function ImportPostcodes() {
 
       const result = body as ImportResult;
       setMessage({
-        text: `Imported: ${result.inserted} new, ${result.updated} updated, ${result.unchanged} unchanged.`,
+        problem: messageProblem("importPostcodes.done", {
+          inserted: result.inserted,
+          updated: result.updated,
+          unchanged: result.unchanged,
+        }),
         error: false,
       });
       reset();
       setExisting(null);
       setReloadExisting((current) => current + 1);
     } catch {
-      setMessage({ text: "Network error", error: true });
+      setMessage({ problem: NETWORK_ERROR, error: true });
     } finally {
       setBusy(false);
     }
   }
 
   const showOptions: { value: Show; label: string }[] = [
-    { value: "all", label: "All" },
-    { value: "error", label: "Errors" },
-    { value: "new", label: "New" },
-    { value: "update", label: "Updates" },
-    { value: "unchanged", label: "Unchanged" },
-    { value: "excluded", label: "Excluded" },
+    { value: "all", label: "importPostcodes.showAll" },
+    { value: "error", label: "importPostcodes.showErrors" },
+    { value: "new", label: "importPostcodes.showNew" },
+    { value: "update", label: "importPostcodes.showUpdates" },
+    { value: "unchanged", label: "importPostcodes.showUnchanged" },
+    { value: "excluded", label: "importPostcodes.showExcluded" },
   ];
 
   return (
@@ -538,7 +564,9 @@ export function ImportPostcodes() {
           disabled={!existing || busy}
           onClick={() => fileInputRef.current?.click()}
         >
-          {rows.length > 0 ? "Choose another file" : "Choose CSV file"}
+          {rows.length > 0
+            ? t("importPostcodes.chooseAnother")
+            : t("importPostcodes.chooseFile")}
         </Button>
         {fileName && (
           <span className="text-sm text-muted-foreground">{fileName}</span>
@@ -548,21 +576,23 @@ export function ImportPostcodes() {
         {rows.length > 0 && (
           <>
             <label className="ml-auto flex items-center gap-2 text-sm">
-              <span className="text-muted-foreground">Show</span>
+              <span className="text-muted-foreground">
+                {t("importPostcodes.show")}
+              </span>
               <NativeSelect
                 value={show}
                 onChange={(event) => setShow(event.target.value as Show)}
               >
                 {showOptions.map((option) => (
                   <option key={option.value} value={option.value}>
-                    {option.label} ({counts[option.value]})
+                    {t(option.label)} ({counts[option.value]})
                   </option>
                 ))}
               </NativeSelect>
             </label>
             {counts.error > 0 && (
               <Button variant="ghost" onClick={excludeErrors}>
-                Exclude rows with errors
+                {t("importPostcodes.excludeErrors")}
               </Button>
             )}
             <Button
@@ -573,13 +603,13 @@ export function ImportPostcodes() {
                 setMessage(null);
               }}
             >
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button
               disabled={busy || counts.error > 0 || toWrite === 0}
               onClick={runImport}
             >
-              Import {toWrite} rows
+              {t("importPostcodes.importRows", { count: toWrite })}
             </Button>
           </>
         )}
@@ -587,10 +617,12 @@ export function ImportPostcodes() {
 
       {loadError && (
         <p className="text-sm text-destructive">
-          Could not load current postcodes: {loadError}
+          {t("importPostcodes.loadError", {
+            error: problemText(t, loadError),
+          })}
         </p>
       )}
-      {fileError && <p className="text-sm text-destructive">{fileError}</p>}
+      {fileError && <p className="text-sm text-destructive">{t(fileError)}</p>}
       {message && (
         <p
           className={cn(
@@ -598,49 +630,44 @@ export function ImportPostcodes() {
             message.error ? "text-destructive" : "text-muted-foreground",
           )}
         >
-          {message.text}
+          {problemText(t, message.problem)}
         </p>
       )}
 
       {rows.length > 0 && (
         <p className="text-sm text-muted-foreground">
-          {counts.new} new, {counts.update} to update, {counts.unchanged}{" "}
-          unchanged
-          {counts.excluded > 0 && `, ${counts.excluded} excluded`}
+          {t("importPostcodes.summary", {
+            new: counts.new,
+            update: counts.update,
+            unchanged: counts.unchanged,
+          })}
+          {counts.excluded > 0 &&
+            t("importPostcodes.summaryExcluded", { count: counts.excluded })}
           {counts.error > 0 && (
             <span className="text-destructive">
-              . Fix or exclude {counts.error} rows with errors to continue
+              {t("importPostcodes.summaryErrors", { count: counts.error })}
             </span>
           )}
           .
           {ignoredColumns.length > 0 &&
-            ` Ignored columns: ${ignoredColumns.join(", ")}.`}
+            t("importPostcodes.ignoredColumns", {
+              columns: ignoredColumns.join(", "),
+            })}
         </p>
       )}
 
       {rows.length === 0 ? (
         <div className="max-w-2xl space-y-2 rounded-lg border p-4 text-sm">
-          <p className="font-medium">How import works</p>
+          <p className="font-medium">{t("importPostcodes.howTitle")}</p>
           <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
+            <li>{t("importPostcodes.howFile")}</li>
             <li>
-              Use a CSV file exported from this CMS, or prepared in Excel or
-              Google Sheets (saved as CSV UTF-8, comma or semicolon separated).
+              {t("importPostcodes.howColumns", {
+                required: REQUIRED_CSV_COLUMNS.join(", "),
+              })}
             </li>
-            <li>
-              The first row holds column names. Required:{" "}
-              {REQUIRED_CSV_COLUMNS.join(", ")}. Optional: region,
-              countryString, basicPrice, additionalCharges, parcelForceZone,
-              discount, calendar, active (true or false).
-            </li>
-            <li>
-              Existing postcodes are updated, new ones are added. Columns
-              missing from the file keep their current values. Postcodes not in
-              the file are not changed.
-            </li>
-            <li>
-              You review and fix the rows here first. Nothing is saved until you
-              press Import.
-            </li>
+            <li>{t("importPostcodes.howUpdate")}</li>
+            <li>{t("importPostcodes.howReview")}</li>
           </ul>
         </div>
       ) : (
@@ -663,10 +690,12 @@ export function ImportPostcodes() {
             <TableHeader className="sticky top-0 z-10 bg-background">
               <TableRow>
                 <TableHead />
-                <TableHead>Row</TableHead>
-                <TableHead>Status</TableHead>
+                <TableHead>{th("common.row")}</TableHead>
+                <TableHead>{th("importPostcodes.status")}</TableHead>
                 {FIELD_COLUMNS.map((field) => (
-                  <TableHead key={field.column}>{field.label}</TableHead>
+                  <TableHead key={field.column}>
+                    {th(`postcode.${field.column}`)}
+                  </TableHead>
                 ))}
               </TableRow>
             </TableHeader>
@@ -674,7 +703,7 @@ export function ImportPostcodes() {
               {visibleRows.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={COLUMN_COUNT} className="text-center">
-                    No rows
+                    {t("importPostcodes.noRows")}
                   </TableCell>
                 </TableRow>
               )}

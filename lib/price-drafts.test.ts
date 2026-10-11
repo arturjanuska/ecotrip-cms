@@ -82,8 +82,8 @@ describe("applyDrafts", () => {
     expect(
       applyDrafts(automotive, { [price]: "", [weight]: "x" }).cellErrors,
     ).toEqual({
-      [price]: "Must be greater than 0",
-      [weight]: "Not a number",
+      [price]: "validation.positive",
+      [weight]: "validation.notANumber",
     });
   });
 
@@ -98,9 +98,7 @@ describe("applyDrafts", () => {
     expect(applied.formErrors).toEqual([]);
 
     const open = applyDrafts(shipments, { [cellKey(firstTier, "upTo")]: "" });
-    expect(open.formErrors).toEqual([
-      "Only the last tier can have no upper limit",
-    ]);
+    expect(open.formErrors).toEqual(["validation.onlyLastTierOpen"]);
   });
 
   it("reports each form problem once", () => {
@@ -115,9 +113,7 @@ describe("applyDrafts", () => {
       [cellKey(firstTier, "upTo")]: "",
       [cellKey({ type: "", size: "<20 kg", spec: "" }, "upTo")]: "",
     });
-    expect(applied.formErrors).toEqual([
-      "Only the last tier can have no upper limit",
-    ]);
+    expect(applied.formErrors).toEqual(["validation.onlyLastTierOpen"]);
   });
 });
 

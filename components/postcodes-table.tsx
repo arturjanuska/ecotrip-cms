@@ -41,11 +41,17 @@ import {
   type ActiveFilter,
 } from "@/lib/postcode-filters";
 import type { Postcode } from "@/lib/postcode-types";
+import { fetchAllPostcodes, fetchPostcodes } from "@/lib/postcodes-client";
 import {
-  errorMessage,
-  fetchAllPostcodes,
-  fetchPostcodes,
-} from "@/lib/postcodes-client";
+  NETWORK_ERROR,
+  loadProblem,
+  messageProblem,
+  problemText,
+  toFailure,
+  writeProblem,
+  type Problem,
+} from "@/lib/api-errors";
+import { useT, useHeaderT } from "@/lib/i18n/client";
 import { readCache, writeCache } from "@/lib/client-cache";
 import type { BulkChanges, BulkUpdateResult } from "@/lib/validation/postcode";
 import { useUnsavedChanges } from "@/lib/use-unsaved-changes";
@@ -62,22 +68,23 @@ const COLUMN_WIDTHS = [
   44, 110, 190, 90, 180, 160, 170, 190, 150, 130, 150, 80, 150,
 ] as const;
 
-const TEXT_COLUMNS: readonly { field: EditableTextField; label: string }[] = [
-  { field: "town", label: "Town" },
-  { field: "region", label: "Region" },
-  { field: "countryString", label: "Country name" },
-  { field: "basicPrice", label: "Basic price" },
-  { field: "additionalCharges", label: "Additional charges" },
-  { field: "parcelForceZone", label: "Parcel Force zone" },
-  { field: "discount", label: "Discount %" },
-  { field: "calendar", label: "Calendar" },
+// Column labels: messages postcode.<field>.
+const TEXT_COLUMNS: readonly { field: EditableTextField }[] = [
+  { field: "town" },
+  { field: "region" },
+  { field: "countryString" },
+  { field: "basicPrice" },
+  { field: "additionalCharges" },
+  { field: "parcelForceZone" },
+  { field: "discount" },
+  { field: "calendar" },
 ];
 
 type ListState = {
   key: string;
   items: Postcode[];
   total: number;
-  error: string | null;
+  error: Problem | null;
 };
 
 type PerPage = number | "all";
@@ -93,7 +100,7 @@ type RowProps = {
   ref?: Ref<HTMLTableRowElement>;
   item: Postcode;
   draft: Draft | undefined;
-  error: string | undefined;
+  error: Problem | undefined;
   saving: boolean;
   selected: boolean;
   onSelect: (id: string, selected: boolean) => void;
@@ -114,7 +121,11 @@ const PostcodeRow = memo(function PostcodeRow({
   onChange,
   onSave,
 }: RowProps) {
+  const t = useT();
   const problems = draft ? validateDraft(draft) : null;
+  const problemMessage = problems?.issues
+    .map(({ field, message }) => `${t(`postcode.${field}`)}: ${t(message)}`)
+    .join("; ");
 
   const fieldCell = (field: EditableTextField) => (
     <TableCell key={field}>
@@ -138,7 +149,9 @@ const PostcodeRow = memo(function PostcodeRow({
         <input
           type="checkbox"
           className="size-4 accent-primary"
-          aria-label={`Select ${item.postcode}`}
+          aria-label={t("postcodesPage.selectRow", {
+            postcode: item.postcode,
+          })}
           checked={selected}
           onChange={(event) => onSelect(item._id, event.target.checked)}
         />
@@ -160,12 +173,12 @@ const PostcodeRow = memo(function PostcodeRow({
             disabled={saving || Boolean(problems)}
             onClick={() => onSave(item, draft)}
           >
-            Save
+            {t("common.save")}
           </Button>
         )}
-        {(error ?? problems?.message) && (
+        {(error ?? problemMessage) && (
           <p className="mt-1 max-w-56 whitespace-normal text-xs text-destructive">
-            {error ?? problems?.message}
+            {error ? problemText(t, error) : problemMessage}
           </p>
         )}
       </TableCell>
@@ -220,6 +233,8 @@ type PostcodesView = {
 
 export function PostcodesTable() {
   const { getToken } = useAuth();
+  const t = useT();
+  const th = useHeaderT();
   // Back from another page: the same filters, page and rows as when it was
   // left; the rows refresh in the background.
   const [cached] = useState(() =>
@@ -239,13 +254,13 @@ export function PostcodesTable() {
   const [refresh, setRefresh] = useState(0);
   const [list, setList] = useState<ListState | null>(cached?.list ?? null);
   const [drafts, setDrafts] = useState<Record<string, Draft>>({});
-  const [rowErrors, setRowErrors] = useState<Record<string, string>>({});
+  const [rowErrors, setRowErrors] = useState<Record<string, Problem>>({});
   const [saving, setSaving] = useState<Record<string, boolean>>({});
   // Selected record ids; kept across pages and filter changes.
   const [selected, setSelected] = useState<Set<string>>(() => new Set());
   const [bulkBusy, setBulkBusy] = useState(false);
   const [bulkMessage, setBulkMessage] = useState<{
-    text: string;
+    problem: Problem;
     error: boolean;
   } | null>(null);
 
@@ -300,11 +315,16 @@ export function PostcodesTable() {
         setList({ key, items, total, error: null });
         setDrafts((current) => pruneDrafts(current, items));
       })
-      .catch((error: Error) => {
+      .catch((error: unknown) => {
         if (controller.signal.aborted) {
           return;
         }
-        setList({ key, items: [], total: 0, error: error.message });
+        setList({
+          key,
+          items: [],
+          total: 0,
+          error: loadProblem(error, "errors.loadPostcodes"),
+        });
       });
 
     return () => controller.abort();
@@ -418,32 +438,36 @@ export function PostcodesTable() {
       const body = await response.json().catch(() => null);
 
       if (!response.ok || !body) {
-        const text =
-          response.status === 401
-            ? "Session expired. Sign in again in a new tab (/login), then apply again."
-            : response.status === 403
-              ? "You do not have permission to edit."
-              : errorMessage(
-                  body,
-                  `Bulk update failed (HTTP ${response.status})`,
-                );
-        setBulkMessage({ text, error: true });
+        setBulkMessage({
+          problem: writeProblem(
+            toFailure(response.status, body),
+            "errors.bulkFailed",
+            "errors.sessionExpiredApply",
+          ),
+          error: true,
+        });
         return;
       }
 
       const result = body as BulkUpdateResult;
-      const missing = result.notFound.length
-        ? ` ${result.notFound.length} not found.`
-        : "";
       setBulkMessage({
-        text: `Updated ${result.matched} postcodes (${result.modified} changed).${missing}`,
+        problem: messageProblem("postcodesPage.bulkDone", {
+          count: result.matched,
+          modified: result.modified,
+          notFound: result.notFound.length
+            ? {
+                key: "postcodesPage.bulkNotFound",
+                params: { count: result.notFound.length },
+              }
+            : "",
+        }),
         error: result.notFound.length > 0,
       });
       setSelected(new Set());
       // Reload: values changed, and rows may no longer match the filters.
       setRefresh((current) => current + 1);
     } catch {
-      setBulkMessage({ text: "Network error", error: true });
+      setBulkMessage({ problem: NETWORK_ERROR, error: true });
     } finally {
       setBulkBusy(false);
     }
@@ -473,16 +497,12 @@ export function PostcodesTable() {
         const body = await response.json().catch(() => null);
 
         if (!response.ok || !body) {
-          const message =
-            response.status === 401
-              ? "Session expired. Sign in again in a new tab (/login), then save. Your changes are kept."
-              : response.status === 403
-                ? "You do not have permission to edit."
-                : errorMessage(
-                    body,
-                    `Failed to save (HTTP ${response.status})`,
-                  );
-          setRowErrors((current) => ({ ...current, [id]: message }));
+          const problem = writeProblem(
+            toFailure(response.status, body),
+            "errors.saveFailed",
+            "errors.sessionExpiredSave",
+          );
+          setRowErrors((current) => ({ ...current, [id]: problem }));
           return;
         }
 
@@ -517,7 +537,7 @@ export function PostcodesTable() {
           setRefresh((current) => current + 1);
         }
       } catch {
-        setRowErrors((current) => ({ ...current, [id]: "Network error" }));
+        setRowErrors((current) => ({ ...current, [id]: NETWORK_ERROR }));
       } finally {
         setSaving((current) => ({ ...current, [id]: false }));
       }
@@ -529,10 +549,12 @@ export function PostcodesTable() {
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-3">
         <label className="flex items-center gap-2 text-sm">
-          <span className="text-muted-foreground">Postcode</span>
+          <span className="text-muted-foreground">
+            {t("postcode.postcode")}
+          </span>
           <Input
             className="w-28"
-            placeholder="e.g. M4"
+            placeholder={t("postcodesPage.postcodePlaceholder")}
             value={postcodeInput}
             onChange={(event) =>
               setPostcodeInput(
@@ -545,15 +567,17 @@ export function PostcodesTable() {
           />
         </label>
         <label className="flex items-center gap-2 text-sm">
-          <span className="text-muted-foreground">Calendar</span>
+          <span className="text-muted-foreground">
+            {t("postcode.calendar")}
+          </span>
           <NativeSelect
             value={filters.calendar}
             onChange={(event) =>
               updateFilters({ calendar: event.target.value })
             }
           >
-            <option value="">Any</option>
-            <option value={EMPTY_FILTER}>Empty</option>
+            <option value="">{t("common.any")}</option>
+            <option value={EMPTY_FILTER}>{t("common.empty")}</option>
             {CALENDAR_VALUES.map((option) => (
               <option key={option} value={option}>
                 {option}
@@ -562,15 +586,17 @@ export function PostcodesTable() {
           </NativeSelect>
         </label>
         <label className="flex items-center gap-2 text-sm">
-          <span className="text-muted-foreground">Parcel Force zone</span>
+          <span className="text-muted-foreground">
+            {t("postcode.parcelForceZone")}
+          </span>
           <NativeSelect
             value={filters.parcelForceZone}
             onChange={(event) =>
               updateFilters({ parcelForceZone: event.target.value })
             }
           >
-            <option value="">Any</option>
-            <option value={EMPTY_FILTER}>Empty</option>
+            <option value="">{t("common.any")}</option>
+            <option value={EMPTY_FILTER}>{t("common.empty")}</option>
             {PARCEL_FORCE_ZONES.map((option) => (
               <option key={option} value={option}>
                 {option}
@@ -579,30 +605,32 @@ export function PostcodesTable() {
           </NativeSelect>
         </label>
         <label className="flex items-center gap-2 text-sm">
-          <span className="text-muted-foreground">Active</span>
+          <span className="text-muted-foreground">{t("postcode.active")}</span>
           <NativeSelect
             value={filters.active}
             onChange={(event) =>
               updateFilters({ active: event.target.value as ActiveFilter })
             }
           >
-            <option value="yes">Yes</option>
-            <option value="no">No</option>
-            <option value="all">All</option>
+            <option value="yes">{t("common.yes")}</option>
+            <option value="no">{t("common.no")}</option>
+            <option value="all">{t("common.all")}</option>
           </NativeSelect>
         </label>
         {filtered && (
           <Button variant="ghost" size="sm" onClick={resetFilters}>
-            Reset filters
+            {t("postcodesPage.resetFilters")}
           </Button>
         )}
         {unsavedCount > 0 && (
           <span className="text-sm text-destructive">
-            Unsaved rows: {unsavedCount}
+            {t("postcodesPage.unsavedRows", { count: unsavedCount })}
           </span>
         )}
         <label className="ml-auto flex items-center gap-2 text-sm">
-          <span className="text-muted-foreground">Per page</span>
+          <span className="text-muted-foreground">
+            {t("postcodesPage.perPage")}
+          </span>
           <NativeSelect
             value={perPage}
             onChange={(event) => changePerPage(event.target.value)}
@@ -612,13 +640,15 @@ export function PostcodesTable() {
                 {option}
               </option>
             ))}
-            <option value="all">All</option>
+            <option value="all">{t("common.all")}</option>
           </NativeSelect>
         </label>
         {loading ? (
           <Skeleton className="h-4 w-24" />
         ) : (
-          <span className="text-sm text-muted-foreground">{total} records</span>
+          <span className="text-sm text-muted-foreground">
+            {t("postcodesPage.records", { count: total })}
+          </span>
         )}
       </div>
 
@@ -639,12 +669,12 @@ export function PostcodesTable() {
               : "text-sm text-muted-foreground"
           }
         >
-          {bulkMessage.text}
+          {problemText(t, bulkMessage.problem)}
         </p>
       )}
 
       {list?.key === key && list.error && (
-        <p className="text-sm text-destructive">{list.error}</p>
+        <p className="text-sm text-destructive">{problemText(t, list.error)}</p>
       )}
 
       <div
@@ -664,7 +694,7 @@ export function PostcodesTable() {
                 <input
                   type="checkbox"
                   className="size-4 accent-primary"
-                  aria-label="Select all rows in the table"
+                  aria-label={th("postcodesPage.selectAll")}
                   disabled={items.length === 0}
                   checked={allLoadedSelected}
                   ref={(element) => {
@@ -676,13 +706,15 @@ export function PostcodesTable() {
                   onChange={toggleAllLoaded}
                 />
               </TableHead>
-              <TableHead>Postcode</TableHead>
-              <TableHead>{TEXT_COLUMNS[0].label}</TableHead>
-              <TableHead>Country</TableHead>
+              <TableHead>{th("postcode.postcode")}</TableHead>
+              <TableHead>{th(`postcode.${TEXT_COLUMNS[0].field}`)}</TableHead>
+              <TableHead>{th("postcode.country")}</TableHead>
               {TEXT_COLUMNS.slice(1).map((column) => (
-                <TableHead key={column.field}>{column.label}</TableHead>
+                <TableHead key={column.field}>
+                  {th(`postcode.${column.field}`)}
+                </TableHead>
               ))}
-              <TableHead>Active</TableHead>
+              <TableHead>{th("postcode.active")}</TableHead>
               <TableHead />
             </TableRow>
           </TableHeader>
@@ -690,7 +722,7 @@ export function PostcodesTable() {
             {items.length === 0 && !loading && (
               <TableRow>
                 <TableCell colSpan={COLUMN_COUNT} className="text-center">
-                  No postcodes
+                  {t("postcodesPage.noPostcodes")}
                 </TableCell>
               </TableRow>
             )}
@@ -731,21 +763,21 @@ export function PostcodesTable() {
       {perPage !== "all" && (
         <div className="flex items-center justify-end gap-2">
           <span className="text-sm text-muted-foreground">
-            Page {page} of {totalPages}
+            {t("common.pageOf", { page, total: totalPages })}
           </span>
           <Button
             variant="outline"
             disabled={page <= 1 || loading}
             onClick={() => setPage((current) => current - 1)}
           >
-            Prev
+            {t("common.prev")}
           </Button>
           <Button
             variant="outline"
             disabled={page >= totalPages || loading}
             onClick={() => setPage((current) => current + 1)}
           >
-            Next
+            {t("common.next")}
           </Button>
         </div>
       )}

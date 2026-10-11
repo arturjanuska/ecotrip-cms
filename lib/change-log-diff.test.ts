@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import {
+  bulkSummary,
   diffFees,
   diffPostcode,
   diffPriceCategory,
@@ -34,27 +35,27 @@ describe("diffPostcode", () => {
     expect(
       diffPostcode(postcode, { ...postcode, calendar: "Even", discount: "5" }),
     ).toEqual([
-      { record: "FY1", field: "discount", from: "", to: "5" },
-      { record: "FY1", field: "calendar", from: "Odd", to: "Even" },
+      { record: "FY1", field: "postcode.discount", from: "", to: "5" },
+      { record: "FY1", field: "postcode.calendar", from: "Odd", to: "Even" },
     ]);
   });
 
   it("lists the filled fields of a new postcode", () => {
     const changes = diffPostcode(null, postcode);
     expect(changes.map((change) => change.field)).toEqual([
-      "postcode",
-      "region",
-      "country",
-      "countryString",
-      "basicPrice",
-      "additionalCharges",
-      "parcelForceZone",
-      "calendar",
-      "active",
+      "postcode.postcode",
+      "postcode.region",
+      "postcode.country",
+      "postcode.countryString",
+      "postcode.basicPrice",
+      "postcode.additionalCharges",
+      "postcode.parcelForceZone",
+      "postcode.calendar",
+      "postcode.active",
     ]);
     expect(changes[0]).toEqual({
       record: "FY1",
-      field: "postcode",
+      field: "postcode.postcode",
       from: null,
       to: "FY1",
     });
@@ -85,13 +86,13 @@ describe("diffPriceCategory", () => {
     expect(diffPriceCategory(wheels, edited)).toEqual([
       {
         record: "Ratų komplektas / <R16 / Be padangų",
-        field: "Weight (kg)",
+        field: "price.weight",
         from: 28,
         to: 29,
       },
       {
         record: "Ratų komplektas / <R16 / Be padangų",
-        field: "UK→LT (£)",
+        field: "price.UK-LT",
         from: 66,
         to: 70,
       },
@@ -105,7 +106,7 @@ describe("diffPriceCategory", () => {
       edited.pricing.byVolume![3].upTo = 4.5;
     }
     expect(diffPriceCategory(removals, edited)).toEqual([
-      { record: "<4 m3", field: "Up to", from: 4, to: 4.5 },
+      { record: "<4 m3", field: "price.upTo", from: 4, to: 4.5 },
     ]);
   });
 
@@ -115,62 +116,82 @@ describe("diffPriceCategory", () => {
 });
 
 describe("diffFees", () => {
-  it("names the group and the field", () => {
+  it("names the group and the field by message keys", () => {
     const edited = structuredClone(INITIAL_FEE_SETTINGS);
     edited.purchaseService.clientMoney.max = 60;
     edited.parcelForce.zones[1].fee = 20;
 
     expect(diffFees(INITIAL_FEE_SETTINGS, edited)).toEqual([
       {
-        record: "Purchase service · Client's money",
-        field: "Max",
+        record: ["fees.purchaseService", "fees.clientMoney"],
+        field: "fees.max",
         from: 50,
         to: 60,
       },
       {
-        record: "ParcelForce · Zones · Zone 2",
-        field: "Fee",
+        record: ["fees.parcelForce", "fees.zones", "Zone 2"],
+        field: "fees.fee",
         from: 19,
         to: 20,
       },
     ]);
   });
 
-  it("lists added and removed rows", () => {
+  it("lists added and removed rows, numbered from 1", () => {
     const edited = structuredClone(INITIAL_FEE_SETTINGS);
     edited.quantityDiscounts.pop();
     edited.parcelForce.medium.tiers.push({ upToWeight: 30, fee: 15 });
 
+    const tier = [
+      "fees.parcelForce",
+      "fees.medium",
+      "fees.tiers",
+      'fees.row {"n":4}',
+    ];
+    const discount = ["fees.quantityDiscounts", 'fees.row {"n":5}'];
     expect(diffFees(INITIAL_FEE_SETTINGS, edited)).toEqual([
-      {
-        record: "ParcelForce · Medium parcel · Tier · row 4",
-        field: "Up to (kg)",
-        from: null,
-        to: 30,
-      },
-      {
-        record: "ParcelForce · Medium parcel · Tier · row 4",
-        field: "Fee",
-        from: null,
-        to: 15,
-      },
-      {
-        record: "Quantity discounts · row 5",
-        field: "From parcels",
-        from: 5,
-        to: null,
-      },
-      {
-        record: "Quantity discounts · row 5",
-        field: "Percent",
-        from: 15,
-        to: null,
-      },
+      { record: tier, field: "fees.upToWeight", from: null, to: 30 },
+      { record: tier, field: "fees.fee", from: null, to: 15 },
+      { record: discount, field: "fees.fromParcels", from: 5, to: null },
+      { record: discount, field: "fees.percent", from: 15, to: null },
     ]);
   });
 
   it("ignores ids and timestamps of a stored document", () => {
     const stored = { ...INITIAL_FEE_SETTINGS, _id: "x", updatedAt: "y" };
     expect(diffFees(stored, INITIAL_FEE_SETTINGS)).toEqual([]);
+  });
+});
+
+describe("bulkSummary", () => {
+  it("carries the count and every field with its value", () => {
+    expect(
+      bulkSummary(3, { calendar: "Even", discount: "", active: false }),
+    ).toEqual({
+      key: "log.bulkEditedPostcodes",
+      params: {
+        count: 3,
+        changes: [
+          {
+            key: "log.setTo",
+            params: { field: { key: "postcode.calendar" }, value: "Even" },
+          },
+          {
+            key: "log.setTo",
+            params: {
+              field: { key: "postcode.discount" },
+              value: { key: "log.empty" },
+            },
+          },
+          {
+            key: "log.setTo",
+            params: {
+              field: { key: "postcode.active" },
+              value: { key: "log.false" },
+            },
+          },
+        ],
+      },
+    });
   });
 });

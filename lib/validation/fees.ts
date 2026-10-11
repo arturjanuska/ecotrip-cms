@@ -1,15 +1,17 @@
 import { z } from "zod";
 import { PARCEL_FORCE_ZONES } from "@/lib/fee-types";
+import { msg } from "@/lib/i18n/translate";
 
 // Every object is strict: an unknown field is an error, not dropped. Issue
 // paths point at the field, so the CMS form shows each error under its input.
+// Custom messages are message keys (lib/i18n), translated by the CMS.
 
-const money = z.number().min(0, "Must be 0 or more");
-const positive = z.number().positive("Must be greater than 0");
+const money = z.number().min(0, "validation.nonNegative");
+const positive = z.number().positive("validation.positive");
 const percent = z
   .number()
-  .min(0, "Must be from 0 to 100")
-  .max(100, "Must be from 0 to 100");
+  .min(0, "validation.percentRange")
+  .max(100, "validation.percentRange");
 
 const percentFeeSchema = z
   .strictObject({
@@ -27,7 +29,7 @@ const percentFeeSchema = z
     ) {
       ctx.addIssue({
         code: "custom",
-        message: "Max must not be below min",
+        message: "validation.maxBelowMin",
         path: ["max"],
       });
     }
@@ -35,13 +37,13 @@ const percentFeeSchema = z
 
 const tiersSchema = z
   .array(z.strictObject({ upToWeight: positive, fee: money }))
-  .min(1, "Add at least one weight tier")
+  .min(1, "validation.addTier")
   .superRefine((tiers, ctx) => {
     tiers.forEach((tier, index) => {
       if (index > 0 && tier.upToWeight <= tiers[index - 1].upToWeight) {
         ctx.addIssue({
           code: "custom",
-          message: "Each tier must go higher than the one before",
+          message: "validation.tiersAscending",
           path: [index, "upToWeight"],
         });
       }
@@ -57,7 +59,9 @@ const zonesSchema = z
     if (!inOrder) {
       ctx.addIssue({
         code: "custom",
-        message: `Zones must be ${PARCEL_FORCE_ZONES.join(", ")}, in this order`,
+        message: msg("validation.zonesOrder", {
+          zones: PARCEL_FORCE_ZONES.join(", "),
+        }),
       });
     }
   });
@@ -67,17 +71,17 @@ const quantityDiscountsSchema = z
     z.strictObject({
       fromParcels: z
         .number()
-        .int("Must be a whole number")
-        .positive("Must be greater than 0"),
+        .int("validation.wholeNumber")
+        .positive("validation.positive"),
       percent,
     }),
   )
-  .min(1, "Add at least one discount row")
+  .min(1, "validation.addDiscountRow")
   .superRefine((rows, ctx) => {
     if (rows[0] && rows[0].fromParcels !== 1) {
       ctx.addIssue({
         code: "custom",
-        message: "The first row must start from 1 parcel",
+        message: "validation.firstRowFromOne",
         path: [0, "fromParcels"],
       });
     }
@@ -85,7 +89,7 @@ const quantityDiscountsSchema = z
       if (index > 0 && row.fromParcels <= rows[index - 1].fromParcels) {
         ctx.addIssue({
           code: "custom",
-          message: "Each row must start above the one before",
+          message: "validation.rowsAscending",
           path: [index, "fromParcels"],
         });
       }

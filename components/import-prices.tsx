@@ -21,6 +21,15 @@ import {
 import { SHEET_MAX_BYTES, parsePriceSheet } from "@/lib/price-sheet";
 import type { SheetKey, StoredCategory } from "@/lib/price-types";
 import { fetchPriceCatalog, importPriceChanges } from "@/lib/prices-client";
+import {
+  NETWORK_ERROR,
+  loadProblem,
+  problemText,
+  writeProblem,
+  type Problem,
+} from "@/lib/api-errors";
+import { useT, useHeaderT } from "@/lib/i18n/client";
+import type { Translate } from "@/lib/i18n/translate";
 import { cn } from "@/lib/utils";
 
 function RowTexts({ sheet }: { sheet: SheetKey }) {
@@ -48,21 +57,37 @@ function Section({
   );
 }
 
-function formatValue(value: number | null) {
-  return value === null ? "empty" : String(value);
+function formatValue(t: Translate, value: number | null) {
+  return value === null ? t("importPrices.emptyValue") : String(value);
+}
+
+// Column headers shared by the changes and unknown rows tables.
+function RowHeads() {
+  const th = useHeaderT();
+  return (
+    <>
+      <TableHead>{th("price.category")}</TableHead>
+      <TableHead>{th("price.type")}</TableHead>
+      <TableHead>{th("price.size")}</TableHead>
+      <TableHead>{th("price.spec")}</TableHead>
+    </>
+  );
 }
 
 export function ImportPrices() {
+  const t = useT();
+  const th = useHeaderT();
   const router = useRouter();
   const { getToken } = useAuth();
   const [catalog, setCatalog] = useState<StoredCategory[] | null>(null);
-  const [loadError, setLoadError] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<Problem | null>(null);
+  // A msg() string (lib/i18n/translate.ts).
   const [fileError, setFileError] = useState<string | null>(null);
   const [diff, setDiff] = useState<SheetDiff | null>(null);
   // Indexes of changes the user unticked.
   const [excluded, setExcluded] = useState<Set<number>>(() => new Set());
   const [busy, setBusy] = useState(false);
-  const [applyError, setApplyError] = useState<string | null>(null);
+  const [applyError, setApplyError] = useState<Problem | null>(null);
 
   // Bumped to load the prices again (after a 409).
   const [reload, setReload] = useState(0);
@@ -73,9 +98,7 @@ export function ImportPrices() {
       .then(setCatalog)
       .catch((error: unknown) => {
         if (!controller.signal.aborted) {
-          setLoadError(
-            error instanceof Error ? error.message : "Failed to load prices",
-          );
+          setLoadError(loadProblem(error, "errors.loadPrices"));
         }
       });
     return () => controller.abort();
@@ -98,7 +121,7 @@ export function ImportPrices() {
       return;
     }
     if (file.size > SHEET_MAX_BYTES) {
-      setFileError("The file is larger than 1 MB. Is it the price list?");
+      setFileError("file.priceListTooLarge");
       return;
     }
 
@@ -145,8 +168,8 @@ export function ImportPrices() {
         getToken({ skipCache: true }),
       );
       if (!result.ok) {
-        setApplyError(result.message);
-        if (result.status === 409) {
+        setApplyError(writeProblem(result.failure, "errors.requestFailed"));
+        if (result.failure.status === 409) {
           // The preview is out of date: reload prices so the file can be read again.
           setDiff(null);
           setCatalog(null);
@@ -156,14 +179,16 @@ export function ImportPrices() {
       }
       router.push(`/prices?imported=${result.body.updated}`);
     } catch {
-      setApplyError("Network error");
+      setApplyError(NETWORK_ERROR);
     } finally {
       setBusy(false);
     }
   }
 
   if (loadError) {
-    return <p className="text-sm text-destructive">{loadError}</p>;
+    return (
+      <p className="text-sm text-destructive">{problemText(t, loadError)}</p>
+    );
   }
 
   const selected = diff ? diff.changes.length - excluded.size : 0;
@@ -173,8 +198,7 @@ export function ImportPrices() {
     <div className="space-y-6">
       <div className="space-y-2">
         <p className="text-sm text-muted-foreground">
-          In Google Sheets open the price list, then File → Download →
-          Comma-separated values (.csv), and choose the file here.
+          {t("importPrices.intro")}
         </p>
         <input
           type="file"
@@ -187,29 +211,34 @@ export function ImportPrices() {
           }}
           className="text-sm"
         />
-        {fileError && <p className="text-sm text-destructive">{fileError}</p>}
-        {applyError && <p className="text-sm text-destructive">{applyError}</p>}
+        {fileError && (
+          <p className="text-sm text-destructive">{t(fileError)}</p>
+        )}
+        {applyError && (
+          <p className="text-sm text-destructive">
+            {problemText(t, applyError)}
+          </p>
+        )}
       </div>
 
       {diff && (
         <>
-          <Section title={`Changes (${diff.changes.length})`}>
+          <Section
+            title={t("importPrices.changes", { count: diff.changes.length })}
+          >
             {diff.changes.length === 0 ? (
               <p className="text-sm text-muted-foreground">
-                Every price in the file is already in the CMS.
+                {t("importPrices.noChanges")}
               </p>
             ) : (
               <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead className="w-10" />
-                    <TableHead>Row</TableHead>
-                    <TableHead>Category</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Size</TableHead>
-                    <TableHead>Specification</TableHead>
-                    <TableHead>Field</TableHead>
-                    <TableHead>Now → In file</TableHead>
+                    <TableHead>{th("common.row")}</TableHead>
+                    <RowHeads />
+                    <TableHead>{th("importPrices.field")}</TableHead>
+                    <TableHead>{th("importPrices.nowInFile")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -222,7 +251,10 @@ export function ImportPrices() {
                         <input
                           type="checkbox"
                           className="size-4 accent-primary"
-                          aria-label={`Apply row ${change.line} ${FIELD_LABELS[change.field]}`}
+                          aria-label={t("importPrices.applyRow", {
+                            row: String(change.line),
+                            field: { key: FIELD_LABELS[change.field] },
+                          })}
                           checked={!excluded.has(index)}
                           onChange={() => toggle(index)}
                         />
@@ -232,22 +264,22 @@ export function ImportPrices() {
                         {categorySheets.get(change.category)}
                       </TableCell>
                       <RowTexts sheet={change.sheet} />
-                      <TableCell>{FIELD_LABELS[change.field]}</TableCell>
+                      <TableCell>{t(FIELD_LABELS[change.field])}</TableCell>
                       <TableCell>
-                        {formatValue(change.from)} →{" "}
+                        {formatValue(t, change.from)} →{" "}
                         <span className="font-medium">
-                          {formatValue(change.to)}
+                          {formatValue(t, change.to)}
                         </span>
                         {change.to === null ? (
                           <span className="text-xs text-muted-foreground">
                             {" "}
-                            (clears the value)
+                            {t("importPrices.clears")}
                           </span>
                         ) : (
                           errorLines.has(change.line) && (
                             <span className="text-xs text-muted-foreground">
                               {" "}
-                              (row has errors)
+                              {t("importPrices.rowHasErrors")}
                             </span>
                           )
                         )}
@@ -260,15 +292,19 @@ export function ImportPrices() {
           </Section>
 
           {diff.errors.length > 0 && (
-            <Section title={`Errors (${diff.errors.length})`}>
+            <Section
+              title={t("importPrices.errors", { count: diff.errors.length })}
+            >
               <p className="text-sm text-muted-foreground">
-                These cells are not applied. Fix them in the spreadsheet or in
-                the CMS.
+                {t("importPrices.errorsIntro")}
               </p>
               <ul className="space-y-0.5 text-sm text-destructive">
                 {diff.errors.map((error) => (
                   <li key={`${error.line}:${error.message}`}>
-                    Row {error.line}: {error.message}
+                    {t("importPrices.rowError", {
+                      row: String(error.line),
+                      message: t(error.message),
+                    })}
                   </li>
                 ))}
               </ul>
@@ -276,22 +312,17 @@ export function ImportPrices() {
           )}
 
           {diff.unknown.length > 0 && (
-            <Section title={`Unknown rows (${diff.unknown.length})`}>
+            <Section
+              title={t("importPrices.unknown", { count: diff.unknown.length })}
+            >
               <p className="text-sm text-muted-foreground">
-                Not in the CMS, so not applied. New items also need translations
-                on the site, so a developer adds them: a new category goes into
-                scripts/data/price-catalog.json and npm run import:prices, a new
-                row in an existing category goes through PUT
-                /api/prices/:category.
+                {t("importPrices.unknownIntro")}
               </p>
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Row</TableHead>
-                    <TableHead>Category</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Size</TableHead>
-                    <TableHead>Specification</TableHead>
+                    <TableHead>{th("common.row")}</TableHead>
+                    <RowHeads />
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -310,9 +341,11 @@ export function ImportPrices() {
           )}
 
           {diff.missing.length > 0 && (
-            <Section title={`Missing rows (${diff.missing.length})`}>
+            <Section
+              title={t("importPrices.missing", { count: diff.missing.length })}
+            >
               <p className="text-sm text-muted-foreground">
-                In the CMS but not in the file. Nothing is deleted.
+                {t("importPrices.missingIntro")}
               </p>
               <ul className="space-y-0.5 text-sm">
                 {diff.missing.map((row) => (
@@ -335,7 +368,9 @@ export function ImportPrices() {
 
           <div className="flex items-center gap-3">
             <Button disabled={selected === 0 || busy} onClick={apply}>
-              {busy ? "Applying…" : `Apply ${selected} changes`}
+              {busy
+                ? t("importPrices.applying")
+                : t("importPrices.apply", { count: selected })}
             </Button>
           </div>
         </>

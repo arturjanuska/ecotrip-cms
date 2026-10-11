@@ -11,41 +11,84 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { loadProblem, problemText, type Problem } from "@/lib/api-errors";
 import { readCache, writeCache } from "@/lib/client-cache";
 import { fetchChangeLog } from "@/lib/change-log-client";
 import type {
   ChangeLogList,
   ChangeLogPage,
+  ChangeLogSummary,
   ChangeValue,
+  FieldChange,
 } from "@/lib/change-log-types";
+import { INTL_LOCALES, type Locale } from "@/lib/i18n/config";
+import { useLocale, useT, useHeaderT } from "@/lib/i18n/client";
+import { formatNumber, type Translate } from "@/lib/i18n/translate";
 
 const PER_PAGE = 20;
 const CACHE_KEY = "changelog";
 
 const PAGE_LABELS: Record<ChangeLogPage, string> = {
-  postcodes: "Postcodes",
-  prices: "Prices",
-  fees: "Fees",
+  postcodes: "nav.postcodes",
+  prices: "nav.prices",
+  fees: "nav.fees",
 };
 
-const dateFormat = new Intl.DateTimeFormat("en-GB", {
-  dateStyle: "medium",
-  timeStyle: "short",
-});
+const dateFormats = new Map<Locale, Intl.DateTimeFormat>();
 
-function valueText(value: ChangeValue) {
+function formatDate(locale: Locale, date: string) {
+  let format = dateFormats.get(locale);
+  if (!format) {
+    format = new Intl.DateTimeFormat(INTL_LOCALES[locale], {
+      dateStyle: "medium",
+      timeStyle: "short",
+    });
+    dateFormats.set(locale, format);
+  }
+  return format.format(new Date(date));
+}
+
+function valueText(t: Translate, value: ChangeValue) {
   if (value === null) {
     return "—";
   }
   if (value === "") {
-    return "(empty)";
+    return t("log.empty");
+  }
+  if (typeof value === "boolean") {
+    return t(value ? "log.true" : "log.false");
   }
   return String(value);
 }
 
-type ListState = ChangeLogList & { error: string | null };
+// Keys and params in the reader's language; older entries keep their English
+// text, and a key this version does not know shows as it is.
+function summaryText(t: Translate, summary: ChangeLogSummary) {
+  return typeof summary === "string" ? summary : t(summary);
+}
+
+function recordText(t: Translate, record: FieldChange["record"]) {
+  return Array.isArray(record)
+    ? record.map((part) => t(part)).join(" · ")
+    : record;
+}
+
+// Older postcode entries stored the bare field name ("calendar").
+function fieldText(t: Translate, page: ChangeLogPage, field: string) {
+  if (page === "postcodes" && !field.includes(".")) {
+    const key = `postcode.${field}`;
+    const text = t(key);
+    return text === key ? field : text;
+  }
+  return t(field);
+}
+
+type ListState = ChangeLogList & { error: Problem | null };
 
 export function ChangeLogTable() {
+  const t = useT();
+  const th = useHeaderT();
+  const locale = useLocale();
   const [page, setPage] = useState(
     () => readCache<ListState>(CACHE_KEY)?.page ?? 1,
   );
@@ -62,14 +105,14 @@ export function ChangeLogTable() {
         setList(next);
         writeCache(CACHE_KEY, next);
       })
-      .catch((error: Error) => {
+      .catch((error: unknown) => {
         if (!controller.signal.aborted) {
           setList({
             items: [],
             total: 0,
             page,
             limit: PER_PAGE,
-            error: error.message,
+            error: loadProblem(error, "errors.loadChangeLog"),
           });
         }
       });
@@ -92,7 +135,9 @@ export function ChangeLogTable() {
   }
 
   if (list?.error) {
-    return <p className="text-sm text-destructive">{list.error}</p>;
+    return (
+      <p className="text-sm text-destructive">{problemText(t, list.error)}</p>
+    );
   }
 
   return (
@@ -101,11 +146,13 @@ export function ChangeLogTable() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-44">When</TableHead>
-              <TableHead className="w-40">Who</TableHead>
-              <TableHead className="w-28">Page</TableHead>
-              <TableHead>What</TableHead>
-              <TableHead className="w-32 text-right">Changes</TableHead>
+              <TableHead className="w-44">{th("changeLog.when")}</TableHead>
+              <TableHead className="w-40">{th("changeLog.who")}</TableHead>
+              <TableHead className="w-28">{th("changeLog.page")}</TableHead>
+              <TableHead>{th("changeLog.what")}</TableHead>
+              <TableHead className="w-32 text-right">
+                {th("changeLog.changes")}
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -123,14 +170,18 @@ export function ChangeLogTable() {
                     <Fragment key={entry._id}>
                       <TableRow className={loading ? "opacity-50" : undefined}>
                         <TableCell className="whitespace-nowrap">
-                          {dateFormat.format(new Date(entry.createdAt))}
+                          {formatDate(locale, entry.createdAt)}
                         </TableCell>
                         <TableCell className="truncate">
                           {entry.user.name}
                         </TableCell>
-                        <TableCell>{PAGE_LABELS[entry.page]}</TableCell>
+                        <TableCell>
+                          {PAGE_LABELS[entry.page]
+                            ? t(PAGE_LABELS[entry.page])
+                            : entry.page}
+                        </TableCell>
                         <TableCell className="whitespace-normal">
-                          {entry.summary}
+                          {summaryText(t, entry.summary)}
                         </TableCell>
                         <TableCell className="text-right">
                           <Button
@@ -139,7 +190,8 @@ export function ChangeLogTable() {
                             aria-expanded={isOpen}
                             onClick={() => toggle(entry._id)}
                           >
-                            {entry.changeCount} {isOpen ? "▴" : "▾"}
+                            {formatNumber(locale, entry.changeCount)}{" "}
+                            {isOpen ? "▴" : "▾"}
                           </Button>
                         </TableCell>
                       </TableRow>
@@ -159,7 +211,7 @@ export function ChangeLogTable() {
                   colSpan={5}
                   className="py-8 text-center text-muted-foreground"
                 >
-                  No changes yet.
+                  {t("changeLog.noChanges")}
                 </TableCell>
               </TableRow>
             )}
@@ -169,21 +221,21 @@ export function ChangeLogTable() {
 
       <div className="flex items-center justify-end gap-2">
         <span className="text-sm text-muted-foreground">
-          Page {page} of {totalPages}
+          {t("common.pageOf", { page, total: totalPages })}
         </span>
         <Button
           variant="outline"
           disabled={page <= 1 || loading}
           onClick={() => setPage((current) => current - 1)}
         >
-          Prev
+          {t("common.prev")}
         </Button>
         <Button
           variant="outline"
           disabled={page >= totalPages || loading}
           onClick={() => setPage((current) => current + 1)}
         >
-          Next
+          {t("common.next")}
         </Button>
       </div>
     </div>
@@ -191,29 +243,33 @@ export function ChangeLogTable() {
 }
 
 function ChangeDetails({ entry }: { entry: ChangeLogList["items"][number] }) {
+  const t = useT();
+  const th = useHeaderT();
+  const locale = useLocale();
+
   return (
     <div className="space-y-2">
       <Table className="bg-background">
         <TableHeader>
           <TableRow>
-            <TableHead>Record</TableHead>
-            <TableHead>Field</TableHead>
-            <TableHead>Before</TableHead>
-            <TableHead>After</TableHead>
+            <TableHead>{th("changeLog.record")}</TableHead>
+            <TableHead>{th("changeLog.field")}</TableHead>
+            <TableHead>{th("changeLog.before")}</TableHead>
+            <TableHead>{th("changeLog.after")}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {entry.changes.map((change, index) => (
             <TableRow key={index}>
               <TableCell className="whitespace-normal">
-                {change.record}
+                {recordText(t, change.record)}
               </TableCell>
-              <TableCell>{change.field}</TableCell>
+              <TableCell>{fieldText(t, entry.page, change.field)}</TableCell>
               <TableCell className="text-muted-foreground">
-                {valueText(change.from)}
+                {valueText(t, change.from)}
               </TableCell>
               <TableCell className="font-medium">
-                {valueText(change.to)}
+                {valueText(t, change.to)}
               </TableCell>
             </TableRow>
           ))}
@@ -221,8 +277,10 @@ function ChangeDetails({ entry }: { entry: ChangeLogList["items"][number] }) {
       </Table>
       {entry.changeCount > entry.changes.length && (
         <p className="text-sm text-muted-foreground">
-          Showing the first {entry.changes.length} of {entry.changeCount}{" "}
-          changes.
+          {t("changeLog.showingFirst", {
+            shown: formatNumber(locale, entry.changes.length),
+            total: entry.changeCount,
+          })}
         </p>
       )}
     </div>

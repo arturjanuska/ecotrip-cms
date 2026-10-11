@@ -1,5 +1,5 @@
 import type { ChangeLogList } from "@/lib/change-log-types";
-import { errorMessage } from "@/lib/postcodes-client";
+import { ApiError } from "@/lib/api-errors";
 
 // Browser helper for the change log API.
 export async function fetchChangeLog(
@@ -17,12 +17,7 @@ export async function fetchChangeLog(
   const body = await response.json().catch(() => null);
 
   if (!response.ok || !body) {
-    throw new Error(
-      errorMessage(
-        body,
-        `Failed to load the change log (HTTP ${response.status})`,
-      ),
-    );
+    throw new ApiError(response.status, body);
   }
 
   return body as ChangeLogList;

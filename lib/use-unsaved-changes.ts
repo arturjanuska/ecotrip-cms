@@ -1,9 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-
-export const LEAVE_MESSAGE =
-  "You have unsaved changes. Leave this page and lose them?";
+import { useT } from "@/lib/i18n/client";
 
 // true when a click on this link leaves the page in this tab.
 function leavesPage(event: MouseEvent) {
@@ -42,6 +40,9 @@ function leavesPage(event: MouseEvent) {
  * see). The browser Back button is not covered.
  */
 export function useUnsavedChanges(unsaved: boolean) {
+  const t = useT();
+  const leaveMessage = t("common.leaveUnsaved");
+
   useEffect(() => {
     if (!unsaved) {
       return;
@@ -50,7 +51,7 @@ export function useUnsavedChanges(unsaved: boolean) {
     const warn = (event: BeforeUnloadEvent) => event.preventDefault();
     // Capture phase: runs before the Link's own click handler navigates.
     const confirmLeave = (event: MouseEvent) => {
-      if (leavesPage(event) && !window.confirm(LEAVE_MESSAGE)) {
+      if (leavesPage(event) && !window.confirm(leaveMessage)) {
         event.preventDefault();
         event.stopPropagation();
       }
@@ -62,5 +63,5 @@ export function useUnsavedChanges(unsaved: boolean) {
       window.removeEventListener("beforeunload", warn);
       document.removeEventListener("click", confirmLeave, true);
     };
-  }, [unsaved]);
+  }, [unsaved, leaveMessage]);
 }

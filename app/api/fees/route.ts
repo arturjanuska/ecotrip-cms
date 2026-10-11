@@ -24,7 +24,10 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
 
   return settings
     ? NextResponse.json(settings, { headers: cors })
-    : errorJson(404, "Fees not found", { headers: cors });
+    : errorJson(404, "Fees not found", {
+        code: "fees_not_found",
+        headers: cors,
+      });
 });
 
 /**
@@ -63,7 +66,7 @@ export const PUT = withErrorHandling(async (request: NextRequest) => {
     if (before) {
       await recordChange({
         page: "fees",
-        summary: "Saved fees",
+        summary: { key: "log.savedFees" },
         changes: diffFees(before, settings),
       });
     }
@@ -71,8 +74,10 @@ export const PUT = withErrorHandling(async (request: NextRequest) => {
   }
 
   return (await FeeSettingsModel.exists({}))
-    ? errorJson(409, "Fees changed since you opened the page. Reload it.")
-    : errorJson(404, "Fees not found");
+    ? errorJson(409, "Fees changed since you opened the page. Reload it.", {
+        code: "fees_changed",
+      })
+    : errorJson(404, "Fees not found", { code: "fees_not_found" });
 });
 
 export function OPTIONS(request: NextRequest) {

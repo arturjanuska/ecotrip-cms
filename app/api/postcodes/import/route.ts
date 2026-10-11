@@ -87,6 +87,7 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
 
   if (rowErrors.length > 0) {
     return errorJson(400, "Import has invalid rows", {
+      code: "postcodes_import_invalid",
       details: { rows: rowErrors },
     });
   }
@@ -123,7 +124,10 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
   });
   await recordChange({
     page: "postcodes",
-    summary: `Imported postcodes: ${result.inserted} new, ${result.updated} updated`,
+    summary: {
+      key: "log.importedPostcodes",
+      params: { inserted: result.inserted, updated: result.updated },
+    },
     changes,
   });
 

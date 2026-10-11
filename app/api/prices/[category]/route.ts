@@ -41,7 +41,9 @@ export const PUT = withErrorHandling(
 
     const { category, updatedAt } = parsed.data;
     if (category.value !== value) {
-      return errorJson(400, "Category value cannot change");
+      return errorJson(400, "Category value cannot change", {
+        code: "category_value_changed",
+      });
     }
 
     await connectDB();
@@ -64,7 +66,7 @@ export const PUT = withErrorHandling(
       if (before) {
         await recordChange({
           page: "prices",
-          summary: `Saved prices: ${before.sheet}`,
+          summary: { key: "log.savedPrices", params: { sheet: before.sheet } },
           changes: diffPriceCategory(before, category),
         });
       }
@@ -72,7 +74,9 @@ export const PUT = withErrorHandling(
     }
 
     return (await PriceCategory.exists({ value }))
-      ? errorJson(409, "Prices changed since you opened the page. Reload it.")
-      : errorJson(404, "Category not found");
+      ? errorJson(409, "Prices changed since you opened the page. Reload it.", {
+          code: "prices_changed",
+        })
+      : errorJson(404, "Category not found", { code: "category_not_found" });
   },
 );

@@ -12,16 +12,14 @@ import {
   sanitizeDiscountInput,
 } from "@/lib/postcode-options";
 import type { BulkChanges } from "@/lib/validation/postcode";
+import { useT } from "@/lib/i18n/client";
 
+// Labels: messages postcode.<field>.
 const BULK_FIELDS = [
-  { field: "calendar", label: "Calendar", options: CALENDAR_VALUES },
-  {
-    field: "parcelForceZone",
-    label: "Parcel Force zone",
-    options: PARCEL_FORCE_ZONES,
-  },
-  { field: "discount", label: "Discount %", options: null },
-  { field: "active", label: "Active", options: null },
+  { field: "calendar", options: CALENDAR_VALUES },
+  { field: "parcelForceZone", options: PARCEL_FORCE_ZONES },
+  { field: "discount", options: null },
+  { field: "active", options: null },
 ] as const;
 
 type BulkField = (typeof BULK_FIELDS)[number]["field"];
@@ -42,6 +40,7 @@ export function BulkEditBar({
   onApply,
   onClear,
 }: BulkEditBarProps) {
+  const t = useT();
   const [field, setField] = useState<BulkField>("calendar");
   const [value, setValue] = useState<string | null>(null);
 
@@ -62,12 +61,17 @@ export function BulkEditBar({
     const changes: BulkChanges =
       field === "active" ? { active: value === "yes" } : { [field]: value };
     const shown =
-      field === "active" ? (value === "yes" ? "Yes" : "No") : value || "empty";
-    const noun = selectedCount === 1 ? "postcode" : "postcodes";
+      field === "active"
+        ? t(value === "yes" ? "common.yes" : "common.no")
+        : value || t("bulk.emptyValue");
 
     if (
       window.confirm(
-        `Set ${config.label} to "${shown}" for ${selectedCount} ${noun}?`,
+        t("bulk.confirm", {
+          field: { key: `postcode.${config.field}` },
+          value: shown,
+          count: selectedCount,
+        }),
       )
     ) {
       onApply(changes);
@@ -76,28 +80,30 @@ export function BulkEditBar({
 
   return (
     <div className="flex flex-wrap items-center gap-3 rounded-lg border border-brand/40 bg-brand/10 px-3 py-2 text-sm">
-      <span className="font-medium">Selected: {selectedCount}</span>
+      <span className="font-medium">
+        {t("bulk.selected", { count: selectedCount })}
+      </span>
       <label className="flex items-center gap-2">
-        <span className="text-muted-foreground">Set</span>
+        <span className="text-muted-foreground">{t("bulk.set")}</span>
         <NativeSelect
           value={field}
           onChange={(event) => changeField(event.target.value as BulkField)}
         >
           {BULK_FIELDS.map((item) => (
             <option key={item.field} value={item.field}>
-              {item.label}
+              {t(`postcode.${item.field}`)}
             </option>
           ))}
         </NativeSelect>
       </label>
       <label className="flex items-center gap-2">
-        <span className="text-muted-foreground">to</span>
+        <span className="text-muted-foreground">{t("bulk.to")}</span>
         {field === "discount" ? (
           <Input
             className="w-28"
             inputMode="decimal"
             placeholder="0-100"
-            title={DISCOUNT_HINT}
+            title={t(DISCOUNT_HINT)}
             value={value ?? ""}
             aria-invalid={value !== null && !valid ? true : undefined}
             onChange={(event) =>
@@ -110,16 +116,16 @@ export function BulkEditBar({
             onChange={(event) => setValue(event.target.value)}
           >
             <option value={UNSET} disabled>
-              Choose value
+              {t("bulk.chooseValue")}
             </option>
             {field === "active" ? (
               <>
-                <option value="yes">Yes</option>
-                <option value="no">No</option>
+                <option value="yes">{t("common.yes")}</option>
+                <option value="no">{t("common.no")}</option>
               </>
             ) : (
               <>
-                <option value="">— (empty)</option>
+                <option value="">{t("bulk.emptyOption")}</option>
                 {config.options?.map((option) => (
                   <option key={option} value={option}>
                     {option}
@@ -131,10 +137,10 @@ export function BulkEditBar({
         )}
       </label>
       <Button size="sm" disabled={!valid || busy} onClick={apply}>
-        Apply to {selectedCount}
+        {t("bulk.applyTo", { count: selectedCount })}
       </Button>
       <Button size="sm" variant="ghost" disabled={busy} onClick={onClear}>
-        Clear selection
+        {t("bulk.clearSelection")}
       </Button>
     </div>
   );

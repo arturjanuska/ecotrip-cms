@@ -1,3 +1,4 @@
+import { msg } from "@/lib/i18n/translate";
 import {
   indexSheetTargets,
   readTargetField,
@@ -30,14 +31,16 @@ export type SheetDiff = {
   unknown: SheetRow[];
   // CMS rows with no match in the spreadsheet.
   missing: MissingRow[];
+  // `message`: a msg() string (lib/i18n/translate.ts).
   errors: { line: number; message: string }[];
 };
 
+// Message keys of the field labels (messages: price.*).
 export const FIELD_LABELS: Record<ChangeField, string> = {
-  "price.UK-LT": "UK→LT (£)",
-  "price.LT-UK": "LT→UK (€)",
-  volume: "Volume (m³)",
-  weight: "Weight (kg)",
+  "price.UK-LT": "price.UK-LT",
+  "price.LT-UK": "price.LT-UK",
+  volume: "price.volume",
+  weight: "price.weight",
 };
 
 const FIELD_CELLS: {
@@ -73,7 +76,10 @@ export function diffPriceSheet(
 
     const firstLine = seen.get(id);
     if (firstLine !== undefined) {
-      diff.errors.push({ line: row.line, message: `Repeats row ${firstLine}` });
+      diff.errors.push({
+        line: row.line,
+        message: msg("priceDiff.repeatsRow", { line: String(firstLine) }),
+      });
       continue;
     }
     seen.set(id, row.line);
@@ -85,11 +91,11 @@ export function diffPriceSheet(
 
       const raw = row.cells[cell];
       const value = parseSheetNumber(raw);
-      const label = FIELD_LABELS[field];
+      const label = { key: FIELD_LABELS[field] };
       if (value === "invalid") {
         diff.errors.push({
           line: row.line,
-          message: `${label}: "${raw}" is not a number`,
+          message: msg("priceDiff.notANumber", { field: label, raw }),
         });
         continue;
       }
@@ -98,14 +104,14 @@ export function diffPriceSheet(
       if (price && /^\s*\d+[.,]\d{3,}/.test(raw)) {
         diff.errors.push({
           line: row.line,
-          message: `${label}: "${raw}" has more than 2 decimals (thousands separator?)`,
+          message: msg("priceDiff.tooManyDecimals", { field: label, raw }),
         });
         continue;
       }
       if (price && (value === null || value <= 0)) {
         diff.errors.push({
           line: row.line,
-          message: `${label}: price must be greater than 0`,
+          message: msg("priceDiff.priceNotPositive", { field: label }),
         });
         continue;
       }

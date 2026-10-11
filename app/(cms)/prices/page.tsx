@@ -1,12 +1,12 @@
-import type { Metadata } from "next";
 import Link from "next/link";
 import { PricesTable } from "@/components/prices-table";
 import { buttonVariants } from "@/components/ui/button";
 import { requireAdminPage } from "@/lib/auth";
+import { getTranslator, pageTitle } from "@/lib/i18n/server";
 
-export const metadata: Metadata = {
-  title: "Prices | Ecotrip CMS",
-};
+export async function generateMetadata() {
+  return { title: await pageTitle("pricesPage.title") };
+}
 
 export default async function PricesPage({
   searchParams,
@@ -15,16 +15,19 @@ export default async function PricesPage({
 }) {
   await requireAdminPage();
   const { imported } = await searchParams;
+  const t = await getTranslator();
 
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-2">
-        <h1 className="mr-auto text-2xl font-semibold">Prices</h1>
+        <h1 className="mr-auto text-2xl font-semibold">
+          {t("pricesPage.title")}
+        </h1>
         <Link
           href="/prices/import"
           className={buttonVariants({ variant: "outline" })}
         >
-          Import CSV
+          {t("pricesPage.importCsv")}
         </Link>
         {/* A plain link: the browser downloads the file the API returns. */}
         <a
@@ -32,12 +35,16 @@ export default async function PricesPage({
           download
           className={buttonVariants({ variant: "outline" })}
         >
-          Export JSON
+          {t("pricesPage.exportJson")}
         </a>
       </div>
       {imported && (
         <p className="rounded-lg bg-brand/10 px-3 py-2 text-sm">
-          Import applied: {imported} changes.
+          {t("pricesPage.imported", {
+            count: Number.isFinite(Number(imported))
+              ? Number(imported)
+              : imported,
+          })}
         </p>
       )}
       <PricesTable />

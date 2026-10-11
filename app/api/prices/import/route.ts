@@ -95,20 +95,19 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
     return errorJson(
       409,
       "Prices changed since the preview. Choose the file again.",
-      {
-        details: { conflicts },
-      },
+      { code: "prices_import_conflict", details: { conflicts } },
     );
   }
   if (invalid.length > 0) {
     return errorJson(400, "Import makes prices invalid", {
+      code: "prices_import_invalid",
       details: { messages: invalid },
     });
   }
 
   await recordChange({
     page: "prices",
-    summary: `Imported prices: ${changes.length} ${changes.length === 1 ? "change" : "changes"}`,
+    summary: { key: "log.importedPrices", params: { count: changes.length } },
     changes: changes.map((change) => ({
       record: `${categorySheets.get(change.category) ?? change.category} · ${sheetText(change.sheet)}`,
       field: priceFieldLabel(change.field),

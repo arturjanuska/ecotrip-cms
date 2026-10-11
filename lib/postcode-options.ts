@@ -1,3 +1,5 @@
+import { msg } from "@/lib/i18n/translate";
+
 export const LIST_DEFAULT_LIMIT = 50;
 export const LIST_MAX_LIMIT = 500;
 
@@ -6,7 +8,11 @@ export const PARCEL_FORCE_ZONES = ["Zone 1", "Zone 2", "Zone 3"] as const;
 
 export const DISCOUNT_MIN = 0;
 export const DISCOUNT_MAX = 100;
-export const DISCOUNT_HINT = `Number from ${DISCOUNT_MIN} to ${DISCOUNT_MAX} (dot for decimals)`;
+// A message (lib/i18n/translate.ts): the Zod error and the input's tooltip.
+export const DISCOUNT_HINT = msg("validation.discountRange", {
+  min: DISCOUNT_MIN,
+  max: DISCOUNT_MAX,
+});
 
 // Discount is stored as a string: "" or a non-negative decimal like "10" or "7.5".
 export function isValidDiscount(value: string) {

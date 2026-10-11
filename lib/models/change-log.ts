@@ -13,7 +13,8 @@ const changeLogSchema = new Schema(
       name: { type: String, required: true },
     },
     page: { type: String, required: true },
-    summary: { type: String, required: true },
+    // { key, params } (older entries: an English string).
+    summary: { type: Schema.Types.Mixed, required: true },
     changeCount: { type: Number, required: true },
     changes: { type: [Schema.Types.Mixed], default: [] },
   },

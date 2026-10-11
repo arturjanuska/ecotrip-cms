@@ -1,7 +1,13 @@
 import { describe, expect, it } from "vitest";
+import { msg } from "@/lib/i18n/translate";
 import { diffPriceSheet, riskyChanges, type SheetDiff } from "@/lib/price-diff";
 import type { SheetRow } from "@/lib/price-sheet";
 import { sampleCatalog } from "@/lib/price-test-data";
+
+const notANumber = (field: string, raw: string) =>
+  msg("priceDiff.notANumber", { field: { key: field }, raw });
+const notPositive = (field: string) =>
+  msg("priceDiff.priceNotPositive", { field: { key: field } });
 
 function wheelsRow(
   patch: Partial<SheetRow> = {},
@@ -102,16 +108,16 @@ describe("diffPriceSheet", () => {
     const diff = diffPriceSheet(sampleCatalog(), rows);
     expect(diff.changes).toEqual([]);
     expect(diff.errors).toEqual([
-      { line: 13, message: 'UK→LT (£): "abc" is not a number' },
-      { line: 13, message: "LT→UK (€): price must be greater than 0" },
-      { line: 14, message: "UK→LT (£): price must be greater than 0" },
+      { line: 13, message: notANumber("price.UK-LT", "abc") },
+      { line: 13, message: notPositive("price.LT-UK") },
+      { line: 14, message: notPositive("price.UK-LT") },
     ]);
   });
 
   it("reports a row that appears twice", () => {
     const rows = [...allRows(), wheelsRow({ line: 30 })];
     expect(diffPriceSheet(sampleCatalog(), rows).errors).toEqual([
-      { line: 30, message: "Repeats row 13" },
+      { line: 30, message: 'priceDiff.repeatsRow {"line":"13"}' },
     ]);
   });
 
@@ -123,13 +129,17 @@ describe("diffPriceSheet", () => {
     expect(diff.errors).toEqual([
       {
         line: 13,
-        message:
-          'UK→LT (£): "1,088" has more than 2 decimals (thousands separator?)',
+        message: msg("priceDiff.tooManyDecimals", {
+          field: { key: "price.UK-LT" },
+          raw: "1,088",
+        }),
       },
       {
         line: 13,
-        message:
-          'LT→UK (€): "1.088" has more than 2 decimals (thousands separator?)',
+        message: msg("priceDiff.tooManyDecimals", {
+          field: { key: "price.LT-UK" },
+          raw: "1.088",
+        }),
       },
     ]);
   });
@@ -155,9 +165,7 @@ describe("riskyChanges", () => {
       changes: [change(13, 66, 70), change(14, 28, null), change(15, 66, 70)],
       unknown: [],
       missing: [],
-      errors: [
-        { line: 15, message: "LT→UK (€): price must be greater than 0" },
-      ],
+      errors: [{ line: 15, message: notPositive("price.LT-UK") }],
     };
     expect(riskyChanges(diff)).toEqual(new Set([1, 2]));
   });

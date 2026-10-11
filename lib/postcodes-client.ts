@@ -1,24 +1,10 @@
+import { ApiError } from "@/lib/api-errors";
 import { filtersToParams, type PostcodeFilters } from "@/lib/postcode-filters";
 import { LIST_MAX_LIMIT } from "@/lib/postcode-options";
 import type { Postcode, PostcodeList } from "@/lib/postcode-types";
 
-// Browser helpers for the postcode API.
-
-export function errorMessage(body: unknown, fallback: string) {
-  if (typeof body !== "object" || body === null) {
-    return fallback;
-  }
-
-  const { error, details } = body as {
-    error?: string;
-    details?: { fieldErrors?: Record<string, string[]> };
-  };
-  const fields = Object.entries(details?.fieldErrors ?? {})
-    .map(([field, messages]) => `${field}: ${messages.join(", ")}`)
-    .join("; ");
-
-  return [error ?? fallback, fields].filter(Boolean).join(" - ");
-}
+// Browser helpers for the postcode API. Failures throw ApiError: the UI
+// shows its text with lib/api-errors.ts.
 
 export async function fetchPostcodes(
   params: { page: number; limit: number; filters: PostcodeFilters },
@@ -33,9 +19,7 @@ export async function fetchPostcodes(
   const body = await response.json().catch(() => null);
 
   if (!response.ok || !body) {
-    throw new Error(
-      errorMessage(body, `Failed to load postcodes (HTTP ${response.status})`),
-    );
+    throw new ApiError(response.status, body);
   }
 
   return body as PostcodeList;

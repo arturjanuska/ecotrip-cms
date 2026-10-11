@@ -13,7 +13,8 @@ export const OBJECT_ID_PATTERN = /^[a-f\d]{24}$/i;
 export const BULK_MAX_IDS = 5000;
 
 const text = z.string().trim();
-const requiredText = text.min(1, "Required");
+// Custom messages are message keys (lib/i18n), translated by the CMS.
+const requiredText = text.min(1, "validation.required");
 const postcodeValue = requiredText.transform((value) => value.toUpperCase());
 
 // Empty string is allowed for all three: the value is optional.
@@ -50,7 +51,7 @@ export const updatePostcodeSchema = z
     active: z.boolean().optional(),
   })
   .refine((value) => Object.keys(value).length > 0, {
-    message: "At least one field is required",
+    message: "validation.atLeastOneField",
   });
 
 export const listQuerySchema = z.object({
@@ -71,7 +72,7 @@ export const listQuerySchema = z.object({
     .string()
     .trim()
     .toUpperCase()
-    .regex(/^[A-Z0-9]{1,8}$/, "Letters and digits only, up to 8")
+    .regex(/^[A-Z0-9]{1,8}$/, "validation.postcodePrefix")
     .optional(),
   // EMPTY_FILTER ("none") selects records where the field is empty.
   calendar: z
@@ -88,7 +89,7 @@ export const listQuerySchema = z.object({
 // unknown fields are rejected instead of silently dropped.
 export const bulkUpdateSchema = z.object({
   ids: z
-    .array(z.string().regex(OBJECT_ID_PATTERN, "Invalid id"))
+    .array(z.string().regex(OBJECT_ID_PATTERN, "validation.invalidId"))
     .min(1)
     .max(BULK_MAX_IDS)
     .transform((ids) => [...new Set(ids.map((id) => id.toLowerCase()))]),
@@ -100,7 +101,7 @@ export const bulkUpdateSchema = z.object({
       active: z.boolean().optional(),
     })
     .refine((value) => Object.keys(value).length > 0, {
-      message: "At least one field is required",
+      message: "validation.atLeastOneField",
     }),
 });
 

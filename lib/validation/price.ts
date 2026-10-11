@@ -4,7 +4,10 @@ import {
   sheetKeyId,
   sheetTargets,
 } from "@/lib/price-sheet-key";
+import { msg } from "@/lib/i18n/translate";
 import { CHANGE_FIELDS } from "@/lib/price-types";
+
+// Custom messages are message keys (lib/i18n), translated by the CMS.
 
 const text = z.string().trim().min(1);
 
@@ -47,7 +50,7 @@ const tiersSchema = z
       if (tier.upTo === null && index < tiers.length - 1) {
         ctx.addIssue({
           code: "custom",
-          message: "Only the last tier can have no upper limit",
+          message: "validation.onlyLastTierOpen",
           path: [index, "upTo"],
         });
       }
@@ -60,7 +63,7 @@ const tiersSchema = z
       ) {
         ctx.addIssue({
           code: "custom",
-          message: "Each tier must go higher than the one before",
+          message: "validation.tiersAscending",
           path: [index, "upTo"],
         });
       }
@@ -85,7 +88,7 @@ const pricingSchema = z
       if (pricing.byWeight === null && pricing.byVolume === null) {
         ctx.addIssue({
           code: "custom",
-          message: "Set weight tiers, volume tiers or both",
+          message: "validation.weightOrVolumeTiers",
         });
       }
     }
@@ -96,7 +99,7 @@ const pricingSchema = z
         if (seen.has(key)) {
           ctx.addIssue({
             code: "custom",
-            message: "Size and specification repeat an earlier row",
+            message: "validation.variantRepeats",
             path: ["variants", index],
           });
         }
@@ -118,7 +121,7 @@ export const categorySchema = optionSchema
     if (category.subCategories.length > 0 === (category.pricing !== null)) {
       ctx.addIssue({
         code: "custom",
-        message: "Set either subcategories or pricing",
+        message: "validation.subcategoriesOrPricing",
         path: ["pricing"],
       });
     }
@@ -128,7 +131,7 @@ export const categorySchema = optionSchema
       if (values.has(sub.value)) {
         ctx.addIssue({
           code: "custom",
-          message: `Subcategory "${sub.value}" repeats`,
+          message: msg("validation.subcategoryRepeats", { value: sub.value }),
           path: ["subCategories", index, "value"],
         });
       }
@@ -142,7 +145,9 @@ export const categorySchema = optionSchema
         const { type, size, spec } = target.item.sheet;
         ctx.addIssue({
           code: "custom",
-          message: `Spreadsheet row repeats: ${[type, size, spec].filter(Boolean).join(" · ")}`,
+          message: msg("validation.sheetRowRepeats", {
+            row: [type, size, spec].filter(Boolean).join(" · "),
+          }),
           path: ["subCategories"],
         });
       }
@@ -159,7 +164,7 @@ export const catalogSchema = z
       if (values.has(category.value)) {
         ctx.addIssue({
           code: "custom",
-          message: `Category "${category.value}" repeats`,
+          message: msg("validation.categoryRepeats", { value: category.value }),
           path: [index, "value"],
         });
       }
@@ -170,7 +175,7 @@ export const catalogSchema = z
       if (sheets.has(sheet)) {
         ctx.addIssue({
           code: "custom",
-          message: `Spreadsheet category "${sheet}" repeats`,
+          message: msg("validation.sheetCategoryRepeats", { sheet }),
           path: [index, "sheet"],
         });
       }

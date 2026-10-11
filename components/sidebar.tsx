@@ -4,25 +4,28 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useClerk } from "@clerk/nextjs";
 import { BrandMark } from "@/components/brand-mark";
+import { LanguageSwitcher } from "@/components/language-switcher";
 import { Button } from "@/components/ui/button";
+import { useT } from "@/lib/i18n/client";
 import { cn } from "@/lib/utils";
 
 const links = [
-  { href: "/postcodes", label: "Postcodes" },
-  { href: "/prices", label: "Prices" },
-  { href: "/fees", label: "Fees" },
-  { href: "/changelog", label: "Change log" },
+  { href: "/postcodes", label: "nav.postcodes" },
+  { href: "/prices", label: "nav.prices" },
+  { href: "/fees", label: "nav.fees" },
+  { href: "/changelog", label: "nav.changelog" },
 ];
 
 export function Sidebar() {
   const pathname = usePathname();
   const { signOut } = useClerk();
+  const t = useT();
 
   return (
     <aside className="flex w-56 shrink-0 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground">
       <div className="flex items-center gap-2 px-4 py-4 text-lg font-semibold">
         <BrandMark />
-        Ecotrip CMS
+        {t("app.name")}
       </div>
       <nav className="flex-1 space-y-1 px-2">
         {links.map((link) => {
@@ -43,26 +46,27 @@ export function Sidebar() {
                 aria-disabled="true"
                 className={cn(className, "cursor-default")}
               >
-                {link.label}
+                {t(link.label)}
               </span>
             );
           }
 
           return (
             <Link key={link.href} href={link.href} className={className}>
-              {link.label}
+              {t(link.label)}
             </Link>
           );
         })}
       </nav>
-      <div className="p-2">
+      <div className="space-y-1 p-2">
         <Button
           variant="ghost"
           className="w-full justify-start"
           onClick={() => signOut({ redirectUrl: "/login" })}
         >
-          Sign out
+          {t("nav.signOut")}
         </Button>
+        <LanguageSwitcher className="px-1.5" />
       </div>
     </aside>
   );

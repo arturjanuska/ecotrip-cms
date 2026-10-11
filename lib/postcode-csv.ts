@@ -1,4 +1,5 @@
 import Papa from "papaparse";
+import { msg } from "@/lib/i18n/translate";
 import { CALENDAR_VALUES, PARCEL_FORCE_ZONES } from "@/lib/postcode-options";
 import { createPostcodeSchema } from "@/lib/validation/postcode";
 
@@ -42,6 +43,7 @@ export type ImportResult = {
 };
 
 // 400 response details: `index` is the position in the request's `rows`.
+// Errors are messages (msg() strings or Zod's own text) the CMS translates.
 export type ImportRowErrors = {
   index: number;
   errors: Partial<Record<CsvColumn, string>>;
@@ -51,6 +53,7 @@ export type ParsedCsv = {
   // `row` is the data row number in the file: 1 is the first row after the header.
   rows: { row: number; values: Partial<ImportValues> }[];
   ignoredColumns: string[];
+  // A msg() string (lib/i18n/translate.ts).
   error: string | null;
 };
 
@@ -75,9 +78,7 @@ export function parseCsv(text: string): ParsedCsv {
   });
 
   if (text.includes("�")) {
-    return fail(
-      'The file is not UTF-8. Save it as "CSV UTF-8" and choose it again.',
-    );
+    return fail("file.postcodesNotUtf8");
   }
 
   // The delimiter (comma or semicolon) is detected automatically.
@@ -90,7 +91,10 @@ export function parseCsv(text: string): ParsedCsv {
   const quoteError = result.errors.find((error) => error.type === "Quotes");
   if (quoteError) {
     return fail(
-      `Broken quotes in data row ${(quoteError.row ?? 0) + 1}: ${quoteError.message}`,
+      msg("file.brokenQuotesDataRow", {
+        row: String((quoteError.row ?? 0) + 1),
+        message: quoteError.message,
+      }),
     );
   }
 
@@ -114,13 +118,13 @@ export function parseCsv(text: string): ParsedCsv {
     (column) => !columns.includes(column),
   );
   if (missing.length > 0) {
-    return fail(`Missing required columns: ${missing.join(", ")}`);
+    return fail(msg("file.missingColumns", { columns: missing.join(", ") }));
   }
   if (result.data.length === 0) {
-    return fail("The file has no data rows.");
+    return fail("file.noDataRows");
   }
   if (result.data.length > IMPORT_MAX_ROWS) {
-    return fail(`Too many rows: at most ${IMPORT_MAX_ROWS} per file.`);
+    return fail(msg("file.tooManyRows", { max: IMPORT_MAX_ROWS }));
   }
 
   return {
@@ -197,9 +201,13 @@ export function completeValues(
 
 // Clearer messages than zod's for values typed into a spreadsheet.
 const FRIENDLY_ERRORS: Partial<Record<CsvColumn, string>> = {
-  town: "Required for a new postcode",
-  calendar: `Use ${CALENDAR_VALUES.join(", ")} or leave empty`,
-  parcelForceZone: `Use ${PARCEL_FORCE_ZONES.join(", ")} or leave empty`,
+  town: "validation.requiredForNew",
+  calendar: msg("validation.useValuesOrEmpty", {
+    values: CALENDAR_VALUES.join(", "),
+  }),
+  parcelForceZone: msg("validation.useValuesOrEmpty", {
+    values: PARCEL_FORCE_ZONES.join(", "),
+  }),
 };
 
 /**
@@ -217,7 +225,7 @@ export function validateImportValues(
   for (const column of CSV_COLUMNS) {
     if (column === "active") {
       if (parseActive(values.active) === null) {
-        errors.active = "Use true or false";
+        errors.active = "validation.useTrueFalse";
       }
       continue;
     }
@@ -233,7 +241,7 @@ export function validateImportValues(
   }
 
   if (duplicate && !errors.postcode) {
-    errors.postcode = "Duplicate postcode in the file";
+    errors.postcode = "validation.duplicateInFile";
   }
 
   return errors;

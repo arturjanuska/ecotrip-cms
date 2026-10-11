@@ -41,9 +41,13 @@ describe("requireAdmin", () => {
   it.each([
     ["signed-out", 401],
     ["forbidden", 403],
-  ])("answers %s with %i", async (state, status) => {
+  ])("answers %s with %i and a code", async (state, status) => {
     getAuthState.mockResolvedValueOnce(state);
-    expect((await requireAdmin())?.status).toBe(status);
+    const response = await requireAdmin();
+    expect(response?.status).toBe(status);
+    expect((await response?.json()).code).toBe(
+      status === 401 ? "unauthorized" : "forbidden",
+    );
   });
 
   it("lets an admin through", async () => {
@@ -63,11 +67,15 @@ describe("requireJson", () => {
 
   it.each(["text/plain", "application/x-www-form-urlencoded", ""])(
     "answers %j with 415",
-    (type) => {
+    async (type) => {
       const headers: Record<string, string> = type
         ? { "content-type": type }
         : {};
-      expect(requireJson(request(headers))?.status).toBe(415);
+      const response = requireJson(request(headers));
+      expect(response?.status).toBe(415);
+      expect(await response?.json()).toMatchObject({
+        code: "unsupported_media_type",
+      });
     },
   );
 });
@@ -121,7 +129,10 @@ describe("withErrorHandling", () => {
 
     const response = await handler(request(), undefined);
     expect(response.status).toBe(503);
-    expect(await response.json()).toEqual({ error: "Database unavailable" });
+    expect(await response.json()).toEqual({
+      error: "Database unavailable",
+      code: "database_unavailable",
+    });
   });
 
   it("answers 500 JSON for other errors", async () => {
@@ -131,6 +142,9 @@ describe("withErrorHandling", () => {
 
     const response = await handler(request(), undefined);
     expect(response.status).toBe(500);
-    expect(await response.json()).toEqual({ error: "Internal server error" });
+    expect(await response.json()).toEqual({
+      error: "Internal server error",
+      code: "internal_error",
+    });
   });
 });

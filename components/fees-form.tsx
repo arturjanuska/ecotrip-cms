@@ -16,6 +16,7 @@ import {
   type FieldPath,
 } from "@/lib/fee-drafts";
 import type { StoredFeeSettings } from "@/lib/fee-types";
+import { readCache, writeCache } from "@/lib/client-cache";
 import { fetchFeeSettings, saveFeeSettings } from "@/lib/fees-client";
 import { parseCellNumber } from "@/lib/price-drafts";
 import { cn } from "@/lib/utils";
@@ -181,11 +182,18 @@ function ListError({ state, path }: { state: FieldState; path: string }) {
   return error ? <p className="text-xs text-destructive">{error}</p> : null;
 }
 
+const FEES_CACHE_KEY = "fees";
+
 export function FeesForm() {
   const { getToken } = useAuth();
   // undefined: loading; null: not seeded yet.
-  const [saved, setSaved] = useState<StoredFeeSettings | null>();
-  const [form, setForm] = useState<FeeForm | null>(null);
+  const [saved, setSaved] = useState<StoredFeeSettings | null | undefined>(() =>
+    readCache<StoredFeeSettings>(FEES_CACHE_KEY),
+  );
+  const [form, setForm] = useState<FeeForm | null>(() => {
+    const cached = readCache<StoredFeeSettings>(FEES_CACHE_KEY);
+    return cached ? toForm(cached) : null;
+  });
   const [loadError, setLoadError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -195,6 +203,12 @@ export function FeesForm() {
     const controller = new AbortController();
     fetchFeeSettings(controller.signal)
       .then((settings) => {
+        // Same version as the cached one shown: keep the form, it may
+        // already be edited.
+        const cached = readCache<StoredFeeSettings>(FEES_CACHE_KEY);
+        if (settings && cached && settings.updatedAt === cached.updatedAt) {
+          return;
+        }
         setSaved(settings);
         setForm(settings && toForm(settings));
       })
@@ -207,6 +221,12 @@ export function FeesForm() {
       });
     return () => controller.abort();
   }, []);
+
+  useEffect(() => {
+    if (saved) {
+      writeCache(FEES_CACHE_KEY, saved);
+    }
+  }, [saved]);
 
   const savedForm = useMemo(() => saved && toForm(saved), [saved]);
   const changed = useMemo(

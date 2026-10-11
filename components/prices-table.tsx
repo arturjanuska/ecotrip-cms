@@ -25,6 +25,7 @@ import {
 } from "@/lib/price-drafts";
 import type { SheetTarget } from "@/lib/price-sheet-key";
 import type { Category, StoredCategory } from "@/lib/price-types";
+import { readCache, writeCache } from "@/lib/client-cache";
 import { fetchPriceCatalog, saveCategory } from "@/lib/prices-client";
 import { cn } from "@/lib/utils";
 
@@ -288,9 +289,13 @@ function without<T>(record: Record<string, T>, key: string) {
   return next;
 }
 
+const PRICES_CACHE_KEY = "prices";
+
 export function PricesTable() {
   const { getToken } = useAuth();
-  const [categories, setCategories] = useState<StoredCategory[] | null>(null);
+  const [categories, setCategories] = useState<StoredCategory[] | null>(
+    () => readCache<StoredCategory[]>(PRICES_CACHE_KEY) ?? null,
+  );
   const [loadError, setLoadError] = useState<string | null>(null);
   const [drafts, setDrafts] = useState<Record<string, CategoryDrafts>>({});
   const [saving, setSaving] = useState<Record<string, boolean>>({});
@@ -309,6 +314,12 @@ export function PricesTable() {
       });
     return () => controller.abort();
   }, []);
+
+  useEffect(() => {
+    if (categories) {
+      writeCache(PRICES_CACHE_KEY, categories);
+    }
+  }, [categories]);
 
   const unsavedCount = Object.values(drafts).reduce(
     (sum, category) => sum + Object.keys(category).length,

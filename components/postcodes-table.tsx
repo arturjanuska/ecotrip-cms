@@ -46,6 +46,7 @@ import {
   fetchAllPostcodes,
   fetchPostcodes,
 } from "@/lib/postcodes-client";
+import { readCache, writeCache } from "@/lib/client-cache";
 import type { BulkChanges, BulkUpdateResult } from "@/lib/validation/postcode";
 
 const PER_PAGE_OPTIONS = [25, 50, 100, 200, 500] as const;
@@ -206,15 +207,36 @@ function SkeletonRows() {
   );
 }
 
+const POSTCODES_CACHE_KEY = "postcodes";
+
+type PostcodesView = {
+  filters: PostcodeFilters;
+  postcodeInput: string;
+  perPage: PerPage;
+  page: number;
+  list: ListState | null;
+};
+
 export function PostcodesTable() {
   const { getToken } = useAuth();
-  const [filters, setFilters] = useState<PostcodeFilters>(DEFAULT_FILTERS);
+  // Back from another page: the same filters, page and rows as when it was
+  // left; the rows refresh in the background.
+  const [cached] = useState(() =>
+    readCache<PostcodesView>(POSTCODES_CACHE_KEY),
+  );
+  const [filters, setFilters] = useState<PostcodeFilters>(
+    cached?.filters ?? DEFAULT_FILTERS,
+  );
   // Typed value; it reaches `filters` after a short pause in typing.
-  const [postcodeInput, setPostcodeInput] = useState("");
-  const [perPage, setPerPage] = useState<PerPage>(DEFAULT_PER_PAGE);
-  const [page, setPage] = useState(1);
+  const [postcodeInput, setPostcodeInput] = useState(
+    cached?.postcodeInput ?? "",
+  );
+  const [perPage, setPerPage] = useState<PerPage>(
+    cached?.perPage ?? DEFAULT_PER_PAGE,
+  );
+  const [page, setPage] = useState(cached?.page ?? 1);
   const [refresh, setRefresh] = useState(0);
-  const [list, setList] = useState<ListState | null>(null);
+  const [list, setList] = useState<ListState | null>(cached?.list ?? null);
   const [drafts, setDrafts] = useState<Record<string, Draft>>({});
   const [rowErrors, setRowErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState<Record<string, boolean>>({});
@@ -290,6 +312,16 @@ export function PostcodesTable() {
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: 0 });
   }, [key]);
+
+  useEffect(() => {
+    writeCache<PostcodesView>(POSTCODES_CACHE_KEY, {
+      filters,
+      postcodeInput,
+      perPage,
+      page,
+      list: list?.error ? null : list,
+    });
+  }, [filters, postcodeInput, perPage, page, list]);
 
   // Drafts survive page and filter changes, but not closing or reloading the tab.
   useEffect(() => {

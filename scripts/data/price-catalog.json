@@ -1,0 +1,3652 @@
+[
+  {
+    "value": "shipments",
+    "label": "shipments",
+    "sheet": "Siuntos",
+    "order": 0,
+    "subCategories": [],
+    "pricing": {
+      "type": "measured",
+      "byWeight": [
+        {
+          "sheet": {
+            "type": "",
+            "size": "< 1kg",
+            "spec": ""
+          },
+          "upTo": 1,
+          "price": {
+            "UK-LT": 35,
+            "LT-UK": 35
+          },
+          "perUnit": false
+        },
+        {
+          "sheet": {
+            "type": "",
+            "size": "<15 kg",
+            "spec": ""
+          },
+          "upTo": 15,
+          "price": {
+            "UK-LT": 45,
+            "LT-UK": 45
+          },
+          "perUnit": false
+        },
+        {
+          "sheet": {
+            "type": "",
+            "size": "<30 kg",
+            "spec": ""
+          },
+          "upTo": 30,
+          "price": {
+            "UK-LT": 50,
+            "LT-UK": 50
+          },
+          "perUnit": false
+        },
+        {
+          "sheet": {
+            "type": "",
+            "size": ">30 kg",
+            "spec": ""
+          },
+          "upTo": null,
+          "price": {
+            "UK-LT": 1.65,
+            "LT-UK": 1.65
+          },
+          "perUnit": true
+        }
+      ],
+      "byVolume": [
+        {
+          "sheet": {
+            "type": "",
+            "size": "<0.16",
+            "spec": "Max kraštinė 420 cm"
+          },
+          "upTo": 0.16,
+          "price": {
+            "UK-LT": 230,
+            "LT-UK": 230
+          },
+          "perUnit": true
+        },
+        {
+          "sheet": {
+            "type": "",
+            "size": "<0.31",
+            "spec": "Max kraštinė 420 cm"
+          },
+          "upTo": 0.31,
+          "price": {
+            "UK-LT": 220,
+            "LT-UK": 220
+          },
+          "perUnit": true
+        },
+        {
+          "sheet": {
+            "type": "",
+            "size": "<0.47",
+            "spec": "Max kraštinė 420 cm"
+          },
+          "upTo": 0.47,
+          "price": {
+            "UK-LT": 210,
+            "LT-UK": 210
+          },
+          "perUnit": true
+        },
+        {
+          "sheet": {
+            "type": "",
+            "size": "<0.63",
+            "spec": "Max kraštinė 420 cm"
+          },
+          "upTo": 0.63,
+          "price": {
+            "UK-LT": 205,
+            "LT-UK": 205
+          },
+          "perUnit": true
+        },
+        {
+          "sheet": {
+            "type": "",
+            "size": "0.63+",
+            "spec": "Max kraštinė 420 cm"
+          },
+          "upTo": null,
+          "price": {
+            "UK-LT": 200,
+            "LT-UK": 200
+          },
+          "perUnit": true
+        }
+      ]
+    }
+  },
+  {
+    "value": "automotiveGoods",
+    "label": "automotiveGoods",
+    "sheet": "Automobilių dalys ir priedai",
+    "order": 1,
+    "subCategories": [
+      {
+        "value": "setOfWheels",
+        "label": "setOfWheels",
+        "pricing": {
+          "type": "fixed",
+          "variants": [
+            {
+              "sheet": {
+                "type": "Ratų komplektas",
+                "size": "<R16",
+                "spec": "Be padangų"
+              },
+              "size": {
+                "value": "<R16",
+                "label": "<R16"
+              },
+              "specification": {
+                "value": "withoutTires",
+                "label": "withoutTires"
+              },
+              "volume": 0.08,
+              "weight": 28,
+              "price": {
+                "UK-LT": 66,
+                "LT-UK": 66
+              }
+            },
+            {
+              "sheet": {
+                "type": "Ratų komplektas",
+                "size": "<R18",
+                "spec": "Be padangų"
+              },
+              "size": {
+                "value": "<R18",
+                "label": "<R18"
+              },
+              "specification": {
+                "value": "withoutTires",
+                "label": "withoutTires"
+              },
+              "volume": 0.1,
+              "weight": 32,
+              "price": {
+                "UK-LT": 88,
+                "LT-UK": 88
+              }
+            },
+            {
+              "sheet": {
+                "type": "Ratų komplektas",
+                "size": "<R22",
+                "spec": "Be padangų"
+              },
+              "size": {
+                "value": "<R22",
+                "label": "<R22"
+              },
+              "specification": {
+                "value": "withoutTires",
+                "label": "withoutTires"
+              },
+              "volume": 0.12,
+              "weight": 40,
+              "price": {
+                "UK-LT": 110,
+                "LT-UK": 110
+              }
+            },
+            {
+              "sheet": {
+                "type": "Ratų komplektas",
+                "size": ">R22",
+                "spec": "Be padangų"
+              },
+              "size": {
+                "value": ">R22",
+                "label": ">R22"
+              },
+              "specification": {
+                "value": "withoutTires",
+                "label": "withoutTires"
+              },
+              "volume": 0.14,
+              "weight": 48,
+              "price": {
+                "UK-LT": 132,
+                "LT-UK": 132
+              }
+            },
+            {
+              "sheet": {
+                "type": "Ratų komplektas",
+                "size": "<R16",
+                "spec": "Su padangomis"
+              },
+              "size": {
+                "value": "<R16",
+                "label": "<R16"
+              },
+              "specification": {
+                "value": "withTires",
+                "label": "withTires"
+              },
+              "volume": 0.24,
+              "weight": 40,
+              "price": {
+                "UK-LT": 77,
+                "LT-UK": 77
+              }
+            },
+            {
+              "sheet": {
+                "type": "Ratų komplektas",
+                "size": "<R18",
+                "spec": "Su padangomis"
+              },
+              "size": {
+                "value": "<R18",
+                "label": "<R18"
+              },
+              "specification": {
+                "value": "withTires",
+                "label": "withTires"
+              },
+              "volume": 0.3,
+              "weight": 48,
+              "price": {
+                "UK-LT": 99,
+                "LT-UK": 99
+              }
+            },
+            {
+              "sheet": {
+                "type": "Ratų komplektas",
+                "size": "<R22",
+                "spec": "Su padangomis"
+              },
+              "size": {
+                "value": "<R22",
+                "label": "<R22"
+              },
+              "specification": {
+                "value": "withTires",
+                "label": "withTires"
+              },
+              "volume": 0.36,
+              "weight": 60,
+              "price": {
+                "UK-LT": 121,
+                "LT-UK": 121
+              }
+            },
+            {
+              "sheet": {
+                "type": "Ratų komplektas",
+                "size": ">R22",
+                "spec": "Su padangomis"
+              },
+              "size": {
+                "value": ">R22",
+                "label": ">R22"
+              },
+              "specification": {
+                "value": "withTires",
+                "label": "withTires"
+              },
+              "volume": 0.44,
+              "weight": 72,
+              "price": {
+                "UK-LT": 143,
+                "LT-UK": 143
+              }
+            }
+          ]
+        }
+      },
+      {
+        "value": "doors",
+        "label": "doors",
+        "pricing": {
+          "type": "fixed",
+          "variants": [
+            {
+              "sheet": {
+                "type": "Automobilio durys",
+                "size": "Mikro automobiliai, pvz Fiat 500",
+                "spec": ""
+              },
+              "size": {
+                "value": "microCars",
+                "label": "microCars"
+              },
+              "specification": null,
+              "volume": 0.15,
+              "weight": 15,
+              "price": {
+                "UK-LT": 50,
+                "LT-UK": 50
+              }
+            },
+            {
+              "sheet": {
+                "type": "Automobilio durys",
+                "size": "Subkompaktiniai automobiliai, pvz VW Polo",
+                "spec": ""
+              },
+              "size": {
+                "value": "subcompactCars",
+                "label": "subcompactCars"
+              },
+              "specification": null,
+              "volume": 0.18,
+              "weight": 18,
+              "price": {
+                "UK-LT": 50,
+                "LT-UK": 50
+              }
+            },
+            {
+              "sheet": {
+                "type": "Automobilio durys",
+                "size": "Kompaktiniai automobiliai, pvz VW Golf",
+                "spec": ""
+              },
+              "size": {
+                "value": "compactCars",
+                "label": "compactCars"
+              },
+              "specification": null,
+              "volume": 0.2,
+              "weight": 20,
+              "price": {
+                "UK-LT": 55,
+                "LT-UK": 55
+              }
+            },
+            {
+              "sheet": {
+                "type": "Automobilio durys",
+                "size": "Vidutinio dydžio automobiliai, pvz VW Passat",
+                "spec": ""
+              },
+              "size": {
+                "value": "midSizeCars",
+                "label": "midSizeCars"
+              },
+              "specification": null,
+              "volume": 0.25,
+              "weight": 22,
+              "price": {
+                "UK-LT": 55,
+                "LT-UK": 55
+              }
+            },
+            {
+              "sheet": {
+                "type": "Automobilio durys",
+                "size": "Dideli automobiliai, pvz MB S klasė",
+                "spec": ""
+              },
+              "size": {
+                "value": "bigCars",
+                "label": "bigCars"
+              },
+              "specification": null,
+              "volume": 0.3,
+              "weight": 25,
+              "price": {
+                "UK-LT": 60,
+                "LT-UK": 60
+              }
+            },
+            {
+              "sheet": {
+                "type": "Automobilio durys",
+                "size": "Visureigiai, pvz BMW X5",
+                "spec": ""
+              },
+              "size": {
+                "value": "suvs",
+                "label": "suvs"
+              },
+              "specification": null,
+              "volume": 0.35,
+              "weight": 30,
+              "price": {
+                "UK-LT": 60,
+                "LT-UK": 60
+              }
+            },
+            {
+              "sheet": {
+                "type": "Automobilio durys",
+                "size": "Pikapai, pvz Ford Ranger",
+                "spec": ""
+              },
+              "size": {
+                "value": "pickupTrucks",
+                "label": "pickupTrucks"
+              },
+              "specification": null,
+              "volume": 0.4,
+              "weight": 35,
+              "price": {
+                "UK-LT": 65,
+                "LT-UK": 65
+              }
+            },
+            {
+              "sheet": {
+                "type": "Automobilio durys",
+                "size": "Mikroautobusai, pvz VW Caravelle",
+                "spec": ""
+              },
+              "size": {
+                "value": "minibuses",
+                "label": "minibuses"
+              },
+              "specification": null,
+              "volume": 0.45,
+              "weight": 40,
+              "price": {
+                "UK-LT": 95,
+                "LT-UK": 95
+              }
+            }
+          ]
+        }
+      },
+      {
+        "value": "interior",
+        "label": "interior",
+        "pricing": {
+          "type": "callManager"
+        }
+      },
+      {
+        "value": "carQuarter",
+        "label": "carQuarter",
+        "pricing": {
+          "type": "callManager"
+        }
+      },
+      {
+        "value": "bumper",
+        "label": "bumper",
+        "pricing": {
+          "type": "fixed",
+          "variants": [
+            {
+              "sheet": {
+                "type": "Automobilio buferis",
+                "size": "Mikro automobiliai, pvz Fiat 500",
+                "spec": ""
+              },
+              "size": {
+                "value": "microCars",
+                "label": "microCars"
+              },
+              "specification": null,
+              "volume": 0.12,
+              "weight": 8,
+              "price": {
+                "UK-LT": 65,
+                "LT-UK": 65
+              }
+            },
+            {
+              "sheet": {
+                "type": "Automobilio buferis",
+                "size": "Subkompaktiniai automobiliai, pvz VW Polo",
+                "spec": ""
+              },
+              "size": {
+                "value": "subcompactCars",
+                "label": "subcompactCars"
+              },
+              "specification": null,
+              "volume": 0.15,
+              "weight": 10,
+              "price": {
+                "UK-LT": 65,
+                "LT-UK": 65
+              }
+            },
+            {
+              "sheet": {
+                "type": "Automobilio buferis",
+                "size": "Kompaktiniai automobiliai, pvz VW Golf",
+                "spec": ""
+              },
+              "size": {
+                "value": "compactCars",
+                "label": "compactCars"
+              },
+              "specification": null,
+              "volume": 0.18,
+              "weight": 12,
+              "price": {
+                "UK-LT": 75,
+                "LT-UK": 75
+              }
+            },
+            {
+              "sheet": {
+                "type": "Automobilio buferis",
+                "size": "Vidutinio dydžio automobiliai, pvz VW Passat",
+                "spec": ""
+              },
+              "size": {
+                "value": "midSizeCars",
+                "label": "midSizeCars"
+              },
+              "specification": null,
+              "volume": 0.22,
+              "weight": 15,
+              "price": {
+                "UK-LT": 80,
+                "LT-UK": 80
+              }
+            },
+            {
+              "sheet": {
+                "type": "Automobilio buferis",
+                "size": "Dideli automobiliai, pvz MB S klasė",
+                "spec": ""
+              },
+              "size": {
+                "value": "bigCars",
+                "label": "bigCars"
+              },
+              "specification": null,
+              "volume": 0.25,
+              "weight": 18,
+              "price": {
+                "UK-LT": 90,
+                "LT-UK": 90
+              }
+            },
+            {
+              "sheet": {
+                "type": "Automobilio buferis",
+                "size": "Visureigiai, pvz BMW X5",
+                "spec": ""
+              },
+              "size": {
+                "value": "suvs",
+                "label": "suvs"
+              },
+              "specification": null,
+              "volume": 0.28,
+              "weight": 20,
+              "price": {
+                "UK-LT": 90,
+                "LT-UK": 90
+              }
+            },
+            {
+              "sheet": {
+                "type": "Automobilio buferis",
+                "size": "Pikapai, pvz Ford Ranger",
+                "spec": ""
+              },
+              "size": {
+                "value": "pickupTrucks",
+                "label": "pickupTrucks"
+              },
+              "specification": null,
+              "volume": 0.3,
+              "weight": 22,
+              "price": {
+                "UK-LT": 90,
+                "LT-UK": 90
+              }
+            },
+            {
+              "sheet": {
+                "type": "Automobilio buferis",
+                "size": "Mikroautobusai, pvz VW Caravelle",
+                "spec": ""
+              },
+              "size": {
+                "value": "minibuses",
+                "label": "minibuses"
+              },
+              "specification": null,
+              "volume": 0.35,
+              "weight": 25,
+              "price": {
+                "UK-LT": 90,
+                "LT-UK": 90
+              }
+            }
+          ]
+        }
+      },
+      {
+        "value": "cover",
+        "label": "cover",
+        "pricing": {
+          "type": "fixed",
+          "variants": [
+            {
+              "sheet": {
+                "type": "Automobilio priekinis/galinis dangtis",
+                "size": "Mikro automobiliai, pvz Fiat 500",
+                "spec": ""
+              },
+              "size": {
+                "value": "microCars",
+                "label": "microCars"
+              },
+              "specification": null,
+              "volume": 0.12,
+              "weight": 10,
+              "price": {
+                "UK-LT": 60,
+                "LT-UK": 60
+              }
+            },
+            {
+              "sheet": {
+                "type": "Automobilio priekinis/galinis dangtis",
+                "size": "Subkompaktiniai automobiliai, pvz VW Polo",
+                "spec": ""
+              },
+              "size": {
+                "value": "subcompactCars",
+                "label": "subcompactCars"
+              },
+              "specification": null,
+              "volume": 0.15,
+              "weight": 12,
+              "price": {
+                "UK-LT": 60,
+                "LT-UK": 60
+              }
+            },
+            {
+              "sheet": {
+                "type": "Automobilio priekinis/galinis dangtis",
+                "size": "Kompaktiniai automobiliai, pvz VW Golf",
+                "spec": ""
+              },
+              "size": {
+                "value": "compactCars",
+                "label": "compactCars"
+              },
+              "specification": null,
+              "volume": 0.18,
+              "weight": 15,
+              "price": {
+                "UK-LT": 65,
+                "LT-UK": 65
+              }
+            },
+            {
+              "sheet": {
+                "type": "Automobilio priekinis/galinis dangtis",
+                "size": "Vidutinio dydžio automobiliai, pvz VW Passat",
+                "spec": ""
+              },
+              "size": {
+                "value": "midSizeCars",
+                "label": "midSizeCars"
+              },
+              "specification": null,
+              "volume": 0.22,
+              "weight": 18,
+              "price": {
+                "UK-LT": 70,
+                "LT-UK": 70
+              }
+            },
+            {
+              "sheet": {
+                "type": "Automobilio priekinis/galinis dangtis",
+                "size": "Dideli automobiliai, pvz MB S klasė",
+                "spec": ""
+              },
+              "size": {
+                "value": "bigCars",
+                "label": "bigCars"
+              },
+              "specification": null,
+              "volume": 0.25,
+              "weight": 20,
+              "price": {
+                "UK-LT": 90,
+                "LT-UK": 90
+              }
+            },
+            {
+              "sheet": {
+                "type": "Automobilio priekinis/galinis dangtis",
+                "size": "Visureigiai, pvz BMW X5",
+                "spec": ""
+              },
+              "size": {
+                "value": "suvs",
+                "label": "suvs"
+              },
+              "specification": null,
+              "volume": 0.28,
+              "weight": 22,
+              "price": {
+                "UK-LT": 90,
+                "LT-UK": 90
+              }
+            },
+            {
+              "sheet": {
+                "type": "Automobilio priekinis/galinis dangtis",
+                "size": "Pikapai, pvz Ford Ranger",
+                "spec": ""
+              },
+              "size": {
+                "value": "pickupTrucks",
+                "label": "pickupTrucks"
+              },
+              "specification": null,
+              "volume": 0.3,
+              "weight": 25,
+              "price": {
+                "UK-LT": 90,
+                "LT-UK": 90
+              }
+            },
+            {
+              "sheet": {
+                "type": "Automobilio priekinis/galinis dangtis",
+                "size": "Mikroautobusai, pvz VW Caravelle",
+                "spec": ""
+              },
+              "size": {
+                "value": "minibuses",
+                "label": "minibuses"
+              },
+              "specification": null,
+              "volume": 0.35,
+              "weight": 28,
+              "price": {
+                "UK-LT": 90,
+                "LT-UK": 90
+              }
+            }
+          ]
+        }
+      },
+      {
+        "value": "engine",
+        "label": "engine",
+        "pricing": {
+          "type": "fixed",
+          "variants": [
+            {
+              "sheet": {
+                "type": "Automobilio variklis",
+                "size": "<1000 cm3",
+                "spec": "Tuščias"
+              },
+              "size": {
+                "value": "<1000 cm3",
+                "label": "<1000 cm3"
+              },
+              "specification": {
+                "value": "empty",
+                "label": "empty"
+              },
+              "volume": 0.14,
+              "weight": 75,
+              "price": {
+                "UK-LT": 90,
+                "LT-UK": 90
+              }
+            },
+            {
+              "sheet": {
+                "type": "Automobilio variklis",
+                "size": "<1500 cm3",
+                "spec": "Tuščias"
+              },
+              "size": {
+                "value": "<1500 cm3",
+                "label": "<1500 cm3"
+              },
+              "specification": {
+                "value": "empty",
+                "label": "empty"
+              },
+              "volume": 0.18,
+              "weight": 100,
+              "price": {
+                "UK-LT": 110,
+                "LT-UK": 110
+              }
+            },
+            {
+              "sheet": {
+                "type": "Automobilio variklis",
+                "size": "<2000 cm3",
+                "spec": "Tuščias"
+              },
+              "size": {
+                "value": "<2000 cm3",
+                "label": "<2000 cm3"
+              },
+              "specification": {
+                "value": "empty",
+                "label": "empty"
+              },
+              "volume": 0.23,
+              "weight": 125,
+              "price": {
+                "UK-LT": 130,
+                "LT-UK": 130
+              }
+            },
+            {
+              "sheet": {
+                "type": "Automobilio variklis",
+                "size": "<2500 cm3",
+                "spec": "Tuščias"
+              },
+              "size": {
+                "value": "<2500 cm3",
+                "label": "<2500 cm3"
+              },
+              "specification": {
+                "value": "empty",
+                "label": "empty"
+              },
+              "volume": 0.29,
+              "weight": 155,
+              "price": {
+                "UK-LT": 165,
+                "LT-UK": 165
+              }
+            },
+            {
+              "sheet": {
+                "type": "Automobilio variklis",
+                "size": "<3000 cm3",
+                "spec": "Tuščias"
+              },
+              "size": {
+                "value": "<3000 cm3",
+                "label": "<3000 cm3"
+              },
+              "specification": {
+                "value": "empty",
+                "label": "empty"
+              },
+              "volume": 0.36,
+              "weight": 190,
+              "price": {
+                "UK-LT": 200,
+                "LT-UK": 200
+              }
+            },
+            {
+              "sheet": {
+                "type": "Automobilio variklis",
+                "size": "<3500 cm3",
+                "spec": "Tuščias"
+              },
+              "size": {
+                "value": "<3500 cm3",
+                "label": "<3500 cm3"
+              },
+              "specification": {
+                "value": "empty",
+                "label": "empty"
+              },
+              "volume": 0.45,
+              "weight": 215,
+              "price": {
+                "UK-LT": 220,
+                "LT-UK": 220
+              }
+            },
+            {
+              "sheet": {
+                "type": "Automobilio variklis",
+                "size": "<4000 cm3",
+                "spec": "Tuščias"
+              },
+              "size": {
+                "value": "<4000 cm3",
+                "label": "<4000 cm3"
+              },
+              "specification": {
+                "value": "empty",
+                "label": "empty"
+              },
+              "volume": 0.54,
+              "weight": 250,
+              "price": {
+                "UK-LT": 250,
+                "LT-UK": 250
+              }
+            },
+            {
+              "sheet": {
+                "type": "Automobilio variklis",
+                "size": ">4000 cm3",
+                "spec": "Tuščias"
+              },
+              "size": {
+                "value": ">4000 cm3",
+                "label": ">4000 cm3"
+              },
+              "specification": {
+                "value": "empty",
+                "label": "empty"
+              },
+              "volume": 0.63,
+              "weight": 300,
+              "price": {
+                "UK-LT": 270,
+                "LT-UK": 270
+              }
+            },
+            {
+              "sheet": {
+                "type": "Automobilio variklis",
+                "size": "<1000 cm3",
+                "spec": "Pilnas"
+              },
+              "size": {
+                "value": "<1000 cm3",
+                "label": "<1000 cm3"
+              },
+              "specification": {
+                "value": "full",
+                "label": "full"
+              },
+              "volume": 0.14,
+              "weight": 85,
+              "price": {
+                "UK-LT": 130,
+                "LT-UK": 130
+              }
+            },
+            {
+              "sheet": {
+                "type": "Automobilio variklis",
+                "size": "<1500 cm3",
+                "spec": "Pilnas"
+              },
+              "size": {
+                "value": "<1500 cm3",
+                "label": "<1500 cm3"
+              },
+              "specification": {
+                "value": "full",
+                "label": "full"
+              },
+              "volume": 0.18,
+              "weight": 115,
+              "price": {
+                "UK-LT": 190,
+                "LT-UK": 190
+              }
+            },
+            {
+              "sheet": {
+                "type": "Automobilio variklis",
+                "size": "<2000 cm3",
+                "spec": "Pilnas"
+              },
+              "size": {
+                "value": "<2000 cm3",
+                "label": "<2000 cm3"
+              },
+              "specification": {
+                "value": "full",
+                "label": "full"
+              },
+              "volume": 0.23,
+              "weight": 145,
+              "price": {
+                "UK-LT": 220,
+                "LT-UK": 220
+              }
+            },
+            {
+              "sheet": {
+                "type": "Automobilio variklis",
+                "size": "<2500 cm3",
+                "spec": "Pilnas"
+              },
+              "size": {
+                "value": "<2500 cm3",
+                "label": "<2500 cm3"
+              },
+              "specification": {
+                "value": "full",
+                "label": "full"
+              },
+              "volume": 0.29,
+              "weight": 180,
+              "price": {
+                "UK-LT": 275,
+                "LT-UK": 275
+              }
+            },
+            {
+              "sheet": {
+                "type": "Automobilio variklis",
+                "size": "<3000 cm3",
+                "spec": "Pilnas"
+              },
+              "size": {
+                "value": "<3000 cm3",
+                "label": "<3000 cm3"
+              },
+              "specification": {
+                "value": "full",
+                "label": "full"
+              },
+              "volume": 0.36,
+              "weight": 220,
+              "price": {
+                "UK-LT": 330,
+                "LT-UK": 330
+              }
+            },
+            {
+              "sheet": {
+                "type": "Automobilio variklis",
+                "size": "<3500 cm3",
+                "spec": "Pilnas"
+              },
+              "size": {
+                "value": "<3500 cm3",
+                "label": "<3500 cm3"
+              },
+              "specification": {
+                "value": "full",
+                "label": "full"
+              },
+              "volume": 0.45,
+              "weight": 250,
+              "price": {
+                "UK-LT": 385,
+                "LT-UK": 385
+              }
+            },
+            {
+              "sheet": {
+                "type": "Automobilio variklis",
+                "size": "<4000 cm3",
+                "spec": "Pilnas"
+              },
+              "size": {
+                "value": "<4000 cm3",
+                "label": "<4000 cm3"
+              },
+              "specification": {
+                "value": "full",
+                "label": "full"
+              },
+              "volume": 0.54,
+              "weight": 290,
+              "price": {
+                "UK-LT": 410,
+                "LT-UK": 410
+              }
+            },
+            {
+              "sheet": {
+                "type": "Automobilio variklis",
+                "size": ">4000 cm3",
+                "spec": "Pilnas"
+              },
+              "size": {
+                "value": ">4000 cm3",
+                "label": ">4000 cm3"
+              },
+              "specification": {
+                "value": "full",
+                "label": "full"
+              },
+              "volume": 0.63,
+              "weight": 340,
+              "price": {
+                "UK-LT": 440,
+                "LT-UK": 440
+              }
+            }
+          ]
+        }
+      },
+      {
+        "value": "gearbox",
+        "label": "gearbox",
+        "pricing": {
+          "type": "fixed",
+          "variants": [
+            {
+              "sheet": {
+                "type": "Pavarų dėžė",
+                "size": "<1000 cm3",
+                "spec": "Mechaninė"
+              },
+              "size": {
+                "value": "<1000 cm3",
+                "label": "<1000 cm3"
+              },
+              "specification": {
+                "value": "manual",
+                "label": "manual"
+              },
+              "volume": 0.03,
+              "weight": 30,
+              "price": {
+                "UK-LT": 50,
+                "LT-UK": 50
+              }
+            },
+            {
+              "sheet": {
+                "type": "Pavarų dėžė",
+                "size": "<1500 cm3",
+                "spec": "Mechaninė"
+              },
+              "size": {
+                "value": "<1500 cm3",
+                "label": "<1500 cm3"
+              },
+              "specification": {
+                "value": "manual",
+                "label": "manual"
+              },
+              "volume": 0.035,
+              "weight": 40,
+              "price": {
+                "UK-LT": 55,
+                "LT-UK": 55
+              }
+            },
+            {
+              "sheet": {
+                "type": "Pavarų dėžė",
+                "size": "<2000 cm3",
+                "spec": "Mechaninė"
+              },
+              "size": {
+                "value": "<2000 cm3",
+                "label": "<2000 cm3"
+              },
+              "specification": {
+                "value": "manual",
+                "label": "manual"
+              },
+              "volume": 0.04,
+              "weight": 50,
+              "price": {
+                "UK-LT": 65,
+                "LT-UK": 65
+              }
+            },
+            {
+              "sheet": {
+                "type": "Pavarų dėžė",
+                "size": "<2500 cm3",
+                "spec": "Mechaninė"
+              },
+              "size": {
+                "value": "<2500 cm3",
+                "label": "<2500 cm3"
+              },
+              "specification": {
+                "value": "manual",
+                "label": "manual"
+              },
+              "volume": 0.045,
+              "weight": 60,
+              "price": {
+                "UK-LT": 85,
+                "LT-UK": 85
+              }
+            },
+            {
+              "sheet": {
+                "type": "Pavarų dėžė",
+                "size": "<3000 cm3",
+                "spec": "Mechaninė"
+              },
+              "size": {
+                "value": "<3000 cm3",
+                "label": "<3000 cm3"
+              },
+              "specification": {
+                "value": "manual",
+                "label": "manual"
+              },
+              "volume": 0.05,
+              "weight": 70,
+              "price": {
+                "UK-LT": 95,
+                "LT-UK": 95
+              }
+            },
+            {
+              "sheet": {
+                "type": "Pavarų dėžė",
+                "size": "<3500 cm3",
+                "spec": "Mechaninė"
+              },
+              "size": {
+                "value": "<3500 cm3",
+                "label": "<3500 cm3"
+              },
+              "specification": {
+                "value": "manual",
+                "label": "manual"
+              },
+              "volume": 0.055,
+              "weight": 80,
+              "price": {
+                "UK-LT": 135,
+                "LT-UK": 135
+              }
+            },
+            {
+              "sheet": {
+                "type": "Pavarų dėžė",
+                "size": "<4000 cm3",
+                "spec": "Mechaninė"
+              },
+              "size": {
+                "value": "<4000 cm3",
+                "label": "<4000 cm3"
+              },
+              "specification": {
+                "value": "manual",
+                "label": "manual"
+              },
+              "volume": 0.06,
+              "weight": 90,
+              "price": {
+                "UK-LT": 135,
+                "LT-UK": 135
+              }
+            },
+            {
+              "sheet": {
+                "type": "Pavarų dėžė",
+                "size": ">4000 cm3",
+                "spec": "Mechaninė"
+              },
+              "size": {
+                "value": ">4000 cm3",
+                "label": ">4000 cm3"
+              },
+              "specification": {
+                "value": "manual",
+                "label": "manual"
+              },
+              "volume": 0.07,
+              "weight": 100,
+              "price": {
+                "UK-LT": 135,
+                "LT-UK": 135
+              }
+            },
+            {
+              "sheet": {
+                "type": "Pavarų dėžė",
+                "size": "<1000 cm3",
+                "spec": "Automatinė"
+              },
+              "size": {
+                "value": "<1000 cm3",
+                "label": "<1000 cm3"
+              },
+              "specification": {
+                "value": "automatic",
+                "label": "automatic"
+              },
+              "volume": 0.025,
+              "weight": 25,
+              "price": {
+                "UK-LT": 55,
+                "LT-UK": 55
+              }
+            },
+            {
+              "sheet": {
+                "type": "Pavarų dėžė",
+                "size": "<1500 cm3",
+                "spec": "Automatinė"
+              },
+              "size": {
+                "value": "<1500 cm3",
+                "label": "<1500 cm3"
+              },
+              "specification": {
+                "value": "automatic",
+                "label": "automatic"
+              },
+              "volume": 0.03,
+              "weight": 35,
+              "price": {
+                "UK-LT": 70,
+                "LT-UK": 70
+              }
+            },
+            {
+              "sheet": {
+                "type": "Pavarų dėžė",
+                "size": "<2000 cm3",
+                "spec": "Automatinė"
+              },
+              "size": {
+                "value": "<2000 cm3",
+                "label": "<2000 cm3"
+              },
+              "specification": {
+                "value": "automatic",
+                "label": "automatic"
+              },
+              "volume": 0.035,
+              "weight": 45,
+              "price": {
+                "UK-LT": 85,
+                "LT-UK": 85
+              }
+            },
+            {
+              "sheet": {
+                "type": "Pavarų dėžė",
+                "size": "<2500 cm3",
+                "spec": "Automatinė"
+              },
+              "size": {
+                "value": "<2500 cm3",
+                "label": "<2500 cm3"
+              },
+              "specification": {
+                "value": "automatic",
+                "label": "automatic"
+              },
+              "volume": 0.04,
+              "weight": 55,
+              "price": {
+                "UK-LT": 95,
+                "LT-UK": 95
+              }
+            },
+            {
+              "sheet": {
+                "type": "Pavarų dėžė",
+                "size": "<3000 cm3",
+                "spec": "Automatinė"
+              },
+              "size": {
+                "value": "<3000 cm3",
+                "label": "<3000 cm3"
+              },
+              "specification": {
+                "value": "automatic",
+                "label": "automatic"
+              },
+              "volume": 0.045,
+              "weight": 65,
+              "price": {
+                "UK-LT": 135,
+                "LT-UK": 135
+              }
+            },
+            {
+              "sheet": {
+                "type": "Pavarų dėžė",
+                "size": "<3500 cm3",
+                "spec": "Automatinė"
+              },
+              "size": {
+                "value": "<3500 cm3",
+                "label": "<3500 cm3"
+              },
+              "specification": {
+                "value": "automatic",
+                "label": "automatic"
+              },
+              "volume": 0.05,
+              "weight": 75,
+              "price": {
+                "UK-LT": 135,
+                "LT-UK": 135
+              }
+            },
+            {
+              "sheet": {
+                "type": "Pavarų dėžė",
+                "size": "<4000 cm3",
+                "spec": "Automatinė"
+              },
+              "size": {
+                "value": "<4000 cm3",
+                "label": "<4000 cm3"
+              },
+              "specification": {
+                "value": "automatic",
+                "label": "automatic"
+              },
+              "volume": 0.055,
+              "weight": 85,
+              "price": {
+                "UK-LT": 135,
+                "LT-UK": 135
+              }
+            },
+            {
+              "sheet": {
+                "type": "Pavarų dėžė",
+                "size": ">4000 cm3",
+                "spec": "Automatinė"
+              },
+              "size": {
+                "value": ">4000 cm3",
+                "label": ">4000 cm3"
+              },
+              "specification": {
+                "value": "automatic",
+                "label": "automatic"
+              },
+              "volume": 0.06,
+              "weight": 95,
+              "price": {
+                "UK-LT": 135,
+                "LT-UK": 135
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "pricing": null
+  },
+  {
+    "value": "householdAppliances",
+    "label": "householdAppliances",
+    "sheet": "Buitinė technika",
+    "order": 2,
+    "subCategories": [
+      {
+        "value": "fridge",
+        "label": "fridge",
+        "pricing": {
+          "type": "measured",
+          "byWeight": null,
+          "byVolume": [
+            {
+              "sheet": {
+                "type": "Šaldytuvas",
+                "size": "Išmatavimai",
+                "spec": ""
+              },
+              "upTo": null,
+              "price": {
+                "UK-LT": 200,
+                "LT-UK": 200
+              },
+              "perUnit": true
+            }
+          ]
+        }
+      },
+      {
+        "value": "freezer",
+        "label": "freezer",
+        "pricing": {
+          "type": "measured",
+          "byWeight": null,
+          "byVolume": [
+            {
+              "sheet": {
+                "type": "Šaldiklis",
+                "size": "Išmatavimai",
+                "spec": ""
+              },
+              "upTo": null,
+              "price": {
+                "UK-LT": 200,
+                "LT-UK": 200
+              },
+              "perUnit": true
+            }
+          ]
+        }
+      },
+      {
+        "value": "washingMachine",
+        "label": "washingMachine",
+        "pricing": {
+          "type": "fixed",
+          "variants": [
+            {
+              "sheet": {
+                "type": "Maža skalbimo mašina",
+                "size": "Talpa 3-5 kg",
+                "spec": ""
+              },
+              "size": {
+                "value": "smallWashingMachine",
+                "label": "smallWashingMachine"
+              },
+              "specification": null,
+              "volume": 0.15,
+              "weight": 40,
+              "price": {
+                "UK-LT": 55,
+                "LT-UK": 55
+              }
+            },
+            {
+              "sheet": {
+                "type": "Vidutinė skalbimo mašina",
+                "size": "Talpa 6-7 kg",
+                "spec": ""
+              },
+              "size": {
+                "value": "mediumWashingMachine",
+                "label": "mediumWashingMachine"
+              },
+              "specification": null,
+              "volume": 0.2,
+              "weight": 60,
+              "price": {
+                "UK-LT": 65,
+                "LT-UK": 65
+              }
+            },
+            {
+              "sheet": {
+                "type": "Didelė skalbimo mašina",
+                "size": "Talpa 8-9 kg",
+                "spec": ""
+              },
+              "size": {
+                "value": "bigWashingMachine",
+                "label": "bigWashingMachine"
+              },
+              "specification": null,
+              "volume": 0.25,
+              "weight": 70,
+              "price": {
+                "UK-LT": 75,
+                "LT-UK": 75
+              }
+            },
+            {
+              "sheet": {
+                "type": "Pramoninė skalbimo mašina",
+                "size": "Talpa 10+ kg",
+                "spec": ""
+              },
+              "size": {
+                "value": "industrialWashingMachine",
+                "label": "industrialWashingMachine"
+              },
+              "specification": null,
+              "volume": 0.3,
+              "weight": 80,
+              "price": {
+                "UK-LT": 90,
+                "LT-UK": 90
+              }
+            }
+          ]
+        }
+      },
+      {
+        "value": "dishwasher",
+        "label": "dishwasher",
+        "pricing": {
+          "type": "fixed",
+          "variants": [
+            {
+              "sheet": {
+                "type": "Butinė indaplovė",
+                "size": "",
+                "spec": ""
+              },
+              "size": null,
+              "specification": null,
+              "volume": 0.35,
+              "weight": 40,
+              "price": {
+                "UK-LT": 55,
+                "LT-UK": 55
+              }
+            }
+          ]
+        }
+      },
+      {
+        "value": "industrialDishwasher",
+        "label": "industrialDishwasher",
+        "pricing": {
+          "type": "fixed",
+          "variants": [
+            {
+              "sheet": {
+                "type": "Pramoninė indaplovė",
+                "size": "",
+                "spec": ""
+              },
+              "size": null,
+              "specification": null,
+              "volume": 0.35,
+              "weight": 40,
+              "price": {
+                "UK-LT": 65,
+                "LT-UK": 65
+              }
+            }
+          ]
+        }
+      },
+      {
+        "value": "dryer",
+        "label": "dryer",
+        "pricing": {
+          "type": "fixed",
+          "variants": [
+            {
+              "sheet": {
+                "type": "Buitinė džiovyklė",
+                "size": "",
+                "spec": ""
+              },
+              "size": null,
+              "specification": null,
+              "volume": 0.35,
+              "weight": 40,
+              "price": {
+                "UK-LT": 55,
+                "LT-UK": 55
+              }
+            }
+          ]
+        }
+      },
+      {
+        "value": "industrialDryer",
+        "label": "industrialDryer",
+        "pricing": {
+          "type": "fixed",
+          "variants": [
+            {
+              "sheet": {
+                "type": "Pramoninė džiovyklė",
+                "size": "",
+                "spec": ""
+              },
+              "size": null,
+              "specification": null,
+              "volume": 0.4,
+              "weight": 40,
+              "price": {
+                "UK-LT": 75,
+                "LT-UK": 75
+              }
+            }
+          ]
+        }
+      },
+      {
+        "value": "hob",
+        "label": "hob",
+        "pricing": {
+          "type": "fixed",
+          "variants": [
+            {
+              "sheet": {
+                "type": "Kaitlentė",
+                "size": "",
+                "spec": ""
+              },
+              "size": null,
+              "specification": null,
+              "volume": 0.1,
+              "weight": 15,
+              "price": {
+                "UK-LT": 50,
+                "LT-UK": 50
+              }
+            }
+          ]
+        }
+      },
+      {
+        "value": "stove",
+        "label": "stove",
+        "pricing": {
+          "type": "fixed",
+          "variants": [
+            {
+              "sheet": {
+                "type": "Viryklė",
+                "size": "Įmontuojama",
+                "spec": ""
+              },
+              "size": {
+                "value": "built-in",
+                "label": "built-in"
+              },
+              "specification": null,
+              "volume": 0.2,
+              "weight": 50,
+              "price": {
+                "UK-LT": 65,
+                "LT-UK": 65
+              }
+            },
+            {
+              "sheet": {
+                "type": "Viryklė",
+                "size": "Pastatoma",
+                "spec": ""
+              },
+              "size": {
+                "value": "freestanding",
+                "label": "freestanding"
+              },
+              "specification": null,
+              "volume": 0.6,
+              "weight": 60,
+              "price": {
+                "UK-LT": 80,
+                "LT-UK": 80
+              }
+            },
+            {
+              "sheet": {
+                "type": "Viryklė",
+                "size": "5-6 degiklių",
+                "spec": ""
+              },
+              "size": {
+                "value": "withBurners",
+                "label": "withBurners"
+              },
+              "specification": null,
+              "volume": 0.7,
+              "weight": 80,
+              "price": {
+                "UK-LT": 100,
+                "LT-UK": 100
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "pricing": null
+  },
+  {
+    "value": "bicyclesAndScooters",
+    "label": "bicyclesAndScooters",
+    "sheet": "Dviračiai, paspirtukai",
+    "order": 3,
+    "subCategories": [
+      {
+        "value": "childBicycleAndTricycle",
+        "label": "childBicycleAndTricycle",
+        "pricing": {
+          "type": "fixed",
+          "variants": [
+            {
+              "sheet": {
+                "type": "Vaikiškas dviratis, triratis",
+                "size": "Pilnai surinktas",
+                "spec": ""
+              },
+              "size": {
+                "value": "fullyAssembled",
+                "label": "fullyAssembled"
+              },
+              "specification": null,
+              "volume": 0.35,
+              "weight": 7,
+              "price": {
+                "UK-LT": 45,
+                "LT-UK": 45
+              }
+            },
+            {
+              "sheet": {
+                "type": "Vaikiškas dviratis, triratis (<12 metų)",
+                "size": "Išardytas (nuimti ratai ir pedalai)",
+                "spec": ""
+              },
+              "size": {
+                "value": "dismantled",
+                "label": "dismantled"
+              },
+              "specification": null,
+              "volume": 0.25,
+              "weight": 7,
+              "price": {
+                "UK-LT": 40,
+                "LT-UK": 40
+              }
+            }
+          ]
+        }
+      },
+      {
+        "value": "teenagersBike",
+        "label": "teenagersBike",
+        "pricing": {
+          "type": "fixed",
+          "variants": [
+            {
+              "sheet": {
+                "type": "Paauglio dviratis (>12 metų)",
+                "size": "Pilnai surinktas",
+                "spec": ""
+              },
+              "size": {
+                "value": "fullyAssembled",
+                "label": "fullyAssembled"
+              },
+              "specification": null,
+              "volume": 0.45,
+              "weight": 12,
+              "price": {
+                "UK-LT": 50,
+                "LT-UK": 50
+              }
+            },
+            {
+              "sheet": {
+                "type": "Paauglio dviratis (>12 metų)",
+                "size": "Išardytas (nuimti ratai ir pedalai)",
+                "spec": ""
+              },
+              "size": {
+                "value": "dismantled",
+                "label": "dismantled"
+              },
+              "specification": null,
+              "volume": 0.3,
+              "weight": 12,
+              "price": {
+                "UK-LT": 45,
+                "LT-UK": 45
+              }
+            }
+          ]
+        }
+      },
+      {
+        "value": "adultBike",
+        "label": "adultBike",
+        "pricing": {
+          "type": "fixed",
+          "variants": [
+            {
+              "sheet": {
+                "type": "Suaugusiojo dviratis",
+                "size": "Pilnai surinktas",
+                "spec": ""
+              },
+              "size": {
+                "value": "fullyAssembled",
+                "label": "fullyAssembled"
+              },
+              "specification": null,
+              "volume": 0.55,
+              "weight": 14,
+              "price": {
+                "UK-LT": 70,
+                "LT-UK": 70
+              }
+            },
+            {
+              "sheet": {
+                "type": "Suaugusiojo dviratis",
+                "size": "Išardytas (nuimti ratai ir pedalai)",
+                "spec": ""
+              },
+              "size": {
+                "value": "dismantled",
+                "label": "dismantled"
+              },
+              "specification": null,
+              "volume": 0.4,
+              "weight": 14,
+              "price": {
+                "UK-LT": 60,
+                "LT-UK": 60
+              }
+            }
+          ]
+        }
+      },
+      {
+        "value": "electricBike",
+        "label": "electricBike",
+        "pricing": {
+          "type": "fixed",
+          "variants": [
+            {
+              "sheet": {
+                "type": "Elektrinis dviratis",
+                "size": "Pilnai surinktas",
+                "spec": ""
+              },
+              "size": {
+                "value": "fullyAssembled",
+                "label": "fullyAssembled"
+              },
+              "specification": null,
+              "volume": 0.65,
+              "weight": 25,
+              "price": {
+                "UK-LT": 80,
+                "LT-UK": 80
+              }
+            },
+            {
+              "sheet": {
+                "type": "Elektrinis dviratis",
+                "size": "Išardytas (nuimti ratai ir pedalai)",
+                "spec": ""
+              },
+              "size": {
+                "value": "dismantled",
+                "label": "dismantled"
+              },
+              "specification": null,
+              "volume": 0.55,
+              "weight": 25,
+              "price": {
+                "UK-LT": 70,
+                "LT-UK": 70
+              }
+            }
+          ]
+        }
+      },
+      {
+        "value": "childBicycleTrailer",
+        "label": "childBicycleTrailer",
+        "pricing": {
+          "type": "fixed",
+          "variants": [
+            {
+              "sheet": {
+                "type": "Vaikiška dviračio priekaba",
+                "size": "Išardyta",
+                "spec": ""
+              },
+              "size": {
+                "value": "dismantled",
+                "label": "dismantled"
+              },
+              "specification": null,
+              "volume": 0.25,
+              "weight": 8,
+              "price": {
+                "UK-LT": 65,
+                "LT-UK": 65
+              }
+            },
+            {
+              "sheet": {
+                "type": "Vaikiška dviračio priekaba",
+                "size": "Surinkta",
+                "spec": ""
+              },
+              "size": {
+                "value": "fullyAssembled",
+                "label": "fullyAssembled"
+              },
+              "specification": null,
+              "volume": 0.4,
+              "weight": 10,
+              "price": {
+                "UK-LT": 80,
+                "LT-UK": 80
+              }
+            }
+          ]
+        }
+      },
+      {
+        "value": "electricScooter",
+        "label": "electricScooter",
+        "pricing": {
+          "type": "fixed",
+          "variants": [
+            {
+              "sheet": {
+                "type": "Elektrinis paspirtukas",
+                "size": "<25 km/h",
+                "spec": ""
+              },
+              "size": {
+                "value": "<25 km/h",
+                "label": "<25 km/h"
+              },
+              "specification": null,
+              "volume": 0.15,
+              "weight": 12,
+              "price": {
+                "UK-LT": 50,
+                "LT-UK": 50
+              }
+            },
+            {
+              "sheet": {
+                "type": "Elektrinis paspirtukas",
+                "size": ">25 km/h",
+                "spec": ""
+              },
+              "size": {
+                "value": ">25 km/h",
+                "label": ">25 km/h"
+              },
+              "specification": null,
+              "volume": 0.18,
+              "weight": 15,
+              "price": {
+                "UK-LT": 65,
+                "LT-UK": 65
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "pricing": null
+  },
+  {
+    "value": "motorcyclesAndAccessories",
+    "label": "motorcyclesAndAccessories",
+    "sheet": "Motociklai ir priedai",
+    "order": 4,
+    "subCategories": [
+      {
+        "value": "scooterMoped",
+        "label": "scooterMoped",
+        "pricing": {
+          "type": "fixed",
+          "variants": [
+            {
+              "sheet": {
+                "type": "Motoroleris, mopedas",
+                "size": "<50 cm3",
+                "spec": ""
+              },
+              "size": {
+                "value": "<50 cm3",
+                "label": "<50 cm3"
+              },
+              "specification": null,
+              "volume": 0.4,
+              "weight": 45,
+              "price": {
+                "UK-LT": 135,
+                "LT-UK": 135
+              }
+            },
+            {
+              "sheet": {
+                "type": "Motoroleris, mopedas",
+                "size": "<125 cm3",
+                "spec": ""
+              },
+              "size": {
+                "value": "<125 cm3",
+                "label": "<125 cm3"
+              },
+              "specification": null,
+              "volume": 0.5,
+              "weight": 90,
+              "price": {
+                "UK-LT": 180,
+                "LT-UK": 180
+              }
+            },
+            {
+              "sheet": {
+                "type": "Motoroleris, mopedas",
+                "size": "<250 cm3",
+                "spec": ""
+              },
+              "size": {
+                "value": "<250 cm3",
+                "label": "<250 cm3"
+              },
+              "specification": null,
+              "volume": 0.6,
+              "weight": 130,
+              "price": {
+                "UK-LT": 220,
+                "LT-UK": 220
+              }
+            },
+            {
+              "sheet": {
+                "type": "Motoroleris, mopedas",
+                "size": ">250 cm3",
+                "spec": ""
+              },
+              "size": {
+                "value": ">250 cm3",
+                "label": ">250 cm3"
+              },
+              "specification": null,
+              "volume": 0.7,
+              "weight": 170,
+              "price": {
+                "UK-LT": 300,
+                "LT-UK": 300
+              }
+            }
+          ]
+        }
+      },
+      {
+        "value": "standardMotorcycle",
+        "label": "standardMotorcycle",
+        "pricing": {
+          "type": "fixed",
+          "variants": [
+            {
+              "sheet": {
+                "type": "Standartinis motociklas",
+                "size": "<500 cm3",
+                "spec": ""
+              },
+              "size": {
+                "value": "<500 cm3",
+                "label": "<500 cm3"
+              },
+              "specification": null,
+              "volume": 0.55,
+              "weight": 170,
+              "price": {
+                "UK-LT": 275,
+                "LT-UK": 275
+              }
+            },
+            {
+              "sheet": {
+                "type": "Standartinis motociklas",
+                "size": "<750 cm3",
+                "spec": ""
+              },
+              "size": {
+                "value": "<750 cm3",
+                "label": "<750 cm3"
+              },
+              "specification": null,
+              "volume": 0.65,
+              "weight": 190,
+              "price": {
+                "UK-LT": 300,
+                "LT-UK": 300
+              }
+            },
+            {
+              "sheet": {
+                "type": "Standartinis motociklas",
+                "size": "<1000 cm3",
+                "spec": ""
+              },
+              "size": {
+                "value": "<1000 cm3",
+                "label": "<1000 cm3"
+              },
+              "specification": null,
+              "volume": 0.75,
+              "weight": 210,
+              "price": {
+                "UK-LT": 330,
+                "LT-UK": 330
+              }
+            },
+            {
+              "sheet": {
+                "type": "Standartinis motociklas",
+                "size": ">1000 cm3",
+                "spec": ""
+              },
+              "size": {
+                "value": ">1000 cm3",
+                "label": ">1000 cm3"
+              },
+              "specification": null,
+              "volume": 0.9,
+              "weight": 230,
+              "price": {
+                "UK-LT": 365,
+                "LT-UK": 365
+              }
+            }
+          ]
+        }
+      },
+      {
+        "value": "motocrossMotorcycle",
+        "label": "motocrossMotorcycle",
+        "pricing": {
+          "type": "fixed",
+          "variants": [
+            {
+              "sheet": {
+                "type": "Krosinis motociklas",
+                "size": "<125 cm3",
+                "spec": ""
+              },
+              "size": {
+                "value": "<125 cm3",
+                "label": "<125 cm3"
+              },
+              "specification": null,
+              "volume": 0.5,
+              "weight": 75,
+              "price": {
+                "UK-LT": 165,
+                "LT-UK": 165
+              }
+            },
+            {
+              "sheet": {
+                "type": "Krosinis motociklas",
+                "size": "<250 cm3",
+                "spec": ""
+              },
+              "size": {
+                "value": "<250 cm3",
+                "label": "<250 cm3"
+              },
+              "specification": null,
+              "volume": 0.55,
+              "weight": 105,
+              "price": {
+                "UK-LT": 200,
+                "LT-UK": 200
+              }
+            },
+            {
+              "sheet": {
+                "type": "Krosinis motociklas",
+                "size": "<450 cm3",
+                "spec": ""
+              },
+              "size": {
+                "value": "<450 cm3",
+                "label": "<450 cm3"
+              },
+              "specification": null,
+              "volume": 0.6,
+              "weight": 115,
+              "price": {
+                "UK-LT": 255,
+                "LT-UK": 255
+              }
+            },
+            {
+              "sheet": {
+                "type": "Krosinis motociklas",
+                "size": ">450 cm3",
+                "spec": ""
+              },
+              "size": {
+                "value": ">450 cm3",
+                "label": ">450 cm3"
+              },
+              "specification": null,
+              "volume": 0.6,
+              "weight": 115,
+              "price": {
+                "UK-LT": 275,
+                "LT-UK": 275
+              }
+            }
+          ]
+        }
+      },
+      {
+        "value": "touringMotorcycle",
+        "label": "touringMotorcycle",
+        "pricing": {
+          "type": "fixed",
+          "variants": [
+            {
+              "sheet": {
+                "type": "Kelioninis motociklas",
+                "size": "<800 cm3",
+                "spec": ""
+              },
+              "size": {
+                "value": "<800 cm3",
+                "label": "<800 cm3"
+              },
+              "specification": null,
+              "volume": 0.8,
+              "weight": 230,
+              "price": {
+                "UK-LT": 330,
+                "LT-UK": 330
+              }
+            },
+            {
+              "sheet": {
+                "type": "Kelioninis motociklas",
+                "size": "<1200 cm3",
+                "spec": ""
+              },
+              "size": {
+                "value": "<1200 cm3",
+                "label": "<1200 cm3"
+              },
+              "specification": null,
+              "volume": 0.95,
+              "weight": 260,
+              "price": {
+                "UK-LT": 385,
+                "LT-UK": 385
+              }
+            },
+            {
+              "sheet": {
+                "type": "Kelioninis motociklas",
+                "size": "<1600 cm3",
+                "spec": ""
+              },
+              "size": {
+                "value": "<1600 cm3",
+                "label": "<1600 cm3"
+              },
+              "specification": null,
+              "volume": 1.1,
+              "weight": 320,
+              "price": {
+                "UK-LT": 440,
+                "LT-UK": 440
+              }
+            },
+            {
+              "sheet": {
+                "type": "Kelioninis motociklas",
+                "size": ">1600 cm3",
+                "spec": ""
+              },
+              "size": {
+                "value": ">1600 cm3",
+                "label": ">1600 cm3"
+              },
+              "specification": null,
+              "volume": 1.25,
+              "weight": 400,
+              "price": {
+                "UK-LT": 475,
+                "LT-UK": 475
+              }
+            }
+          ]
+        }
+      },
+      {
+        "value": "sportsMotorcycle",
+        "label": "sportsMotorcycle",
+        "pricing": {
+          "type": "fixed",
+          "variants": [
+            {
+              "sheet": {
+                "type": "Sportinis motociklas",
+                "size": "<600 cm3",
+                "spec": ""
+              },
+              "size": {
+                "value": "<600 cm3",
+                "label": "<600 cm3"
+              },
+              "specification": null,
+              "volume": 0.45,
+              "weight": 160,
+              "price": {
+                "UK-LT": 250,
+                "LT-UK": 250
+              }
+            },
+            {
+              "sheet": {
+                "type": "Sportinis motociklas",
+                "size": "<1000 cm3",
+                "spec": ""
+              },
+              "size": {
+                "value": "<1000 cm3",
+                "label": "<1000 cm3"
+              },
+              "specification": null,
+              "volume": 0.55,
+              "weight": 195,
+              "price": {
+                "UK-LT": 285,
+                "LT-UK": 285
+              }
+            },
+            {
+              "sheet": {
+                "type": "Sportinis motociklas",
+                "size": ">1000 cm3",
+                "spec": ""
+              },
+              "size": {
+                "value": ">1000 cm3",
+                "label": ">1000 cm3"
+              },
+              "specification": null,
+              "volume": 0.65,
+              "weight": 210,
+              "price": {
+                "UK-LT": 310,
+                "LT-UK": 310
+              }
+            }
+          ]
+        }
+      },
+      {
+        "value": "chopper",
+        "label": "chopper",
+        "pricing": {
+          "type": "fixed",
+          "variants": [
+            {
+              "sheet": {
+                "type": "Čioperis",
+                "size": "<800 cm3",
+                "spec": ""
+              },
+              "size": {
+                "value": "<800 cm3",
+                "label": "<800 cm3"
+              },
+              "specification": null,
+              "volume": 0.65,
+              "weight": 220,
+              "price": {
+                "UK-LT": 330,
+                "LT-UK": 330
+              }
+            },
+            {
+              "sheet": {
+                "type": "Čioperis",
+                "size": "<1200 cm3",
+                "spec": ""
+              },
+              "size": {
+                "value": "<1200 cm3",
+                "label": "<1200 cm3"
+              },
+              "specification": null,
+              "volume": 0.75,
+              "weight": 250,
+              "price": {
+                "UK-LT": 385,
+                "LT-UK": 385
+              }
+            },
+            {
+              "sheet": {
+                "type": "Čioperis",
+                "size": "1200 cm3",
+                "spec": ""
+              },
+              "size": {
+                "value": ">1200 cm3",
+                "label": ">1200 cm3"
+              },
+              "specification": null,
+              "volume": 0.8,
+              "weight": 320,
+              "price": {
+                "UK-LT": 440,
+                "LT-UK": 440
+              }
+            }
+          ]
+        }
+      },
+      {
+        "value": "enduro",
+        "label": "enduro",
+        "pricing": {
+          "type": "fixed",
+          "variants": [
+            {
+              "sheet": {
+                "type": "Enduro",
+                "size": "<250 cm3",
+                "spec": ""
+              },
+              "size": {
+                "value": "<250 cm3",
+                "label": "<250 cm3"
+              },
+              "specification": null,
+              "volume": 0.5,
+              "weight": 135,
+              "price": {
+                "UK-LT": 220,
+                "LT-UK": 220
+              }
+            },
+            {
+              "sheet": {
+                "type": "Enduro",
+                "size": "<650 cm3",
+                "spec": ""
+              },
+              "size": {
+                "value": "<650 cm3",
+                "label": "<650 cm3"
+              },
+              "specification": null,
+              "volume": 0.6,
+              "weight": 170,
+              "price": {
+                "UK-LT": 255,
+                "LT-UK": 255
+              }
+            },
+            {
+              "sheet": {
+                "type": "Enduro",
+                "size": "<1200 cm3",
+                "spec": ""
+              },
+              "size": {
+                "value": "<1200 cm3",
+                "label": "<1200 cm3"
+              },
+              "specification": null,
+              "volume": 0.75,
+              "weight": 230,
+              "price": {
+                "UK-LT": 275,
+                "LT-UK": 275
+              }
+            },
+            {
+              "sheet": {
+                "type": "Enduro",
+                "size": ">1200 cm3",
+                "spec": ""
+              },
+              "size": {
+                "value": ">1200 cm3",
+                "label": ">1200 cm3"
+              },
+              "specification": null,
+              "volume": 0.9,
+              "weight": 250,
+              "price": {
+                "UK-LT": 310,
+                "LT-UK": 310
+              }
+            }
+          ]
+        }
+      },
+      {
+        "value": "quadBike",
+        "label": "quadBike",
+        "pricing": {
+          "type": "fixed",
+          "variants": [
+            {
+              "sheet": {
+                "type": "Keturratis",
+                "size": "<400 cm3",
+                "spec": ""
+              },
+              "size": {
+                "value": "<400 cm3",
+                "label": "<400 cm3"
+              },
+              "specification": null,
+              "volume": 0.8,
+              "weight": 220,
+              "price": {
+                "UK-LT": 365,
+                "LT-UK": 365
+              }
+            },
+            {
+              "sheet": {
+                "type": "Keturratis",
+                "size": "<800 cm3",
+                "spec": ""
+              },
+              "size": {
+                "value": "<800 cm3",
+                "label": "<800 cm3"
+              },
+              "specification": null,
+              "volume": 1,
+              "weight": 280,
+              "price": {
+                "UK-LT": 400,
+                "LT-UK": 400
+              }
+            },
+            {
+              "sheet": {
+                "type": "Keturratis",
+                "size": "<1200 cm3",
+                "spec": ""
+              },
+              "size": {
+                "value": "<1200 cm3",
+                "label": "<1200 cm3"
+              },
+              "specification": null,
+              "volume": 1.25,
+              "weight": 340,
+              "price": {
+                "UK-LT": 440,
+                "LT-UK": 440
+              }
+            },
+            {
+              "sheet": {
+                "type": "Keturratis",
+                "size": ">1200 cm3",
+                "spec": ""
+              },
+              "size": {
+                "value": ">1200 cm3",
+                "label": ">1200 cm3"
+              },
+              "specification": null,
+              "volume": 1.5,
+              "weight": 400,
+              "price": {
+                "UK-LT": 440,
+                "LT-UK": 440
+              }
+            }
+          ]
+        }
+      },
+      {
+        "value": "motorcycleEngine",
+        "label": "motorcycleEngine",
+        "pricing": {
+          "type": "fixed",
+          "variants": [
+            {
+              "sheet": {
+                "type": "Motociklo variklis",
+                "size": "<45 cm3",
+                "spec": ""
+              },
+              "size": {
+                "value": "<45 cm3",
+                "label": "<45 cm3"
+              },
+              "specification": null,
+              "volume": 0.01,
+              "weight": 15,
+              "price": {
+                "UK-LT": 50,
+                "LT-UK": 50
+              }
+            },
+            {
+              "sheet": {
+                "type": "Motociklo variklis",
+                "size": "<250 cm3",
+                "spec": ""
+              },
+              "size": {
+                "value": "<250 cm3",
+                "label": "<250 cm3"
+              },
+              "specification": null,
+              "volume": 0.02,
+              "weight": 25,
+              "price": {
+                "UK-LT": 60,
+                "LT-UK": 60
+              }
+            },
+            {
+              "sheet": {
+                "type": "Motociklo variklis",
+                "size": "<450 cm3",
+                "spec": ""
+              },
+              "size": {
+                "value": "<450 cm3",
+                "label": "<450 cm3"
+              },
+              "specification": null,
+              "volume": 0.03,
+              "weight": 35,
+              "price": {
+                "UK-LT": 70,
+                "LT-UK": 70
+              }
+            },
+            {
+              "sheet": {
+                "type": "Motociklo variklis",
+                "size": "<600 cm3",
+                "spec": ""
+              },
+              "size": {
+                "value": "<600 cm3",
+                "label": "<600 cm3"
+              },
+              "specification": null,
+              "volume": 0.04,
+              "weight": 50,
+              "price": {
+                "UK-LT": 90,
+                "LT-UK": 90
+              }
+            },
+            {
+              "sheet": {
+                "type": "Motociklo variklis",
+                "size": "<1000 cm3",
+                "spec": ""
+              },
+              "size": {
+                "value": "<1000 cm3",
+                "label": "<1000 cm3"
+              },
+              "specification": null,
+              "volume": 0.06,
+              "weight": 70,
+              "price": {
+                "UK-LT": 99,
+                "LT-UK": 99
+              }
+            },
+            {
+              "sheet": {
+                "type": "Motociklo variklis",
+                "size": "<1200 cm3",
+                "spec": ""
+              },
+              "size": {
+                "value": "<1200 cm3",
+                "label": "<1200 cm3"
+              },
+              "specification": null,
+              "volume": 0.07,
+              "weight": 90,
+              "price": {
+                "UK-LT": 120,
+                "LT-UK": 120
+              }
+            },
+            {
+              "sheet": {
+                "type": "Motociklo variklis",
+                "size": "<1600 cm3",
+                "spec": ""
+              },
+              "size": {
+                "value": "<1600 cm3",
+                "label": "<1600 cm3"
+              },
+              "specification": null,
+              "volume": 0.09,
+              "weight": 110,
+              "price": {
+                "UK-LT": 165,
+                "LT-UK": 165
+              }
+            },
+            {
+              "sheet": {
+                "type": "Motociklo variklis",
+                "size": ">1600 cm3",
+                "spec": ""
+              },
+              "size": {
+                "value": ">1600 cm3",
+                "label": ">1600 cm3"
+              },
+              "specification": null,
+              "volume": 0.11,
+              "weight": 130,
+              "price": {
+                "UK-LT": 210,
+                "LT-UK": 210
+              }
+            }
+          ]
+        }
+      },
+      {
+        "value": "goodsForMotorcycles",
+        "label": "goodsForMotorcycles",
+        "pricing": {
+          "type": "fixed",
+          "variants": [
+            {
+              "sheet": {
+                "type": "Prekės motociklams",
+                "size": "Motociklo krepšys (dėžė)",
+                "spec": ""
+              },
+              "size": {
+                "value": "motorcycleBag",
+                "label": "motorcycleBag"
+              },
+              "specification": null,
+              "volume": 0.01,
+              "weight": 5,
+              "price": {
+                "UK-LT": 40,
+                "LT-UK": 40
+              }
+            },
+            {
+              "sheet": {
+                "type": "Prekės motociklams",
+                "size": "Duslintuvas",
+                "spec": ""
+              },
+              "size": {
+                "value": "muffler",
+                "label": "muffler"
+              },
+              "specification": null,
+              "volume": 0.01,
+              "weight": 5,
+              "price": {
+                "UK-LT": 45,
+                "LT-UK": 45
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "pricing": null
+  },
+  {
+    "value": "palettes",
+    "label": "palettes",
+    "sheet": "Paletės",
+    "order": 5,
+    "subCategories": [],
+    "pricing": {
+      "type": "callManager"
+    }
+  },
+  {
+    "value": "removals",
+    "label": "removals",
+    "sheet": "Perkraustymai, baldai",
+    "order": 6,
+    "subCategories": [],
+    "pricing": {
+      "type": "measured",
+      "byWeight": null,
+      "byVolume": [
+        {
+          "sheet": {
+            "type": "",
+            "size": "<1 m3",
+            "spec": "ilgis*plotis*aukštis"
+          },
+          "upTo": 1,
+          "price": {
+            "UK-LT": 200,
+            "LT-UK": 200
+          },
+          "perUnit": true
+        },
+        {
+          "sheet": {
+            "type": "",
+            "size": "<2 m3",
+            "spec": "ilgis*plotis*aukštis"
+          },
+          "upTo": 2,
+          "price": {
+            "UK-LT": 185,
+            "LT-UK": 185
+          },
+          "perUnit": true
+        },
+        {
+          "sheet": {
+            "type": "",
+            "size": "<3 m3",
+            "spec": "ilgis*plotis*aukštis"
+          },
+          "upTo": 3,
+          "price": {
+            "UK-LT": 170,
+            "LT-UK": 170
+          },
+          "perUnit": true
+        },
+        {
+          "sheet": {
+            "type": "",
+            "size": "<4 m3",
+            "spec": ""
+          },
+          "upTo": 4,
+          "price": {
+            "UK-LT": 160,
+            "LT-UK": 160
+          },
+          "perUnit": true
+        },
+        {
+          "sheet": {
+            "type": "",
+            "size": "<5 m3",
+            "spec": "ilgis*plotis*aukštis"
+          },
+          "upTo": 5,
+          "price": {
+            "UK-LT": 150,
+            "LT-UK": 150
+          },
+          "perUnit": true
+        },
+        {
+          "sheet": {
+            "type": "",
+            "size": "<10 m3",
+            "spec": "ilgis*plotis*aukštis"
+          },
+          "upTo": 10,
+          "price": {
+            "UK-LT": 130,
+            "LT-UK": 130
+          },
+          "perUnit": true
+        },
+        {
+          "sheet": {
+            "type": "",
+            "size": ">10 m3",
+            "spec": "ilgis*plotis*aukštis"
+          },
+          "upTo": null,
+          "price": {
+            "UK-LT": 115,
+            "LT-UK": 115
+          },
+          "perUnit": true
+        }
+      ]
+    }
+  },
+  {
+    "value": "flatScreenTv",
+    "label": "flatScreenTv",
+    "sheet": "Plokščiaekraniai TV",
+    "order": 7,
+    "subCategories": [],
+    "pricing": {
+      "type": "fixed",
+      "variants": [
+        {
+          "sheet": {
+            "type": "",
+            "size": "<24 coliai",
+            "spec": ""
+          },
+          "size": {
+            "value": "<24 inch",
+            "label": "<24 inch"
+          },
+          "specification": null,
+          "volume": 0.04,
+          "weight": 4,
+          "price": {
+            "UK-LT": 50,
+            "LT-UK": 50
+          }
+        },
+        {
+          "sheet": {
+            "type": "",
+            "size": "<32 coliai",
+            "spec": ""
+          },
+          "size": {
+            "value": "<32 inch",
+            "label": "<32 inch"
+          },
+          "specification": null,
+          "volume": 0.06,
+          "weight": 5,
+          "price": {
+            "UK-LT": 50,
+            "LT-UK": 50
+          }
+        },
+        {
+          "sheet": {
+            "type": "",
+            "size": "<40 coliai",
+            "spec": ""
+          },
+          "size": {
+            "value": "<40 inch",
+            "label": "<40 inch"
+          },
+          "specification": null,
+          "volume": 0.08,
+          "weight": 8,
+          "price": {
+            "UK-LT": 55,
+            "LT-UK": 55
+          }
+        },
+        {
+          "sheet": {
+            "type": "",
+            "size": "<43 coliai",
+            "spec": ""
+          },
+          "size": {
+            "value": "<43 inch",
+            "label": "<43 inch"
+          },
+          "specification": null,
+          "volume": 0.1,
+          "weight": 9,
+          "price": {
+            "UK-LT": 60,
+            "LT-UK": 60
+          }
+        },
+        {
+          "sheet": {
+            "type": "",
+            "size": "<50 coliai",
+            "spec": ""
+          },
+          "size": {
+            "value": "<50 inch",
+            "label": "<50 inch"
+          },
+          "specification": null,
+          "volume": 0.12,
+          "weight": 12,
+          "price": {
+            "UK-LT": 65,
+            "LT-UK": 65
+          }
+        },
+        {
+          "sheet": {
+            "type": "",
+            "size": "<55 coliai",
+            "spec": ""
+          },
+          "size": {
+            "value": "<55 inch",
+            "label": "<55 inch"
+          },
+          "specification": null,
+          "volume": 0.15,
+          "weight": 14,
+          "price": {
+            "UK-LT": 70,
+            "LT-UK": 70
+          }
+        },
+        {
+          "sheet": {
+            "type": "",
+            "size": "<65 coliai",
+            "spec": ""
+          },
+          "size": {
+            "value": "<65 inch",
+            "label": "<65 inch"
+          },
+          "specification": null,
+          "volume": 0.2,
+          "weight": 18,
+          "price": {
+            "UK-LT": 80,
+            "LT-UK": 80
+          }
+        },
+        {
+          "sheet": {
+            "type": "",
+            "size": "<70 coliai",
+            "spec": ""
+          },
+          "size": {
+            "value": "<70 inch",
+            "label": "<70 inch"
+          },
+          "specification": null,
+          "volume": 0.25,
+          "weight": 22,
+          "price": {
+            "UK-LT": 90,
+            "LT-UK": 90
+          }
+        },
+        {
+          "sheet": {
+            "type": "",
+            "size": "<75 coliai",
+            "spec": ""
+          },
+          "size": {
+            "value": "<75 inch",
+            "label": "<75 inch"
+          },
+          "specification": null,
+          "volume": 0.3,
+          "weight": 25,
+          "price": {
+            "UK-LT": 95,
+            "LT-UK": 95
+          }
+        },
+        {
+          "sheet": {
+            "type": "",
+            "size": "<85 coliai",
+            "spec": ""
+          },
+          "size": {
+            "value": "<85 inch",
+            "label": "<85 inch"
+          },
+          "specification": null,
+          "volume": 0.35,
+          "weight": 30,
+          "price": {
+            "UK-LT": 105,
+            "LT-UK": 105
+          }
+        },
+        {
+          "sheet": {
+            "type": "",
+            "size": ">85 coliai",
+            "spec": ""
+          },
+          "size": {
+            "value": ">85 inch",
+            "label": ">85 inch"
+          },
+          "specification": null,
+          "volume": 0.4,
+          "weight": 35,
+          "price": {
+            "UK-LT": 115,
+            "LT-UK": 115
+          }
+        }
+      ]
+    }
+  },
+  {
+    "value": "goodsForChildren",
+    "label": "goodsForChildren",
+    "sheet": "Prekės vaikams",
+    "order": 8,
+    "subCategories": [
+      {
+        "value": "childSeat",
+        "label": "childSeat",
+        "pricing": {
+          "type": "fixed",
+          "variants": [
+            {
+              "sheet": {
+                "type": "Automobilinė kėdutė",
+                "size": "Be pado, nepasukama",
+                "spec": ""
+              },
+              "size": {
+                "value": "withoutSole",
+                "label": "withoutSole"
+              },
+              "specification": null,
+              "volume": 0.1,
+              "weight": 7,
+              "price": {
+                "UK-LT": 45,
+                "LT-UK": 45
+              }
+            },
+            {
+              "sheet": {
+                "type": "Automobilinė kėdutė",
+                "size": "Pasukama ir/arba su padu",
+                "spec": ""
+              },
+              "size": {
+                "value": "withSole",
+                "label": "withSole"
+              },
+              "specification": null,
+              "volume": 0.15,
+              "weight": 10,
+              "price": {
+                "UK-LT": 50,
+                "LT-UK": 50
+              }
+            }
+          ]
+        }
+      },
+      {
+        "value": "strollers",
+        "label": "strollers",
+        "pricing": {
+          "type": "fixed",
+          "variants": [
+            {
+              "sheet": {
+                "type": "Vežimėliai",
+                "size": "Skėtukas (kelioninis)",
+                "spec": ""
+              },
+              "size": {
+                "value": "umbrella",
+                "label": "umbrella"
+              },
+              "specification": null,
+              "volume": 0.08,
+              "weight": 5,
+              "price": {
+                "UK-LT": 50,
+                "LT-UK": 50
+              }
+            },
+            {
+              "sheet": {
+                "type": "Vežimėliai",
+                "size": "Sportinis",
+                "spec": ""
+              },
+              "size": {
+                "value": "sport",
+                "label": "sport"
+              },
+              "specification": null,
+              "volume": 0.2,
+              "weight": 12,
+              "price": {
+                "UK-LT": 55,
+                "LT-UK": 55
+              }
+            },
+            {
+              "sheet": {
+                "type": "Vežimėliai",
+                "size": "Lopšio vežimėlis",
+                "spec": ""
+              },
+              "size": {
+                "value": "cradleStroller",
+                "label": "cradleStroller"
+              },
+              "specification": null,
+              "volume": 0.25,
+              "weight": 14,
+              "price": {
+                "UK-LT": 70,
+                "LT-UK": 70
+              }
+            },
+            {
+              "sheet": {
+                "type": "Vežimėliai",
+                "size": "Dvyniams",
+                "spec": ""
+              },
+              "size": {
+                "value": "forTwins",
+                "label": "forTwins"
+              },
+              "specification": null,
+              "volume": 0.35,
+              "weight": 20,
+              "price": {
+                "UK-LT": 80,
+                "LT-UK": 80
+              }
+            },
+            {
+              "sheet": {
+                "type": "Vežimėliai",
+                "size": "2 in 1",
+                "spec": ""
+              },
+              "size": {
+                "value": "2in1",
+                "label": "2in1"
+              },
+              "specification": null,
+              "volume": 0.3,
+              "weight": 15,
+              "price": {
+                "UK-LT": 80,
+                "LT-UK": 80
+              }
+            },
+            {
+              "sheet": {
+                "type": "Vežimėliai",
+                "size": "3 in 1",
+                "spec": ""
+              },
+              "size": {
+                "value": "3in1",
+                "label": "3in1"
+              },
+              "specification": null,
+              "volume": 0.4,
+              "weight": 18,
+              "price": {
+                "UK-LT": 95,
+                "LT-UK": 95
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "pricing": null
+  },
+  {
+    "value": "gardenEquipment",
+    "label": "gardenEquipment",
+    "sheet": "Sodo technika",
+    "order": 9,
+    "subCategories": [
+      {
+        "value": "smallGardenTractor",
+        "label": "smallGardenTractor",
+        "pricing": {
+          "type": "fixed",
+          "variants": [
+            {
+              "sheet": {
+                "type": "Mažas sodo traktorius",
+                "size": "Pjovimo skersmuo <80 cm",
+                "spec": "Be surinkimo krepšio"
+              },
+              "size": {
+                "value": "<80 cm",
+                "label": "<80 cm"
+              },
+              "specification": {
+                "value": "withoutAssemblyBag",
+                "label": "withoutAssemblyBag"
+              },
+              "volume": 0.8,
+              "weight": 150,
+              "price": {
+                "UK-LT": 220,
+                "LT-UK": 220
+              }
+            },
+            {
+              "sheet": {
+                "type": "Mažas sodo traktorius",
+                "size": "Pjovimo skersmuo <80 cm",
+                "spec": "Su surinkimo krepšiu"
+              },
+              "size": {
+                "value": "<80 cm",
+                "label": "<80 cm"
+              },
+              "specification": {
+                "value": "withAssemblyBag",
+                "label": "withAssemblyBag"
+              },
+              "volume": 0.85,
+              "weight": 160,
+              "price": {
+                "UK-LT": 265,
+                "LT-UK": 265
+              }
+            }
+          ]
+        }
+      },
+      {
+        "value": "averageGardenTractor",
+        "label": "averageGardenTractor",
+        "pricing": {
+          "type": "fixed",
+          "variants": [
+            {
+              "sheet": {
+                "type": "Vidutinis sodo traktorius",
+                "size": "Pjovimo skersmuo <120 cm",
+                "spec": "Be surinkimo krepšio"
+              },
+              "size": {
+                "value": "<120 cm",
+                "label": "<120 cm"
+              },
+              "specification": {
+                "value": "withoutAssemblyBag",
+                "label": "withoutAssemblyBag"
+              },
+              "volume": 1.2,
+              "weight": 200,
+              "price": {
+                "UK-LT": 250,
+                "LT-UK": 250
+              }
+            },
+            {
+              "sheet": {
+                "type": "Vidutinis sodo traktorius",
+                "size": "Pjovimo skersmuo <120 cm",
+                "spec": "Su surinkimo krepšiu"
+              },
+              "size": {
+                "value": "<120 cm",
+                "label": "<120 cm"
+              },
+              "specification": {
+                "value": "withAssemblyBag",
+                "label": "withAssemblyBag"
+              },
+              "volume": 1.25,
+              "weight": 210,
+              "price": {
+                "UK-LT": 299,
+                "LT-UK": 299
+              }
+            }
+          ]
+        }
+      },
+      {
+        "value": "bigGardenTractor",
+        "label": "bigGardenTractor",
+        "pricing": {
+          "type": "fixed",
+          "variants": [
+            {
+              "sheet": {
+                "type": "Didelis sodo traktorius",
+                "size": "Pjovimo skersmuo >120 cm",
+                "spec": "Be surinkimo krepšio"
+              },
+              "size": {
+                "value": ">120 cm",
+                "label": ">120 cm"
+              },
+              "specification": {
+                "value": "withoutAssemblyBag",
+                "label": "withoutAssemblyBag"
+              },
+              "volume": 1.6,
+              "weight": 250,
+              "price": {
+                "UK-LT": 310,
+                "LT-UK": 310
+              }
+            },
+            {
+              "sheet": {
+                "type": "Didelis sodo traktorius",
+                "size": "Pjovimo skersmuo >120 cm",
+                "spec": "Su surinkimo krepšiu"
+              },
+              "size": {
+                "value": ">120 cm",
+                "label": ">120 cm"
+              },
+              "specification": {
+                "value": "withAssemblyBag",
+                "label": "withAssemblyBag"
+              },
+              "volume": 1.7,
+              "weight": 260,
+              "price": {
+                "UK-LT": 350,
+                "LT-UK": 350
+              }
+            }
+          ]
+        }
+      },
+      {
+        "value": "smallPushMower",
+        "label": "smallPushMower",
+        "pricing": {
+          "type": "fixed",
+          "variants": [
+            {
+              "sheet": {
+                "type": "Maža stumdoma žoliapjovė",
+                "size": "Pjovimo skersmuo <45 cm",
+                "spec": ""
+              },
+              "size": null,
+              "specification": null,
+              "volume": 0.25,
+              "weight": 15,
+              "price": {
+                "UK-LT": 65,
+                "LT-UK": 65
+              }
+            }
+          ]
+        }
+      },
+      {
+        "value": "bigPushMower",
+        "label": "bigPushMower",
+        "pricing": {
+          "type": "fixed",
+          "variants": [
+            {
+              "sheet": {
+                "type": "Didelė stumdoma žoliapjovė",
+                "size": "Pjovimo skersmuo >45 cm",
+                "spec": ""
+              },
+              "size": null,
+              "specification": null,
+              "volume": 0.3,
+              "weight": 25,
+              "price": {
+                "UK-LT": 75,
+                "LT-UK": 75
+              }
+            }
+          ]
+        }
+      },
+      {
+        "value": "smallSelfPropelledMower",
+        "label": "smallSelfPropelledMower",
+        "pricing": {
+          "type": "fixed",
+          "variants": [
+            {
+              "sheet": {
+                "type": "Maža savaeigė žoliapjovė",
+                "size": "Pjovimo skersmuo <45 cm",
+                "spec": ""
+              },
+              "size": null,
+              "specification": null,
+              "volume": 0.3,
+              "weight": 30,
+              "price": {
+                "UK-LT": 75,
+                "LT-UK": 75
+              }
+            }
+          ]
+        }
+      },
+      {
+        "value": "bigSelfPropelledMower",
+        "label": "bigSelfPropelledMower",
+        "pricing": {
+          "type": "fixed",
+          "variants": [
+            {
+              "sheet": {
+                "type": "Didelė savaeigė žoliapjovė",
+                "size": "Pjovimo skersmuo >45 cm",
+                "spec": ""
+              },
+              "size": null,
+              "specification": null,
+              "volume": 0.35,
+              "weight": 40,
+              "price": {
+                "UK-LT": 85,
+                "LT-UK": 85
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "pricing": null
+  }
+]

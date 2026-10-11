@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx --yes create-next-app@latest ecotrip-cms --ts --tailwind --eslint --app --no-src-dir --import-alias \"@/*\" --use-npm --disable-git --yes)"
+    ]
+  }
+}

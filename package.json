@@ -9,6 +9,7 @@
     "lint": "eslint",
     "import:postcodes": "tsx scripts/import-postcodes.ts",
     "import:prices": "tsx scripts/import-prices.ts",
+    "import:fees": "tsx scripts/import-fees.ts",
     "typecheck": "tsc --noEmit",
     "format": "prettier --write .",
     "format:check": "prettier --check .",

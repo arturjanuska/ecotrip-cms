@@ -25,7 +25,7 @@ export async function fetchPriceCatalog(signal?: AbortSignal) {
 export type WriteResult<T> =
   { ok: true; body: T } | { ok: false; status: number; message: string };
 
-async function write<T>(
+export async function write<T>(
   url: string,
   method: "PUT" | "POST",
   payload: unknown,

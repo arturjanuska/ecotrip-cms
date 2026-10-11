@@ -51,7 +51,7 @@ import {
   writeProblem,
   type Problem,
 } from "@/lib/api-errors";
-import { useT } from "@/lib/i18n/client";
+import { useT, useHeaderT } from "@/lib/i18n/client";
 import { readCache, writeCache } from "@/lib/client-cache";
 import type { BulkChanges, BulkUpdateResult } from "@/lib/validation/postcode";
 import { useUnsavedChanges } from "@/lib/use-unsaved-changes";
@@ -234,6 +234,7 @@ type PostcodesView = {
 export function PostcodesTable() {
   const { getToken } = useAuth();
   const t = useT();
+  const th = useHeaderT();
   // Back from another page: the same filters, page and rows as when it was
   // left; the rows refresh in the background.
   const [cached] = useState(() =>
@@ -693,7 +694,7 @@ export function PostcodesTable() {
                 <input
                   type="checkbox"
                   className="size-4 accent-primary"
-                  aria-label={t("postcodesPage.selectAll")}
+                  aria-label={th("postcodesPage.selectAll")}
                   disabled={items.length === 0}
                   checked={allLoadedSelected}
                   ref={(element) => {
@@ -705,15 +706,15 @@ export function PostcodesTable() {
                   onChange={toggleAllLoaded}
                 />
               </TableHead>
-              <TableHead>{t("postcode.postcode")}</TableHead>
-              <TableHead>{t(`postcode.${TEXT_COLUMNS[0].field}`)}</TableHead>
-              <TableHead>{t("postcode.country")}</TableHead>
+              <TableHead>{th("postcode.postcode")}</TableHead>
+              <TableHead>{th(`postcode.${TEXT_COLUMNS[0].field}`)}</TableHead>
+              <TableHead>{th("postcode.country")}</TableHead>
               {TEXT_COLUMNS.slice(1).map((column) => (
                 <TableHead key={column.field}>
-                  {t(`postcode.${column.field}`)}
+                  {th(`postcode.${column.field}`)}
                 </TableHead>
               ))}
-              <TableHead>{t("postcode.active")}</TableHead>
+              <TableHead>{th("postcode.active")}</TableHead>
               <TableHead />
             </TableRow>
           </TableHeader>

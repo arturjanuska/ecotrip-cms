@@ -22,7 +22,7 @@ import type {
   FieldChange,
 } from "@/lib/change-log-types";
 import { INTL_LOCALES, type Locale } from "@/lib/i18n/config";
-import { useLocale, useT } from "@/lib/i18n/client";
+import { useLocale, useT, useHeaderT } from "@/lib/i18n/client";
 import { formatNumber, type Translate } from "@/lib/i18n/translate";
 
 const PER_PAGE = 20;
@@ -87,6 +87,7 @@ type ListState = ChangeLogList & { error: Problem | null };
 
 export function ChangeLogTable() {
   const t = useT();
+  const th = useHeaderT();
   const locale = useLocale();
   const [page, setPage] = useState(
     () => readCache<ListState>(CACHE_KEY)?.page ?? 1,
@@ -145,12 +146,12 @@ export function ChangeLogTable() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-44">{t("changeLog.when")}</TableHead>
-              <TableHead className="w-40">{t("changeLog.who")}</TableHead>
-              <TableHead className="w-28">{t("changeLog.page")}</TableHead>
-              <TableHead>{t("changeLog.what")}</TableHead>
+              <TableHead className="w-44">{th("changeLog.when")}</TableHead>
+              <TableHead className="w-40">{th("changeLog.who")}</TableHead>
+              <TableHead className="w-28">{th("changeLog.page")}</TableHead>
+              <TableHead>{th("changeLog.what")}</TableHead>
               <TableHead className="w-32 text-right">
-                {t("changeLog.changes")}
+                {th("changeLog.changes")}
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -243,6 +244,7 @@ export function ChangeLogTable() {
 
 function ChangeDetails({ entry }: { entry: ChangeLogList["items"][number] }) {
   const t = useT();
+  const th = useHeaderT();
   const locale = useLocale();
 
   return (
@@ -250,10 +252,10 @@ function ChangeDetails({ entry }: { entry: ChangeLogList["items"][number] }) {
       <Table className="bg-background">
         <TableHeader>
           <TableRow>
-            <TableHead>{t("changeLog.record")}</TableHead>
-            <TableHead>{t("changeLog.field")}</TableHead>
-            <TableHead>{t("changeLog.before")}</TableHead>
-            <TableHead>{t("changeLog.after")}</TableHead>
+            <TableHead>{th("changeLog.record")}</TableHead>
+            <TableHead>{th("changeLog.field")}</TableHead>
+            <TableHead>{th("changeLog.before")}</TableHead>
+            <TableHead>{th("changeLog.after")}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

@@ -52,7 +52,7 @@ import {
   writeProblem,
   type Problem,
 } from "@/lib/api-errors";
-import { useT } from "@/lib/i18n/client";
+import { useT, useHeaderT } from "@/lib/i18n/client";
 import { msg } from "@/lib/i18n/translate";
 import { cn } from "@/lib/utils";
 import { useUnsavedChanges } from "@/lib/use-unsaved-changes";
@@ -245,6 +245,7 @@ const ImportPreviewRow = memo(function ImportPreviewRow({
 export function ImportPostcodes() {
   const { getToken } = useAuth();
   const t = useT();
+  const th = useHeaderT();
   const [existing, setExisting] = useState<Map<
     string,
     ExistingPostcode
@@ -689,11 +690,11 @@ export function ImportPostcodes() {
             <TableHeader className="sticky top-0 z-10 bg-background">
               <TableRow>
                 <TableHead />
-                <TableHead>{t("common.row")}</TableHead>
-                <TableHead>{t("importPostcodes.status")}</TableHead>
+                <TableHead>{th("common.row")}</TableHead>
+                <TableHead>{th("importPostcodes.status")}</TableHead>
                 {FIELD_COLUMNS.map((field) => (
                   <TableHead key={field.column}>
-                    {t(`postcode.${field.column}`)}
+                    {th(`postcode.${field.column}`)}
                   </TableHead>
                 ))}
               </TableRow>

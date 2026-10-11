@@ -6,6 +6,7 @@ import zodEn from "zod/v4/locales/en.js";
 import zodLt from "zod/v4/locales/lt.js";
 import type { Locale } from "@/lib/i18n/config";
 import type { Messages } from "@/lib/i18n/messages";
+import { en } from "@/lib/i18n/messages/en";
 import { createTranslator, type Translate } from "@/lib/i18n/translate";
 
 type I18n = { locale: Locale; t: Translate };
@@ -61,4 +62,11 @@ export function useT() {
 
 export function useLocale() {
   return useI18n().locale;
+}
+
+// Table column headers stay in English in every language (owner's choice).
+const translateHeader = createTranslator(en);
+
+export function useHeaderT() {
+  return translateHeader;
 }

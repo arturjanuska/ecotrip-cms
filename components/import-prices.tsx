@@ -28,7 +28,7 @@ import {
   writeProblem,
   type Problem,
 } from "@/lib/api-errors";
-import { useT } from "@/lib/i18n/client";
+import { useT, useHeaderT } from "@/lib/i18n/client";
 import type { Translate } from "@/lib/i18n/translate";
 import { cn } from "@/lib/utils";
 
@@ -63,19 +63,20 @@ function formatValue(t: Translate, value: number | null) {
 
 // Column headers shared by the changes and unknown rows tables.
 function RowHeads() {
-  const t = useT();
+  const th = useHeaderT();
   return (
     <>
-      <TableHead>{t("price.category")}</TableHead>
-      <TableHead>{t("price.type")}</TableHead>
-      <TableHead>{t("price.size")}</TableHead>
-      <TableHead>{t("price.spec")}</TableHead>
+      <TableHead>{th("price.category")}</TableHead>
+      <TableHead>{th("price.type")}</TableHead>
+      <TableHead>{th("price.size")}</TableHead>
+      <TableHead>{th("price.spec")}</TableHead>
     </>
   );
 }
 
 export function ImportPrices() {
   const t = useT();
+  const th = useHeaderT();
   const router = useRouter();
   const { getToken } = useAuth();
   const [catalog, setCatalog] = useState<StoredCategory[] | null>(null);
@@ -234,10 +235,10 @@ export function ImportPrices() {
                 <TableHeader>
                   <TableRow>
                     <TableHead className="w-10" />
-                    <TableHead>{t("common.row")}</TableHead>
+                    <TableHead>{th("common.row")}</TableHead>
                     <RowHeads />
-                    <TableHead>{t("importPrices.field")}</TableHead>
-                    <TableHead>{t("importPrices.nowInFile")}</TableHead>
+                    <TableHead>{th("importPrices.field")}</TableHead>
+                    <TableHead>{th("importPrices.nowInFile")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -320,7 +321,7 @@ export function ImportPrices() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>{t("common.row")}</TableHead>
+                    <TableHead>{th("common.row")}</TableHead>
                     <RowHeads />
                   </TableRow>
                 </TableHeader>

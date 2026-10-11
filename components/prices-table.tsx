@@ -33,7 +33,7 @@ import {
   type Problem,
 } from "@/lib/api-errors";
 import { readCache, writeCache } from "@/lib/client-cache";
-import { useT } from "@/lib/i18n/client";
+import { useT, useHeaderT } from "@/lib/i18n/client";
 import { fetchPriceCatalog, saveCategory } from "@/lib/prices-client";
 import { cn } from "@/lib/utils";
 import { useUnsavedChanges } from "@/lib/use-unsaved-changes";
@@ -158,6 +158,7 @@ const CategoryBlock = memo(function CategoryBlock({
   onSave,
 }: BlockProps) {
   const t = useT();
+  const th = useHeaderT();
   const rows = useMemo(() => tableRows(category), [category]);
   const applied = useMemo(
     () => applyDrafts(category, drafts),
@@ -222,7 +223,7 @@ const CategoryBlock = memo(function CategoryBlock({
           <TableRow>
             {COLUMNS.map((column) => (
               <TableHead key={column.label} className="whitespace-normal">
-                {t(column.label)}
+                {th(column.label)}
               </TableHead>
             ))}
           </TableRow>

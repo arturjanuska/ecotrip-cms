@@ -12,6 +12,8 @@ import {
 import { connectDB } from "@/lib/db";
 import { FeeSettingsModel } from "@/lib/models/fee-settings";
 import { putFeesBodySchema } from "@/lib/validation/fees";
+import { recordChange } from "@/lib/change-log";
+import { diffFees } from "@/lib/change-log-diff";
 
 // The one fee settings document. 404 until npm run import:fees seeds it.
 export const GET = withErrorHandling(async (request: NextRequest) => {
@@ -50,6 +52,7 @@ export const PUT = withErrorHandling(async (request: NextRequest) => {
 
   await connectDB();
 
+  const before = await FeeSettingsModel.findOne().lean();
   const saved = await FeeSettingsModel.findOneAndUpdate(
     { updatedAt: new Date(updatedAt) },
     { $set: settings },
@@ -57,6 +60,13 @@ export const PUT = withErrorHandling(async (request: NextRequest) => {
   ).lean();
 
   if (saved) {
+    if (before) {
+      await recordChange({
+        page: "fees",
+        summary: "Saved fees",
+        changes: diffFees(before, settings),
+      });
+    }
     return NextResponse.json(saved);
   }
 

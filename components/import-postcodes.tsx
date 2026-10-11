@@ -44,6 +44,7 @@ import {
 import { DEFAULT_FILTERS } from "@/lib/postcode-filters";
 import { errorMessage, fetchAllPostcodes } from "@/lib/postcodes-client";
 import { cn } from "@/lib/utils";
+import { useUnsavedChanges } from "@/lib/use-unsaved-changes";
 
 const ROW_HEIGHT = 49;
 const OVERSCAN = 10;
@@ -266,15 +267,7 @@ export function ImportPostcodes() {
     return () => controller.abort();
   }, [reloadExisting]);
 
-  useEffect(() => {
-    if (rows.length === 0) {
-      return;
-    }
-
-    const warn = (event: BeforeUnloadEvent) => event.preventDefault();
-    window.addEventListener("beforeunload", warn);
-    return () => window.removeEventListener("beforeunload", warn);
-  }, [rows.length]);
+  useUnsavedChanges(rows.length > 0);
 
   const duplicates = useMemo(
     () => duplicatePostcodes(rows.filter((row) => !row.excluded)),

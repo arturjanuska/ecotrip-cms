@@ -11,6 +11,7 @@ const links = [
   { href: "/postcodes", label: "Postcodes" },
   { href: "/prices", label: "Prices" },
   { href: "/fees", label: "Fees" },
+  { href: "/changelog", label: "Change log" },
 ];
 
 export function Sidebar() {

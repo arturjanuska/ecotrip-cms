@@ -17,6 +17,8 @@ import {
   createPostcodeSchema,
   listQuerySchema,
 } from "@/lib/validation/postcode";
+import { recordChange } from "@/lib/change-log";
+import { diffPostcode } from "@/lib/change-log-diff";
 
 export const GET = withErrorHandling(async (request: NextRequest) => {
   const cors = corsHeaders(request);
@@ -84,6 +86,11 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
 
   try {
     const created = await Postcode.create(parsed.data);
+    await recordChange({
+      page: "postcodes",
+      summary: `Created postcode ${created.postcode}`,
+      changes: diffPostcode(null, created.toJSON()),
+    });
     return NextResponse.json(created.toJSON(), { status: 201 });
   } catch (error) {
     if (isDuplicateKeyError(error)) {

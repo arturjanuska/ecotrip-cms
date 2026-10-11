@@ -12,6 +12,8 @@ import {
   bulkUpdateSchema,
   type BulkUpdateResult,
 } from "@/lib/validation/postcode";
+import { recordChange } from "@/lib/change-log";
+import { diffPostcode } from "@/lib/change-log-diff";
 
 // Applies the same `changes` to every record in `ids`. Each record is updated
 // fully or not at all; there is no rollback across records.
@@ -35,6 +37,7 @@ export const PUT = withErrorHandling(async (request: NextRequest) => {
 
   await connectDB();
 
+  const before = await Postcode.find({ _id: { $in: ids } }).lean();
   const result = await Postcode.updateMany(
     { _id: { $in: ids } },
     { $set: changes },
@@ -47,6 +50,19 @@ export const PUT = withErrorHandling(async (request: NextRequest) => {
     const foundIds = new Set(found.map((doc) => String(doc._id)));
     notFound = ids.filter((id) => !foundIds.has(id));
   }
+
+  const changed = before
+    .map((doc) => diffPostcode(doc, { ...doc, ...changes }))
+    .filter((fields) => fields.length > 0);
+  await recordChange({
+    page: "postcodes",
+    summary: `Bulk change of ${changed.length} postcodes: ${Object.entries(
+      changes,
+    )
+      .map(([field, value]) => `${field} → ${value === "" ? "(empty)" : value}`)
+      .join(", ")}`,
+    changes: changed.flat(),
+  });
 
   return NextResponse.json({
     matched: result.matchedCount,

@@ -16,6 +16,8 @@ import {
 } from "@/lib/price-import";
 import type { Category } from "@/lib/price-types";
 import { categorySchema, importBodySchema } from "@/lib/validation/price";
+import { recordChange } from "@/lib/change-log";
+import { priceFieldLabel, sheetText } from "@/lib/change-log-diff";
 
 function toCategory(doc: Category): Category {
   const { value, label, sheet, order, subCategories, pricing } = doc;
@@ -47,6 +49,7 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
   const session = await mongoose.startSession();
   let conflicts: ImportConflict[] = [];
   let invalid: string[] = [];
+  const categorySheets = new Map<string, string>();
 
   try {
     await session.withTransaction(async () => {
@@ -56,6 +59,7 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
         .session(session)
         .lean();
 
+      docs.forEach((doc) => categorySheets.set(doc.value, doc.sheet));
       const outcome = applyImportChanges(docs.map(toCategory), changes);
       conflicts = outcome.conflicts;
       invalid = outcome.updated.flatMap((category) => {
@@ -101,6 +105,17 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
       details: { messages: invalid },
     });
   }
+
+  await recordChange({
+    page: "prices",
+    summary: `Imported prices: ${changes.length} ${changes.length === 1 ? "change" : "changes"}`,
+    changes: changes.map((change) => ({
+      record: `${categorySheets.get(change.category) ?? change.category} · ${sheetText(change.sheet)}`,
+      field: priceFieldLabel(change.field),
+      from: change.from,
+      to: change.to,
+    })),
+  });
 
   const result: PriceImportResult = { updated: changes.length };
   return NextResponse.json(result);

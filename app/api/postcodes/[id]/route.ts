@@ -15,6 +15,8 @@ import {
 import { connectDB } from "@/lib/db";
 import { Postcode } from "@/lib/models/postcode";
 import { updatePostcodeSchema } from "@/lib/validation/postcode";
+import { recordChange } from "@/lib/change-log";
+import { diffPostcode } from "@/lib/change-log-diff";
 
 type Context = { params: Promise<{ id: string }> };
 
@@ -72,6 +74,8 @@ export const PUT = withErrorHandling(
       return duplicate();
     }
 
+    const before = await Postcode.findById(id).lean();
+
     try {
       const updated = await Postcode.findByIdAndUpdate(
         id,
@@ -83,6 +87,12 @@ export const PUT = withErrorHandling(
         return notFound();
       }
 
+      const restored = before?.active === false && updated.active;
+      await recordChange({
+        page: "postcodes",
+        summary: `${restored ? "Restored" : "Edited"} postcode ${updated.postcode}`,
+        changes: diffPostcode(before, updated),
+      });
       return NextResponse.json(updated);
     } catch (error) {
       if (isDuplicateKeyError(error)) {
@@ -107,6 +117,8 @@ export const DELETE = withErrorHandling(
 
     await connectDB();
 
+    const wasActive = (await Postcode.findById(id, { active: 1 }).lean())
+      ?.active;
     const deleted = await Postcode.findByIdAndUpdate(
       id,
       { $set: { active: false } },
@@ -117,6 +129,13 @@ export const DELETE = withErrorHandling(
       return notFound();
     }
 
+    await recordChange({
+      page: "postcodes",
+      summary: `Deleted postcode ${deleted.postcode}`,
+      changes: wasActive
+        ? diffPostcode({ ...deleted, active: true }, deleted)
+        : [],
+    });
     return NextResponse.json(deleted);
   },
 );

@@ -23,6 +23,8 @@ import {
   type ImportRowErrors,
   type ImportValues,
 } from "@/lib/postcode-csv";
+import { recordChange } from "@/lib/change-log";
+import { diffPostcode } from "@/lib/change-log-diff";
 
 // Rows as the import preview sends them: every column as text.
 const importBodySchema = z.object({
@@ -114,6 +116,16 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
   } finally {
     await session.endSession();
   }
+
+  const changes = rows.flatMap((values) => {
+    const record = toImportRecord(values);
+    return diffPostcode(existing.get(record.postcode) ?? null, record);
+  });
+  await recordChange({
+    page: "postcodes",
+    summary: `Imported postcodes: ${result.inserted} new, ${result.updated} updated`,
+    changes,
+  });
 
   return NextResponse.json(result);
 });

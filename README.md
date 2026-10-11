@@ -144,6 +144,10 @@ CORS: публичные GET отдают `Access-Control-Allow-Origin` толь
 
 Импорт меняет только цены, объём и вес существующих строк. Новую позицию (тип, размер) он не создаёт: ей нужны переводы на сайте. Новую категорию добавляют в `price-catalog.json` и вставляют `import:prices`; новую строку в существующей категории — через `PUT /api/prices/:category`.
 
+### Экспорт
+
+**Prices → Export JSON** скачивает `prices-<дата>.json` — весь каталог в том же виде, что `GET /api/prices` (`{ categories }`). Им обновляют резервный снимок цен на сайте.
+
 ### API цен
 
 | Метод | Путь                    | Доступ    |
@@ -151,6 +155,7 @@ CORS: публичные GET отдают `Access-Control-Allow-Origin` толь
 | GET   | `/api/prices`           | публичный |
 | PUT   | `/api/prices/:category` | admin     |
 | POST  | `/api/prices/import`    | admin     |
+| GET   | `/api/prices/export`    | admin     |
 
 - `GET /api/prices` → `{ categories }`, сортировка по `order`. CORS как у postcodes (`CORS_ORIGINS`).
 - `PUT /api/prices/:category` принимает `{ category, updatedAt }`: категорию целиком и `updatedAt`, который клиент прочитал. Если категория с тех пор изменилась, 409. `value` менять нельзя (400), неизвестная категория — 404.

@@ -26,6 +26,14 @@ export default async function PricesPage({
         >
           Import CSV
         </Link>
+        {/* A plain link: the browser downloads the file the API returns. */}
+        <a
+          href="/api/prices/export"
+          download
+          className={buttonVariants({ variant: "outline" })}
+        >
+          Export JSON
+        </a>
       </div>
       {imported && (
         <p className="rounded-lg bg-brand/10 px-3 py-2 text-sm">

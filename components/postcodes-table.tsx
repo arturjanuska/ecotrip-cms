@@ -48,6 +48,7 @@ import {
 } from "@/lib/postcodes-client";
 import { readCache, writeCache } from "@/lib/client-cache";
 import type { BulkChanges, BulkUpdateResult } from "@/lib/validation/postcode";
+import { useUnsavedChanges } from "@/lib/use-unsaved-changes";
 
 const PER_PAGE_OPTIONS = [25, 50, 100, 200, 500] as const;
 const DEFAULT_PER_PAGE = 50;
@@ -323,16 +324,8 @@ export function PostcodesTable() {
     });
   }, [filters, postcodeInput, perPage, page, list]);
 
-  // Drafts survive page and filter changes, but not closing or reloading the tab.
-  useEffect(() => {
-    if (unsavedCount === 0) {
-      return;
-    }
-
-    const warn = (event: BeforeUnloadEvent) => event.preventDefault();
-    window.addEventListener("beforeunload", warn);
-    return () => window.removeEventListener("beforeunload", warn);
-  }, [unsavedCount]);
+  // Drafts survive page and filter changes, but not leaving the page.
+  useUnsavedChanges(unsavedCount > 0);
 
   function updateFilters(patch: Partial<PostcodeFilters>) {
     setFilters((current) => ({ ...current, ...patch }));

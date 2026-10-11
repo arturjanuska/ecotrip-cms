@@ -20,6 +20,7 @@ import { readCache, writeCache } from "@/lib/client-cache";
 import { fetchFeeSettings, saveFeeSettings } from "@/lib/fees-client";
 import { parseCellNumber } from "@/lib/price-drafts";
 import { cn } from "@/lib/utils";
+import { useUnsavedChanges } from "@/lib/use-unsaved-changes";
 
 // Help texts agreed with the owner (docs/superpowers/specs/2026-10-11-fees-design.md).
 const HELP = {
@@ -238,14 +239,7 @@ export function FeesForm() {
   const fields = useMemo(() => (form ? formFields(form) : {}), [form]);
   const unsaved = changed.size;
 
-  useEffect(() => {
-    if (unsaved === 0) {
-      return;
-    }
-    const warn = (event: BeforeUnloadEvent) => event.preventDefault();
-    window.addEventListener("beforeunload", warn);
-    return () => window.removeEventListener("beforeunload", warn);
-  }, [unsaved]);
+  useUnsavedChanges(unsaved > 0);
 
   if (loadError) {
     return <p className="text-sm text-destructive">{loadError}</p>;

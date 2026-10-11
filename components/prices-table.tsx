@@ -28,6 +28,7 @@ import type { Category, StoredCategory } from "@/lib/price-types";
 import { readCache, writeCache } from "@/lib/client-cache";
 import { fetchPriceCatalog, saveCategory } from "@/lib/prices-client";
 import { cn } from "@/lib/utils";
+import { useUnsavedChanges } from "@/lib/use-unsaved-changes";
 
 const COLUMNS = [
   { label: "Type", width: 220 },
@@ -326,14 +327,7 @@ export function PricesTable() {
     0,
   );
 
-  useEffect(() => {
-    if (unsavedCount === 0) {
-      return;
-    }
-    const warn = (event: BeforeUnloadEvent) => event.preventDefault();
-    window.addEventListener("beforeunload", warn);
-    return () => window.removeEventListener("beforeunload", warn);
-  }, [unsavedCount]);
+  useUnsavedChanges(unsavedCount > 0);
 
   const change = useCallback(
     (category: string, key: string, text: string, saved: number | null) => {

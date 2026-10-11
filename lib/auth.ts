@@ -27,6 +27,20 @@ export const getAuthState = cache(async (): Promise<AuthState> => {
   return role === ADMIN_ROLE ? "admin" : "forbidden";
 });
 
+/**
+ * Who made a write, for the change log: username, else the primary email,
+ * else the Clerk user id.
+ */
+export const getActor = cache(async () => {
+  const user = await currentUser();
+  if (!user) {
+    return { id: "unknown", name: "unknown" };
+  }
+  const name =
+    user.username ?? user.primaryEmailAddress?.emailAddress ?? user.id;
+  return { id: user.id, name };
+});
+
 /** Call at the top of every CMS page and layout. */
 export async function requireAdminPage() {
   const state = await getAuthState();

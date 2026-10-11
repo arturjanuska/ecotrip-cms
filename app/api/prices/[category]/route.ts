@@ -10,6 +10,8 @@ import {
 import { connectDB } from "@/lib/db";
 import { PriceCategory } from "@/lib/models/price-category";
 import { putCategoryBodySchema } from "@/lib/validation/price";
+import { recordChange } from "@/lib/change-log";
+import { diffPriceCategory } from "@/lib/change-log-diff";
 
 type Context = { params: Promise<{ category: string }> };
 
@@ -44,6 +46,7 @@ export const PUT = withErrorHandling(
 
     await connectDB();
 
+    const before = await PriceCategory.findOne({ value }).lean();
     const saved = await PriceCategory.findOneAndUpdate(
       { value, updatedAt: new Date(updatedAt) },
       {
@@ -58,6 +61,13 @@ export const PUT = withErrorHandling(
     ).lean();
 
     if (saved) {
+      if (before) {
+        await recordChange({
+          page: "prices",
+          summary: `Saved prices: ${before.sheet}`,
+          changes: diffPriceCategory(before, category),
+        });
+      }
       return NextResponse.json(saved);
     }
 

@@ -25,19 +25,28 @@ import {
 } from "@/lib/price-drafts";
 import type { SheetTarget } from "@/lib/price-sheet-key";
 import type { Category, StoredCategory } from "@/lib/price-types";
+import {
+  NETWORK_ERROR,
+  loadProblem,
+  problemText,
+  writeProblem,
+  type Problem,
+} from "@/lib/api-errors";
 import { readCache, writeCache } from "@/lib/client-cache";
+import { useT } from "@/lib/i18n/client";
 import { fetchPriceCatalog, saveCategory } from "@/lib/prices-client";
 import { cn } from "@/lib/utils";
 import { useUnsavedChanges } from "@/lib/use-unsaved-changes";
 
+// Labels are message keys.
 const COLUMNS = [
-  { label: "Type", width: 220 },
-  { label: "Size", width: 200 },
-  { label: "Specification", width: 160 },
-  { label: "Volume (m³)", width: 120 },
-  { label: "Weight (kg)", width: 120 },
-  { label: "UK→LT (£)", width: 140 },
-  { label: "LT→UK (€)", width: 140 },
+  { label: "price.type", width: 220 },
+  { label: "price.size", width: 200 },
+  { label: "price.spec", width: 160 },
+  { label: "price.volume", width: 120 },
+  { label: "price.weight", width: 120 },
+  { label: "price.UK-LT", width: 140 },
+  { label: "price.LT-UK", width: 140 },
 ];
 const TABLE_MIN_WIDTH = COLUMNS.reduce((sum, column) => sum + column.width, 0);
 
@@ -102,6 +111,7 @@ function NumberCell({
   placeholder,
   onChange,
 }: CellProps) {
+  const t = useT();
   const key = cellKey(target.item.sheet, field);
   const saved = readCell(target, field) ?? null;
   const draft = drafts[key];
@@ -114,7 +124,7 @@ function NumberCell({
         value={draft ?? cellText(saved)}
         placeholder={placeholder}
         aria-invalid={error ? true : undefined}
-        title={error}
+        title={error && t(error)}
         className={cn(draft !== undefined && "bg-brand/10")}
         onChange={(event) => onChange(key, event.target.value, saved)}
       />
@@ -129,7 +139,7 @@ type BlockProps = {
   category: StoredCategory;
   drafts: CategoryDrafts;
   saving: boolean;
-  error: string | undefined;
+  error: Problem | undefined;
   onChange: (
     category: string,
     key: string,
@@ -147,6 +157,7 @@ const CategoryBlock = memo(function CategoryBlock({
   onChange,
   onSave,
 }: BlockProps) {
+  const t = useT();
   const rows = useMemo(() => tableRows(category), [category]);
   const applied = useMemo(
     () => applyDrafts(category, drafts),
@@ -181,21 +192,23 @@ const CategoryBlock = memo(function CategoryBlock({
         <h2 className="mr-auto text-lg font-semibold">{category.sheet}</h2>
         {unsaved > 0 && (
           <span className="text-sm text-muted-foreground">
-            Unsaved: {unsaved}
+            {t("common.unsaved", { count: unsaved })}
           </span>
         )}
         <Button
           disabled={unsaved === 0 || saving || invalid}
           onClick={() => onSave(category, applied.category)}
         >
-          {saving ? "Saving…" : "Save"}
+          {saving ? t("common.saving") : t("common.save")}
         </Button>
       </div>
-      {error && <p className="text-sm text-destructive">{error}</p>}
+      {error && (
+        <p className="text-sm text-destructive">{problemText(t, error)}</p>
+      )}
       {applied.formErrors.length > 0 && (
         <ul className="space-y-0.5 text-sm text-destructive">
           {applied.formErrors.map((message) => (
-            <li key={message}>{message}</li>
+            <li key={message}>{t(message)}</li>
           ))}
         </ul>
       )}
@@ -208,7 +221,9 @@ const CategoryBlock = memo(function CategoryBlock({
         <TableHeader>
           <TableRow>
             {COLUMNS.map((column) => (
-              <TableHead key={column.label}>{column.label}</TableHead>
+              <TableHead key={column.label} className="whitespace-normal">
+                {t(column.label)}
+              </TableHead>
             ))}
           </TableRow>
         </TableHeader>
@@ -219,7 +234,7 @@ const CategoryBlock = memo(function CategoryBlock({
                 <TableRow key={row.key} className="text-muted-foreground">
                   <TableCell>{row.label}</TableCell>
                   <TableCell colSpan={COLUMNS.length - 1}>
-                    Contact manager
+                    {t("pricesPage.contactManager")}
                   </TableCell>
                 </TableRow>
               );
@@ -256,15 +271,15 @@ const CategoryBlock = memo(function CategoryBlock({
                     <TableCell>
                       {row.basis === "volume" &&
                         cell(row.target, "upTo", {
-                          placeholder: "no limit",
-                          suffix: "max",
+                          placeholder: t("common.noLimit"),
+                          suffix: t("pricesPage.max"),
                         })}
                     </TableCell>
                     <TableCell>
                       {row.basis === "weight" &&
                         cell(row.target, "upTo", {
-                          placeholder: "no limit",
-                          suffix: "max",
+                          placeholder: t("common.noLimit"),
+                          suffix: t("pricesPage.max"),
                         })}
                     </TableCell>
                   </>
@@ -294,13 +309,14 @@ const PRICES_CACHE_KEY = "prices";
 
 export function PricesTable() {
   const { getToken } = useAuth();
+  const t = useT();
   const [categories, setCategories] = useState<StoredCategory[] | null>(
     () => readCache<StoredCategory[]>(PRICES_CACHE_KEY) ?? null,
   );
-  const [loadError, setLoadError] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<Problem | null>(null);
   const [drafts, setDrafts] = useState<Record<string, CategoryDrafts>>({});
   const [saving, setSaving] = useState<Record<string, boolean>>({});
-  const [saveErrors, setSaveErrors] = useState<Record<string, string>>({});
+  const [saveErrors, setSaveErrors] = useState<Record<string, Problem>>({});
 
   useEffect(() => {
     const controller = new AbortController();
@@ -308,9 +324,7 @@ export function PricesTable() {
       .then(setCategories)
       .catch((error: unknown) => {
         if (!controller.signal.aborted) {
-          setLoadError(
-            error instanceof Error ? error.message : "Failed to load prices",
-          );
+          setLoadError(loadProblem(error, "errors.loadPrices"));
         }
       });
     return () => controller.abort();
@@ -352,7 +366,10 @@ export function PricesTable() {
           getToken({ skipCache: true }),
         );
         if (!result.ok) {
-          setSaveErrors((current) => ({ ...current, [value]: result.message }));
+          setSaveErrors((current) => ({
+            ...current,
+            [value]: writeProblem(result.failure, "errors.requestFailed"),
+          }));
           return;
         }
 
@@ -370,7 +387,7 @@ export function PricesTable() {
             : without(current, value);
         });
       } catch {
-        setSaveErrors((current) => ({ ...current, [value]: "Network error" }));
+        setSaveErrors((current) => ({ ...current, [value]: NETWORK_ERROR }));
       } finally {
         setSaving((current) => ({ ...current, [value]: false }));
       }
@@ -379,7 +396,9 @@ export function PricesTable() {
   );
 
   if (loadError) {
-    return <p className="text-sm text-destructive">{loadError}</p>;
+    return (
+      <p className="text-sm text-destructive">{problemText(t, loadError)}</p>
+    );
   }
 
   if (!categories) {
@@ -395,7 +414,7 @@ export function PricesTable() {
   if (categories.length === 0) {
     return (
       <p className="text-sm text-muted-foreground">
-        No prices yet. Fill them with npm run import:prices -- --write.
+        {t("pricesPage.noPrices")}
       </p>
     );
   }
@@ -404,7 +423,7 @@ export function PricesTable() {
     <div className="space-y-8">
       {unsavedCount > 0 && (
         <p className="text-sm text-muted-foreground">
-          Unsaved changes: {unsavedCount}. Save each category you changed.
+          {t("pricesPage.unsavedChanges", { count: unsavedCount })}
         </p>
       )}
       {categories.map((category) => (

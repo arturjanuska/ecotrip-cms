@@ -48,7 +48,7 @@ describe("feeSettingsSchema", () => {
     settings.addressService.fee = -1;
     settings.parcelForce.zones[1].fee = Infinity;
     expect(issues(settings)).toEqual([
-      "addressService.fee: Must be 0 or more",
+      "addressService.fee: validation.nonNegative",
       expect.stringMatching(/^parcelForce\.zones\.1\.fee: /),
     ]);
   });
@@ -58,8 +58,8 @@ describe("feeSettingsSchema", () => {
     settings.salesService.percent = percent;
     settings.quantityDiscounts[2].percent = percent;
     expect(issues(settings)).toEqual([
-      "salesService.percent: Must be from 0 to 100",
-      "quantityDiscounts.2.percent: Must be from 0 to 100",
+      "salesService.percent: validation.percentRange",
+      "quantityDiscounts.2.percent: validation.percentRange",
     ]);
   });
 
@@ -75,8 +75,8 @@ describe("feeSettingsSchema", () => {
     settings.purchaseService.clientMoney.min = 60;
     settings.salesService.max = -5;
     expect(issues(settings)).toEqual([
-      "purchaseService.clientMoney.max: Max must not be below min",
-      "salesService.max: Must be 0 or more",
+      "purchaseService.clientMoney.max: validation.maxBelowMin",
+      "salesService.max: validation.nonNegative",
     ]);
   });
 
@@ -84,7 +84,7 @@ describe("feeSettingsSchema", () => {
     const settings = initial();
     settings.purchaseService.threshold = 0;
     expect(issues(settings)).toEqual([
-      "purchaseService.threshold: Must be greater than 0",
+      "purchaseService.threshold: validation.positive",
     ]);
   });
 
@@ -95,10 +95,10 @@ describe("feeSettingsSchema", () => {
     settings.parcelForce.medium.maxSide = 0;
     settings.parcelForce.medium.tiers[0].upToWeight = 0;
     expect(issues(settings)).toEqual([
-      "parcelForce.small.maxSide: Must be greater than 0",
-      "parcelForce.small.maxWeight: Must be greater than 0",
-      "parcelForce.medium.maxSide: Must be greater than 0",
-      "parcelForce.medium.tiers.0.upToWeight: Must be greater than 0",
+      "parcelForce.small.maxSide: validation.positive",
+      "parcelForce.small.maxWeight: validation.positive",
+      "parcelForce.medium.maxSide: validation.positive",
+      "parcelForce.medium.tiers.0.upToWeight: validation.positive",
     ]);
   });
 
@@ -106,19 +106,19 @@ describe("feeSettingsSchema", () => {
     const outOfOrder = initial();
     outOfOrder.parcelForce.medium.tiers[2].upToWeight = 10;
     expect(issues(outOfOrder)).toEqual([
-      "parcelForce.medium.tiers.2.upToWeight: Each tier must go higher than the one before",
+      "parcelForce.medium.tiers.2.upToWeight: validation.tiersAscending",
     ]);
 
     const none = initial();
     none.parcelForce.medium.tiers = [];
     expect(issues(none)).toEqual([
-      "parcelForce.medium.tiers: Add at least one weight tier",
+      "parcelForce.medium.tiers: validation.addTier",
     ]);
   });
 
   it("rejects zones missing, repeated or out of order", () => {
     const message =
-      "parcelForce.zones: Zones must be Zone 1, Zone 2, Zone 3, in this order";
+      'parcelForce.zones: validation.zonesOrder {"zones":"Zone 1, Zone 2, Zone 3"}';
 
     const missing = initial();
     missing.parcelForce.zones.pop();
@@ -145,7 +145,7 @@ describe("feeSettingsSchema", () => {
     const settings = initial();
     settings.quantityDiscounts[0].fromParcels = 2;
     expect(issues(settings)).toContain(
-      "quantityDiscounts.0.fromParcels: The first row must start from 1 parcel",
+      "quantityDiscounts.0.fromParcels: validation.firstRowFromOne",
     );
   });
 
@@ -153,13 +153,13 @@ describe("feeSettingsSchema", () => {
     const outOfOrder = initial();
     outOfOrder.quantityDiscounts[3].fromParcels = 3;
     expect(issues(outOfOrder)).toEqual([
-      "quantityDiscounts.3.fromParcels: Each row must start above the one before",
+      "quantityDiscounts.3.fromParcels: validation.rowsAscending",
     ]);
 
     const fractional = initial();
     fractional.quantityDiscounts[4].fromParcels = 5.5;
     expect(issues(fractional)).toEqual([
-      "quantityDiscounts.4.fromParcels: Must be a whole number",
+      "quantityDiscounts.4.fromParcels: validation.wholeNumber",
     ]);
   });
 
@@ -171,7 +171,7 @@ describe("feeSettingsSchema", () => {
     const none = initial();
     none.quantityDiscounts = [];
     expect(issues(none)).toEqual([
-      "quantityDiscounts: Add at least one discount row",
+      "quantityDiscounts: validation.addDiscountRow",
     ]);
   });
 });

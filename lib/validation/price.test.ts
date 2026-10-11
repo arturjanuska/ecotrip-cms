@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { z } from "zod";
+import { msg } from "@/lib/i18n/translate";
 import { sampleCatalog } from "@/lib/price-test-data";
 import type {
   Category,
@@ -57,9 +58,7 @@ describe("categorySchema", () => {
     const pricing = category.subCategories[0].pricing as FixedPricing;
     pricing.variants[1].specification = pricing.variants[0].specification;
     pricing.variants[1].sheet.spec = "Other text";
-    expect(messages(category)).toContain(
-      "Size and specification repeat an earlier row",
-    );
+    expect(messages(category)).toContain("validation.variantRepeats");
   });
 
   it.each([0, -5])("rejects price %d", (price) => {
@@ -74,31 +73,25 @@ describe("categorySchema", () => {
     const outOfOrder = shipments();
     const tiers = (outOfOrder.pricing as MeasuredPricing).byWeight!;
     tiers[1].upTo = 10;
-    expect(messages(outOfOrder)).toContain(
-      "Each tier must go higher than the one before",
-    );
+    expect(messages(outOfOrder)).toContain("validation.tiersAscending");
 
     const openFirst = shipments();
     (openFirst.pricing as MeasuredPricing).byWeight![0].upTo = null;
-    expect(messages(openFirst)).toContain(
-      "Only the last tier can have no upper limit",
-    );
+    expect(messages(openFirst)).toContain("validation.onlyLastTierOpen");
   });
 
   it("rejects measured pricing without tiers", () => {
     const category = shipments();
     (category.pricing as MeasuredPricing).byWeight = null;
-    expect(messages(category)).toContain(
-      "Set weight tiers, volume tiers or both",
-    );
+    expect(messages(category)).toContain("validation.weightOrVolumeTiers");
   });
 
   it("rejects pricing next to subcategories, and neither", () => {
     expect(
       messages({ ...automotive(), pricing: { type: "callManager" } }),
-    ).toContain("Set either subcategories or pricing");
+    ).toContain("validation.subcategoriesOrPricing");
     expect(messages({ ...shipments(), pricing: null })).toContain(
-      "Set either subcategories or pricing",
+      "validation.subcategoriesOrPricing",
     );
   });
 
@@ -111,7 +104,9 @@ describe("categorySchema", () => {
       spec: "be padangų",
     };
     expect(messages(category)).toContain(
-      "Spreadsheet row repeats: ratų komplektas · <R16 · be padangų",
+      msg("validation.sheetRowRepeats", {
+        row: "ratų komplektas · <R16 · be padangų",
+      }),
     );
   });
 
@@ -128,7 +123,7 @@ describe("categorySchema", () => {
     ]);
     expect(
       result.success ? [] : result.error.issues.map((issue) => issue.message),
-    ).toContain('Spreadsheet category "siuntos" repeats');
+    ).toContain('validation.sheetCategoryRepeats {"sheet":"siuntos"}');
   });
 });
 

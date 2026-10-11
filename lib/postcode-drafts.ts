@@ -57,6 +57,7 @@ export function withDraft(
 }
 
 // Same rules as the API, so Save is only enabled for changes it will accept.
+// Messages are message keys or Zod's own messages: the table translates them.
 export function validateDraft(draft: Draft) {
   const result = updatePostcodeSchema.safeParse(draft);
   if (result.success) {
@@ -66,9 +67,10 @@ export function validateDraft(draft: Draft) {
   const issues = result.error.issues;
   return {
     fields: new Set(issues.map((issue) => String(issue.path[0]))),
-    message: issues
-      .map((issue) => `${String(issue.path[0])}: ${issue.message}`)
-      .join("; "),
+    issues: issues.map((issue) => ({
+      field: String(issue.path[0]),
+      message: issue.message,
+    })),
   };
 }
 

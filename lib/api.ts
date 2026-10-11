@@ -1,37 +1,51 @@
 import "server-only";
 import { NextResponse, type NextRequest } from "next/server";
 import { z } from "zod";
+import type { ApiErrorCode } from "@/lib/api-errors";
 import { getAuthState } from "@/lib/auth";
 import { OBJECT_ID_PATTERN } from "@/lib/validation/postcode";
 
 type Headers = Record<string, string>;
 
+// `error` is English text for API users; `code` is stable, and the CMS shows
+// its text in the user's language (lib/api-errors.ts).
 export function errorJson(
   status: number,
   error: string,
-  options: { details?: unknown; headers?: Headers } = {},
+  options: { code: ApiErrorCode; details?: unknown; headers?: Headers },
 ) {
   return NextResponse.json(
-    { error, ...(options.details ? { details: options.details } : {}) },
+    {
+      error,
+      code: options.code,
+      ...(options.details ? { details: options.details } : {}),
+    },
     { status, headers: options.headers },
   );
 }
 
+// Messages in `details` are message keys (lib/validation/*.ts) or Zod's own
+// English messages.
 export function validationError(error: z.ZodError, headers?: Headers) {
   return errorJson(400, "Validation failed", {
+    code: "validation_failed",
     details: z.flattenError(error),
     headers,
   });
 }
 
 export function notFound(headers?: Headers) {
-  return errorJson(404, "Postcode not found", { headers });
+  return errorJson(404, "Postcode not found", {
+    code: "postcode_not_found",
+    headers,
+  });
 }
 
 export function duplicate() {
   return errorJson(
     409,
     "Postcode already exists (it may be inactive: restore it with PUT active=true)",
+    { code: "postcode_duplicate" },
   );
 }
 
@@ -40,10 +54,10 @@ export async function requireAdmin() {
   const state = await getAuthState();
 
   if (state === "signed-out") {
-    return errorJson(401, "Unauthorized");
+    return errorJson(401, "Unauthorized", { code: "unauthorized" });
   }
   if (state === "forbidden") {
-    return errorJson(403, "Forbidden");
+    return errorJson(403, "Forbidden", { code: "forbidden" });
   }
   return null;
 }
@@ -55,7 +69,9 @@ export function requireJson(request: Request) {
 
   return type.toLowerCase().startsWith("application/json")
     ? null
-    : errorJson(415, "Content-Type must be application/json");
+    : errorJson(415, "Content-Type must be application/json", {
+        code: "unsupported_media_type",
+      });
 }
 
 export function isValidId(id: string) {
@@ -131,8 +147,14 @@ export function withErrorHandling<Context>(
       const headers = corsHeaders(request);
 
       return isDatabaseUnavailable(error)
-        ? errorJson(503, "Database unavailable", { headers })
-        : errorJson(500, "Internal server error", { headers });
+        ? errorJson(503, "Database unavailable", {
+            code: "database_unavailable",
+            headers,
+          })
+        : errorJson(500, "Internal server error", {
+            code: "internal_error",
+            headers,
+          });
     }
   };
 }

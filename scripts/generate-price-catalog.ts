@@ -10,6 +10,8 @@
  */
 import fs from "node:fs";
 import path from "node:path";
+import { en } from "@/lib/i18n/messages/en";
+import { translate } from "@/lib/i18n/translate";
 import { normalizeSheetText } from "@/lib/price-sheet-key";
 import {
   parsePriceSheet,
@@ -579,7 +581,7 @@ function main() {
 
   const parsed = parsePriceSheet(fs.readFileSync(file, "utf8"));
   if (parsed.error) {
-    throw new Error(parsed.error);
+    throw new Error(translate(en, parsed.error));
   }
 
   const categories: Category[] = MAPPING.map((rule, order) => ({

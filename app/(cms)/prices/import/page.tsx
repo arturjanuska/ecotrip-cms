@@ -1,14 +1,15 @@
-import type { Metadata } from "next";
 import Link from "next/link";
 import { ImportPrices } from "@/components/import-prices";
 import { requireAdminPage } from "@/lib/auth";
+import { getTranslator, pageTitle } from "@/lib/i18n/server";
 
-export const metadata: Metadata = {
-  title: "Import prices | Ecotrip CMS",
-};
+export async function generateMetadata() {
+  return { title: await pageTitle("importPrices.title") };
+}
 
 export default async function ImportPricesPage() {
   await requireAdminPage();
+  const t = await getTranslator();
 
   return (
     <div className="space-y-4">
@@ -17,9 +18,9 @@ export default async function ImportPricesPage() {
           href="/prices"
           className="text-sm text-muted-foreground hover:text-foreground"
         >
-          ← Prices
+          {t("importPrices.back")}
         </Link>
-        <h1 className="text-2xl font-semibold">Import prices</h1>
+        <h1 className="text-2xl font-semibold">{t("importPrices.title")}</h1>
       </div>
       <ImportPrices />
     </div>

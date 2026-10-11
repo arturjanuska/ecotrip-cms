@@ -81,17 +81,15 @@ describe("parsePriceSheet edge cases", () => {
   });
 
   it("explains files it cannot read", () => {
-    expect(parsePriceSheet("a,b\n1,2\n").error).toBe(
-      'Header row with "Siuntos kategorija" not found.',
-    );
+    expect(parsePriceSheet("a,b\n1,2\n").error).toBe("file.headerNotFound");
     expect(parsePriceSheet(`${HEADER.replace("Dydis", "Size")}\n`).error).toBe(
-      'Column "Dydis" not found in the header row.',
+      'file.columnNotFound {"name":"Dydis"}',
     );
-    expect(parsePriceSheet(`${HEADER}\n,Siuntos kategorija �\n`).error).toMatch(
-      /not UTF-8/,
+    expect(parsePriceSheet(`${HEADER}\n,Siuntos kategorija �\n`).error).toBe(
+      "file.pricesNotUtf8",
     );
     expect(parsePriceSheet(`${HEADER}\n,,,,,,,,,\n`).error).toBe(
-      "The file has no price rows.",
+      "file.noPriceRows",
     );
   });
 });

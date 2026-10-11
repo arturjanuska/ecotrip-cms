@@ -104,7 +104,7 @@ Next.js 16 (App Router) + Clerk + MongoDB (Mongoose). Управление су�
 
 ### Ошибки
 
-Формат: `{ "error": "...", "details": {...} }` (`details` у 400 и у 409 импорта цен).
+Формат: `{ "error": "...", "code": "...", "details": {...} }` (`details` у 400 и у 409 импорта цен). `error` — английский текст для пользователей API, `code` — стабильный код (`lib/api-errors.ts`): `unauthorized`, `forbidden`, `unsupported_media_type`, `validation_failed`, `postcode_not_found`, `postcode_duplicate`, `postcodes_import_invalid`, `category_not_found`, `category_value_changed`, `prices_changed`, `prices_import_conflict`, `prices_import_invalid`, `fees_not_found`, `fees_changed`, `database_unavailable`, `internal_error`. CMS показывает текст кода на языке пользователя. Свои сообщения валидации в `details` — ключи сообщений (`validation.maxBelowMin`, с параметрами: `validation.subcategoryRepeats {"value":"..."}`), встроенные сообщения Zod — по-английски.
 
 | Код | Когда                                                                                                                                              |
 | --- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -205,12 +205,17 @@ CORS: публичные GET отдают `Access-Control-Allow-Origin` толь
 - Хранятся последние 500 записей (коллекция `changelogs`), более старые удаляются при каждой новой записи. В одной записи сохраняется до 1000 изменённых полей; если их больше (крупный импорт), видно общее число.
 - Сохранение, которое ничего не изменило, не записывается. Скрипты `import:*` не записываются.
 - Запись в журнал не влияет на результат сохранения: если она не удалась, ошибка пишется в лог сервера.
+- Тексты хранятся ключами и показываются на языке читателя: `summary` — `{ key, params }` (`{ "key": "log.editedPostcode", "params": { "postcode": "FY1" } }`), `field` — ключ (`postcode.calendar`, `price.UK-LT`, `fees.max`), `record` у сборов — список ключей (`["fees.purchaseService", "fees.clientMoney"]`). Записи, сделанные раньше, остаются с английским текстом.
 
 | Метод | Путь             | Доступ |
 | ----- | ---------------- | ------ |
 | GET   | `/api/changelog` | admin  |
 
 `GET /api/changelog?page=1&limit=20` → `{ items, total, page, limit }`, новые сверху, `limit` до 100.
+
+## Языки
+
+Интерфейс CMS на английском (по умолчанию) и литовском: переключатель EN / LT внизу боковой панели и на странице входа, выбор хранится в cookie `cms-lang` (год). Словари: `lib/i18n/messages/en.ts` (источник) и `lt.ts` (те же ключи, проверяет TypeScript и тест), без библиотек: `{name}` — параметр, `_one` / `_few` / `_other` — формы множественного числа по `Intl.PluralRules`. Дизайн: `docs/superpowers/specs/2026-10-11-cms-i18n-design.md`. Данные (тексты прайс-листа, postcodes, зоны, имена пользователей) не переводятся.
 
 ## Скрипты
 

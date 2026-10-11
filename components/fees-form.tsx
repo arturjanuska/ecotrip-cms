@@ -16,34 +16,22 @@ import {
   type FieldPath,
 } from "@/lib/fee-drafts";
 import type { StoredFeeSettings } from "@/lib/fee-types";
+import {
+  NETWORK_ERROR,
+  loadProblem,
+  problemText,
+  writeProblem,
+  type Problem,
+} from "@/lib/api-errors";
 import { readCache, writeCache } from "@/lib/client-cache";
+import { useT } from "@/lib/i18n/client";
 import { fetchFeeSettings, saveFeeSettings } from "@/lib/fees-client";
 import { parseCellNumber } from "@/lib/price-drafts";
 import { cn } from "@/lib/utils";
 import { useUnsavedChanges } from "@/lib/use-unsaved-changes";
 
-// Help texts agreed with the owner (docs/superpowers/specs/2026-10-11-fees-design.md).
-const HELP = {
-  addressFee:
-    "Added once to an order with the shopping address service. Example: 3 → the order total grows by £3 (or €3).",
-  threshold:
-    "Sum of the item prices that decides who pays for the items. Below it we pay with our money and the item prices are added to the order; from it the client pays the seller. Example: 250 → items for £249 are bought with our money, items for £250 with the client's.",
-  ownMoney:
-    "Fee when the items cost less than the threshold: percent of the item prices, at least min, at most max (empty = no limit). Example: 3%, min 5 → items for £100 give £5 (3% is £3, raised to the min); items for £200 give £6.",
-  clientMoney:
-    "Fee when the items cost the threshold or more. Example: 2%, min 15, max 50 → £500 gives £15, £1,000 gives £20, £3,000 gives £50.",
-  salesService:
-    "Fee from the item prices the client enters. Example: 2%, min 15, max 50 → an item for £400 gives £15, for £1,500 gives £30.",
-  smallParcel:
-    "Applies when at least one side is up to max side and the weight is up to max weight. Example: 45 cm, 2 kg, 4.19 → a 40×50×60 cm parcel of 1.5 kg adds £4.19.",
-  mediumParcel:
-    "Applies when the small rule does not and at least one side is up to max side: the first tier whose weight limit is not exceeded. Example: 61 cm; up to 10 kg → 7.59 → a 60×70×80 cm parcel of 8 kg adds £7.59. Heavier than the last tier: the zone rule below.",
-  zones:
-    "Applies when neither rule above does and the order's UK postcode is in a ParcelForce area: fee of that postcode's zone (set in Postcodes). Example: Zone 2 → 19 → a 25 kg parcel to a Zone 2 postcode adds £19.",
-  quantityDiscounts:
-    "Discount on the whole order by the number of parcels; the row with the largest N not above the count applies, the last row covers more. If the postcode has its own discount, the larger one applies. Example: from 3 → 5% → an order of 3 parcels for £200 costs £190.",
-};
-
+// Help texts agreed with the owner (docs/superpowers/specs/2026-10-11-fees-design.md),
+// in messages under feesPage.help.
 const MONEY = "£/€";
 
 // What every input needs to show its value, highlight and error.
@@ -72,6 +60,7 @@ function NumberField({
   suffix,
   placeholder,
 }: NumberFieldProps) {
+  const t = useT();
   const key = pathKey(path);
   const error = state.errors[key];
 
@@ -99,7 +88,7 @@ function NumberField({
           </span>
         )}
       </div>
-      {error && <p className="text-xs text-destructive">{error}</p>}
+      {error && <p className="text-xs text-destructive">{t(error)}</p>}
     </div>
   );
 }
@@ -111,27 +100,28 @@ function PercentFeeFields({
   state: FieldState;
   path: FieldPath;
 }) {
+  const t = useT();
   return (
     <>
       <NumberField
         state={state}
         path={[...path, "percent"]}
-        label="Percent"
+        label={t("fees.percent")}
         suffix="%"
       />
       <NumberField
         state={state}
         path={[...path, "min"]}
-        label="Min"
+        label={t("fees.min")}
         suffix={MONEY}
-        placeholder="no limit"
+        placeholder={t("common.noLimit")}
       />
       <NumberField
         state={state}
         path={[...path, "max"]}
-        label="Max"
+        label={t("fees.max")}
         suffix={MONEY}
-        placeholder="no limit"
+        placeholder={t("common.noLimit")}
       />
     </>
   );
@@ -179,14 +169,16 @@ function FieldGroup({
 }
 
 function ListError({ state, path }: { state: FieldState; path: string }) {
+  const t = useT();
   const error = state.errors[path];
-  return error ? <p className="text-xs text-destructive">{error}</p> : null;
+  return error ? <p className="text-xs text-destructive">{t(error)}</p> : null;
 }
 
 const FEES_CACHE_KEY = "fees";
 
 export function FeesForm() {
   const { getToken } = useAuth();
+  const t = useT();
   // undefined: loading; null: not seeded yet.
   const [saved, setSaved] = useState<StoredFeeSettings | null | undefined>(() =>
     readCache<StoredFeeSettings>(FEES_CACHE_KEY),
@@ -195,9 +187,9 @@ export function FeesForm() {
     const cached = readCache<StoredFeeSettings>(FEES_CACHE_KEY);
     return cached ? toForm(cached) : null;
   });
-  const [loadError, setLoadError] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<Problem | null>(null);
   const [saving, setSaving] = useState(false);
-  const [saveError, setSaveError] = useState<string | null>(null);
+  const [saveError, setSaveError] = useState<Problem | null>(null);
   const [justSaved, setJustSaved] = useState(false);
 
   useEffect(() => {
@@ -215,9 +207,7 @@ export function FeesForm() {
       })
       .catch((error: unknown) => {
         if (!controller.signal.aborted) {
-          setLoadError(
-            error instanceof Error ? error.message : "Failed to load fees",
-          );
+          setLoadError(loadProblem(error, "errors.loadFees"));
         }
       });
     return () => controller.abort();
@@ -242,7 +232,9 @@ export function FeesForm() {
   useUnsavedChanges(unsaved > 0);
 
   if (loadError) {
-    return <p className="text-sm text-destructive">{loadError}</p>;
+    return (
+      <p className="text-sm text-destructive">{problemText(t, loadError)}</p>
+    );
   }
 
   if (saved === undefined) {
@@ -257,9 +249,7 @@ export function FeesForm() {
 
   if (saved === null || !form || !applied) {
     return (
-      <p className="text-sm text-muted-foreground">
-        No fees yet. Fill them with npm run import:fees -- --write.
-      </p>
+      <p className="text-sm text-muted-foreground">{t("feesPage.noFees")}</p>
     );
   }
 
@@ -314,14 +304,14 @@ export function FeesForm() {
       );
       if (!result.ok) {
         // The draft stays: the admin can copy it after a reload (409).
-        setSaveError(result.message);
+        setSaveError(writeProblem(result.failure, "errors.requestFailed"));
         return;
       }
       setSaved(result.body);
       setForm(toForm(result.body));
       setJustSaved(true);
     } catch {
-      setSaveError("Network error");
+      setSaveError(NETWORK_ERROR);
     } finally {
       setSaving(false);
     }
@@ -333,23 +323,27 @@ export function FeesForm() {
         <div className="flex flex-wrap items-center justify-end gap-3">
           {unsaved > 0 && (
             <span className="text-sm text-muted-foreground">
-              Unsaved: {unsaved}
+              {t("common.unsaved", { count: unsaved })}
             </span>
           )}
           {justSaved && unsaved === 0 && (
-            <span className="text-sm text-muted-foreground">Saved.</span>
+            <span className="text-sm text-muted-foreground">
+              {t("common.saved")}
+            </span>
           )}
           <Button disabled={unsaved === 0 || saving || invalid} onClick={save}>
-            {saving ? "Saving…" : "Save"}
+            {saving ? t("common.saving") : t("common.save")}
           </Button>
         </div>
         {saveError && (
-          <p className="text-right text-sm text-destructive">{saveError}</p>
+          <p className="text-right text-sm text-destructive">
+            {problemText(t, saveError)}
+          </p>
         )}
         {applied.formErrors.length > 0 && (
           <ul className="space-y-0.5 text-right text-sm text-destructive">
             {applied.formErrors.map((message) => (
-              <li key={message}>{message}</li>
+              <li key={message}>{t(message)}</li>
             ))}
           </ul>
         )}
@@ -357,12 +351,15 @@ export function FeesForm() {
 
       {/* Disabled while saving: the saved document replaces the form. */}
       <fieldset disabled={saving} className="space-y-6">
-        <Section title="Address service">
-          <FieldGroup label="Fee" help={HELP.addressFee}>
+        <Section title={t("fees.addressService")}>
+          <FieldGroup
+            label={t("fees.fee")}
+            help={t("feesPage.help.addressFee")}
+          >
             <NumberField
               state={state}
               path={["addressService", "fee"]}
-              label="Fee"
+              label={t("fees.fee")}
               showLabel={false}
               suffix={MONEY}
             />
@@ -370,25 +367,34 @@ export function FeesForm() {
         </Section>
 
         <Section
-          title="Purchase service"
-          subtitle="We buy the item for the client"
+          title={t("fees.purchaseService")}
+          subtitle={t("feesPage.purchaseSubtitle")}
         >
-          <FieldGroup label="Threshold" help={HELP.threshold}>
+          <FieldGroup
+            label={t("fees.threshold")}
+            help={t("feesPage.help.threshold")}
+          >
             <NumberField
               state={state}
               path={["purchaseService", "threshold"]}
-              label="Threshold"
+              label={t("fees.threshold")}
               showLabel={false}
               suffix={MONEY}
             />
           </FieldGroup>
-          <FieldGroup label="Our money" help={HELP.ownMoney}>
+          <FieldGroup
+            label={t("fees.ownMoney")}
+            help={t("feesPage.help.ownMoney")}
+          >
             <PercentFeeFields
               state={state}
               path={["purchaseService", "ownMoney"]}
             />
           </FieldGroup>
-          <FieldGroup label="Client's money" help={HELP.clientMoney}>
+          <FieldGroup
+            label={t("fees.clientMoney")}
+            help={t("feesPage.help.clientMoney")}
+          >
             <PercentFeeFields
               state={state}
               path={["purchaseService", "clientMoney"]}
@@ -396,50 +402,64 @@ export function FeesForm() {
           </FieldGroup>
         </Section>
 
-        <Section title="Sales service" subtitle="We sell the client's item">
-          <FieldGroup label="Fee" help={HELP.salesService}>
+        <Section
+          title={t("fees.salesService")}
+          subtitle={t("feesPage.salesSubtitle")}
+        >
+          <FieldGroup
+            label={t("fees.fee")}
+            help={t("feesPage.help.salesService")}
+          >
             <PercentFeeFields state={state} path={["salesService"]} />
           </FieldGroup>
         </Section>
 
         <Section
-          title="ParcelForce surcharges"
-          subtitle="Added to each parcel of the ParcelForce service"
+          title={t("feesPage.parcelForceTitle")}
+          subtitle={t("feesPage.parcelForceSubtitle")}
         >
-          <FieldGroup label="Small parcel" help={HELP.smallParcel}>
+          <FieldGroup
+            label={t("fees.small")}
+            help={t("feesPage.help.smallParcel")}
+          >
             <NumberField
               state={state}
               path={["parcelForce", "small", "maxSide"]}
-              label="Max side"
-              suffix="cm"
+              label={t("fees.maxSide")}
+              suffix={t("feesPage.cm")}
             />
             <NumberField
               state={state}
               path={["parcelForce", "small", "maxWeight"]}
-              label="Max weight"
-              suffix="kg"
+              label={t("fees.maxWeight")}
+              suffix={t("feesPage.kg")}
             />
             <NumberField
               state={state}
               path={["parcelForce", "small", "fee"]}
-              label="Fee"
+              label={t("fees.fee")}
               suffix={MONEY}
             />
           </FieldGroup>
 
-          <FieldGroup label="Medium parcel" help={HELP.mediumParcel}>
+          <FieldGroup
+            label={t("fees.medium")}
+            help={t("feesPage.help.mediumParcel")}
+          >
             <div className="space-y-3">
               <NumberField
                 state={state}
                 path={["parcelForce", "medium", "maxSide"]}
-                label="Max side"
-                suffix="cm"
+                label={t("fees.maxSide")}
+                suffix={t("feesPage.cm")}
               />
               <div className="space-y-2">
-                <p className="text-xs font-medium">Weight tiers</p>
+                <p className="text-xs font-medium">
+                  {t("feesPage.weightTiers")}
+                </p>
                 {tiers.map((_, index) => (
                   <div key={index} className="flex items-start gap-2">
-                    <span className="pt-1.5 text-sm">up to</span>
+                    <span className="pt-1.5 text-sm">{t("feesPage.upTo")}</span>
                     <NumberField
                       state={state}
                       path={[
@@ -449,14 +469,14 @@ export function FeesForm() {
                         index,
                         "upToWeight",
                       ]}
-                      label={`Tier ${index + 1} weight limit`}
+                      label={t("feesPage.tierLimit", { n: index + 1 })}
                       showLabel={false}
-                      suffix="kg →"
+                      suffix={`${t("feesPage.kg")} →`}
                     />
                     <NumberField
                       state={state}
                       path={["parcelForce", "medium", "tiers", index, "fee"]}
-                      label={`Tier ${index + 1} fee`}
+                      label={t("feesPage.tierFee", { n: index + 1 })}
                       showLabel={false}
                       suffix={MONEY}
                     />
@@ -467,19 +487,19 @@ export function FeesForm() {
                       disabled={tiers.length === 1}
                       onClick={() => removeTier(index)}
                     >
-                      Remove
+                      {t("common.remove")}
                     </Button>
                   </div>
                 ))}
                 <ListError state={state} path="parcelForce.medium.tiers" />
                 <Button variant="outline" size="sm" onClick={addTier}>
-                  Add tier
+                  {t("feesPage.addTier")}
                 </Button>
               </div>
             </div>
           </FieldGroup>
 
-          <FieldGroup label="Zones" help={HELP.zones}>
+          <FieldGroup label={t("fees.zones")} help={t("feesPage.help.zones")}>
             <div className="space-y-2">
               {form.parcelForce.zones.map((row, index) => (
                 <div key={row.zone} className="flex items-start gap-2">
@@ -487,7 +507,7 @@ export function FeesForm() {
                   <NumberField
                     state={state}
                     path={["parcelForce", "zones", index, "fee"]}
-                    label={`${row.zone} fee`}
+                    label={t("feesPage.zoneFee", { zone: row.zone })}
                     showLabel={false}
                     suffix={MONEY}
                   />
@@ -499,14 +519,17 @@ export function FeesForm() {
         </Section>
 
         <Section
-          title="Quantity discounts"
-          subtitle="One sender to one receiver"
+          title={t("fees.quantityDiscounts")}
+          subtitle={t("feesPage.quantitySubtitle")}
         >
-          <FieldGroup label="Discount rows" help={HELP.quantityDiscounts}>
+          <FieldGroup
+            label={t("feesPage.discountRows")}
+            help={t("feesPage.help.quantityDiscounts")}
+          >
             <div className="space-y-2">
               {discounts.map((row, index) => (
                 <div key={index} className="flex items-start gap-2">
-                  <span className="pt-1.5 text-sm">From</span>
+                  <span className="pt-1.5 text-sm">{t("feesPage.from")}</span>
                   {index === 0 ? (
                     // The first row always starts from 1 parcel.
                     <span className="w-24 px-2.5 pt-1.5 text-sm">
@@ -516,15 +539,17 @@ export function FeesForm() {
                     <NumberField
                       state={state}
                       path={["quantityDiscounts", index, "fromParcels"]}
-                      label={`Row ${index + 1} number of parcels`}
+                      label={t("feesPage.rowParcels", { n: index + 1 })}
                       showLabel={false}
                     />
                   )}
-                  <span className="pt-1.5 text-sm">parcels →</span>
+                  <span className="pt-1.5 text-sm">
+                    {t("feesPage.parcels")}
+                  </span>
                   <NumberField
                     state={state}
                     path={["quantityDiscounts", index, "percent"]}
-                    label={`Row ${index + 1} discount`}
+                    label={t("feesPage.rowDiscount", { n: index + 1 })}
                     showLabel={false}
                     suffix="%"
                   />
@@ -535,14 +560,14 @@ export function FeesForm() {
                       className="mt-0.5"
                       onClick={() => removeDiscount(index)}
                     >
-                      Remove
+                      {t("common.remove")}
                     </Button>
                   )}
                 </div>
               ))}
               <ListError state={state} path="quantityDiscounts" />
               <Button variant="outline" size="sm" onClick={addDiscount}>
-                Add row
+                {t("feesPage.addRow")}
               </Button>
             </div>
           </FieldGroup>

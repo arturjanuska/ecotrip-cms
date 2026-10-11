@@ -1,4 +1,4 @@
-import { errorMessage } from "@/lib/postcodes-client";
+import { ApiError } from "@/lib/api-errors";
 import type { FeeSettings, StoredFeeSettings } from "@/lib/fee-types";
 import { write } from "@/lib/prices-client";
 
@@ -13,9 +13,7 @@ export async function fetchFeeSettings(signal?: AbortSignal) {
   const body = await response.json().catch(() => null);
 
   if (!response.ok || !body) {
-    throw new Error(
-      errorMessage(body, `Failed to load fees (HTTP ${response.status})`),
-    );
+    throw new ApiError(response.status, body);
   }
 
   return body as StoredFeeSettings;

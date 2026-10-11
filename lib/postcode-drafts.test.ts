@@ -6,6 +6,7 @@ import {
   withDraft,
 } from "@/lib/postcode-drafts";
 import type { Postcode } from "@/lib/postcode-types";
+import { DISCOUNT_HINT } from "@/lib/postcode-options";
 
 const item = {
   town: "Pemberton",
@@ -58,7 +59,10 @@ describe("validateDraft", () => {
   it("reports invalid fields", () => {
     const problems = validateDraft({ town: " ", discount: "150" });
     expect(problems?.fields).toEqual(new Set(["town", "discount"]));
-    expect(problems?.message).toContain("town");
+    expect(problems?.issues).toEqual([
+      { field: "town", message: "validation.required" },
+      { field: "discount", message: DISCOUNT_HINT },
+    ]);
   });
 });
 

@@ -4,15 +4,28 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSignIn } from "@clerk/nextjs";
 import { BrandMark } from "@/components/brand-mark";
+import { LanguageSwitcher } from "@/components/language-switcher";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useT } from "@/lib/i18n/client";
+import type { Message, Translate } from "@/lib/i18n/translate";
+
+type ClerkError = { code?: string; message: string; longMessage?: string };
+
+// Clerk's text, or ours for the codes we translate.
+function clerkErrorText(t: Translate, error: ClerkError) {
+  const key = `clerk.${error.code}`;
+  const text = error.code ? t(key) : key;
+  return text === key ? error.longMessage || error.message : text;
+}
 
 export function LoginForm() {
   const { signIn, errors, fetchStatus } = useSignIn();
   const router = useRouter();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [message, setMessage] = useState<string | null>(null);
+  const [message, setMessage] = useState<Message | null>(null);
+  const t = useT();
 
   const submitting = fetchStatus === "fetching";
 
@@ -29,18 +42,20 @@ export function LoginForm() {
     }
 
     if (signIn.status !== "complete") {
-      setMessage(
-        `Sign-in needs an extra step that this form does not support (${signIn.status}).`,
-      );
+      setMessage({
+        key: "login.extraStep",
+        params: { status: String(signIn.status) },
+      });
       return;
     }
 
     await signIn.finalize({
       navigate: ({ session, decorateUrl }) => {
         if (session?.currentTask) {
-          setMessage(
-            `Account needs an extra step: ${session.currentTask.key}. Finish it in the Clerk dashboard.`,
-          );
+          setMessage({
+            key: "login.taskStep",
+            params: { task: session.currentTask.key },
+          });
           return;
         }
 
@@ -54,8 +69,8 @@ export function LoginForm() {
     });
   }
 
-  const globalErrors = (errors.global ?? []).map(
-    (error) => error.longMessage || error.message,
+  const globalErrors = (errors.global ?? []).map((error) =>
+    clerkErrorText(t, error as ClerkError),
   );
 
   return (
@@ -66,12 +81,13 @@ export function LoginForm() {
       >
         <div className="flex items-center gap-2">
           <BrandMark />
-          <h1 className="text-xl font-semibold">Ecotrip CMS</h1>
+          <h1 className="mr-auto text-xl font-semibold">{t("app.name")}</h1>
+          <LanguageSwitcher />
         </div>
 
         <div className="space-y-1">
           <label htmlFor="username" className="text-sm font-medium">
-            Username
+            {t("login.username")}
           </label>
           <Input
             id="username"
@@ -83,15 +99,14 @@ export function LoginForm() {
           />
           {errors.fields.identifier && (
             <p className="text-sm text-destructive">
-              {errors.fields.identifier.longMessage ||
-                errors.fields.identifier.message}
+              {clerkErrorText(t, errors.fields.identifier)}
             </p>
           )}
         </div>
 
         <div className="space-y-1">
           <label htmlFor="password" className="text-sm font-medium">
-            Password
+            {t("login.password")}
           </label>
           <Input
             id="password"
@@ -104,8 +119,7 @@ export function LoginForm() {
           />
           {errors.fields.password && (
             <p className="text-sm text-destructive">
-              {errors.fields.password.longMessage ||
-                errors.fields.password.message}
+              {clerkErrorText(t, errors.fields.password)}
             </p>
           )}
         </div>
@@ -115,10 +129,10 @@ export function LoginForm() {
             {text}
           </p>
         ))}
-        {message && <p className="text-sm text-destructive">{message}</p>}
+        {message && <p className="text-sm text-destructive">{t(message)}</p>}
 
         <Button type="submit" className="w-full" disabled={submitting}>
-          Login
+          {t("login.submit")}
         </Button>
       </form>
     </div>

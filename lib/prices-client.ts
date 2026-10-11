@@ -1,4 +1,4 @@
-import { errorMessage } from "@/lib/postcodes-client";
+import { ApiError, toFailure, type ApiFailure } from "@/lib/api-errors";
 import type { PriceImportResult } from "@/lib/price-import";
 import type {
   Category,
@@ -7,23 +7,22 @@ import type {
   StoredCategory,
 } from "@/lib/price-types";
 
-// Browser helpers for the price API.
+// Browser helpers for the price API. Failures carry the status and body; the
+// UI shows their text with lib/api-errors.ts.
 
 export async function fetchPriceCatalog(signal?: AbortSignal) {
   const response = await fetch("/api/prices", { signal, cache: "no-store" });
   const body = await response.json().catch(() => null);
 
   if (!response.ok || !body) {
-    throw new Error(
-      errorMessage(body, `Failed to load prices (HTTP ${response.status})`),
-    );
+    throw new ApiError(response.status, body);
   }
 
   return (body as PriceCatalog).categories;
 }
 
 export type WriteResult<T> =
-  { ok: true; body: T } | { ok: false; status: number; message: string };
+  { ok: true; body: T } | { ok: false; failure: ApiFailure };
 
 export async function write<T>(
   url: string,
@@ -51,13 +50,7 @@ export async function write<T>(
     return { ok: true, body: body as T };
   }
 
-  const message =
-    response.status === 401
-      ? "Session expired. Sign in again in a new tab (/login), then try again. Your changes are kept."
-      : response.status === 403
-        ? "You do not have permission to edit."
-        : errorMessage(body, `Request failed (HTTP ${response.status})`);
-  return { ok: false, status: response.status, message };
+  return { ok: false, failure: toFailure(response.status, body) };
 }
 
 export function saveCategory(

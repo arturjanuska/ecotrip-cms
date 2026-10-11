@@ -69,6 +69,7 @@ export function setDraft(
   return next;
 }
 
+// Errors are message keys or Zod's own messages: the table translates them.
 export type AppliedDrafts = {
   category: Category;
   cellErrors: Record<string, string>;
@@ -105,11 +106,11 @@ export function applyDrafts(
       }
       const value = parseCellNumber(drafts[key]);
       if (value === "invalid") {
-        cellErrors[key] = "Not a number";
+        cellErrors[key] = "validation.notANumber";
       } else if (field.startsWith("price.") && (value === null || value <= 0)) {
-        cellErrors[key] = "Must be greater than 0";
+        cellErrors[key] = "validation.positive";
       } else if (field === "upTo" && value === 0) {
-        cellErrors[key] = "Must be greater than 0";
+        cellErrors[key] = "validation.positive";
       } else {
         writeCell(target, field, value);
       }

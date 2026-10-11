@@ -88,7 +88,10 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
     const created = await Postcode.create(parsed.data);
     await recordChange({
       page: "postcodes",
-      summary: `Created postcode ${created.postcode}`,
+      summary: {
+        key: "log.createdPostcode",
+        params: { postcode: created.postcode },
+      },
       changes: diffPostcode(null, created.toJSON()),
     });
     return NextResponse.json(created.toJSON(), { status: 201 });

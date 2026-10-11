@@ -1,25 +1,28 @@
-import type { Metadata } from "next";
 import Link from "next/link";
 import { PostcodesTable } from "@/components/postcodes-table";
 import { buttonVariants } from "@/components/ui/button";
 import { requireAdminPage } from "@/lib/auth";
+import { getTranslator, pageTitle } from "@/lib/i18n/server";
 
-export const metadata: Metadata = {
-  title: "Postcodes | Ecotrip CMS",
-};
+export async function generateMetadata() {
+  return { title: await pageTitle("postcodesPage.title") };
+}
 
 export default async function PostcodesPage() {
   await requireAdminPage();
+  const t = await getTranslator();
 
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-2">
-        <h1 className="mr-auto text-2xl font-semibold">Postcodes</h1>
+        <h1 className="mr-auto text-2xl font-semibold">
+          {t("postcodesPage.title")}
+        </h1>
         <Link
           href="/postcodes/import"
           className={buttonVariants({ variant: "outline" })}
         >
-          Import CSV
+          {t("postcodesPage.importCsv")}
         </Link>
         {/* A plain link: the browser downloads the file the API returns. */}
         <a
@@ -27,7 +30,7 @@ export default async function PostcodesPage() {
           download
           className={buttonVariants({ variant: "outline" })}
         >
-          Export CSV
+          {t("postcodesPage.exportCsv")}
         </a>
       </div>
       <PostcodesTable />

@@ -13,7 +13,7 @@ import {
   type BulkUpdateResult,
 } from "@/lib/validation/postcode";
 import { recordChange } from "@/lib/change-log";
-import { diffPostcode } from "@/lib/change-log-diff";
+import { bulkSummary, diffPostcode } from "@/lib/change-log-diff";
 
 // Applies the same `changes` to every record in `ids`. Each record is updated
 // fully or not at all; there is no rollback across records.
@@ -56,11 +56,7 @@ export const PUT = withErrorHandling(async (request: NextRequest) => {
     .filter((fields) => fields.length > 0);
   await recordChange({
     page: "postcodes",
-    summary: `Bulk change of ${changed.length} postcodes: ${Object.entries(
-      changes,
-    )
-      .map(([field, value]) => `${field} → ${value === "" ? "(empty)" : value}`)
-      .join(", ")}`,
+    summary: bulkSummary(changed.length, changes),
     changes: changed.flat(),
   });
 

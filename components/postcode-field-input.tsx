@@ -8,6 +8,7 @@ import {
   PARCEL_FORCE_ZONES,
   sanitizeDiscountInput,
 } from "@/lib/postcode-options";
+import { useT } from "@/lib/i18n/client";
 import { cn } from "@/lib/utils";
 
 export type PostcodeTextField =
@@ -45,6 +46,7 @@ export function PostcodeFieldInput({
   className,
   onChange,
 }: PostcodeFieldInputProps) {
+  const t = useT();
   const options = SELECT_OPTIONS[field];
 
   if (options) {
@@ -77,7 +79,7 @@ export function PostcodeFieldInput({
       value={value}
       aria-invalid={invalid || undefined}
       inputMode={numeric ? "decimal" : undefined}
-      title={numeric ? DISCOUNT_HINT : undefined}
+      title={numeric ? t(DISCOUNT_HINT) : undefined}
       onChange={(event) => {
         const next = event.target.value;
         onChange(

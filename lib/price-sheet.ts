@@ -1,4 +1,5 @@
 import Papa from "papaparse";
+import { msg } from "@/lib/i18n/translate";
 import { normalizeSheetText } from "@/lib/price-sheet-key";
 
 export const SHEET_MAX_BYTES = 1024 * 1024;
@@ -23,6 +24,7 @@ export type SheetRow = {
   cells: SheetCells;
 };
 
+// `error`: a msg() string (lib/i18n/translate.ts).
 export type ParsedSheet = { rows: SheetRow[]; error: string | null };
 
 type Column = "category" | "type" | "size" | "spec" | keyof SheetCells;
@@ -113,9 +115,7 @@ export function parsePriceSheet(text: string): ParsedSheet {
   const fail = (error: string): ParsedSheet => ({ rows: [], error });
 
   if (text.includes("�")) {
-    return fail(
-      'The file is not UTF-8. In Google Sheets use File → Download → "Comma-separated values (.csv)".',
-    );
+    return fail("file.pricesNotUtf8");
   }
 
   // The delimiter (comma or semicolon) is detected automatically.
@@ -124,7 +124,10 @@ export function parsePriceSheet(text: string): ParsedSheet {
   const quoteError = result.errors.find((error) => error.type === "Quotes");
   if (quoteError) {
     return fail(
-      `Broken quotes in row ${(quoteError.row ?? 0) + 1}: ${quoteError.message}`,
+      msg("file.brokenQuotesRow", {
+        row: String((quoteError.row ?? 0) + 1),
+        message: quoteError.message,
+      }),
     );
   }
 
@@ -133,7 +136,7 @@ export function parsePriceSheet(text: string): ParsedSheet {
     cells.some((cell) => normalizeSheetText(cell) === "siuntos kategorija"),
   );
   if (headerIndex === -1) {
-    return fail('Header row with "Siuntos kategorija" not found.');
+    return fail("file.headerNotFound");
   }
 
   const header = lines[headerIndex].map(normalizeSheetText);
@@ -141,7 +144,7 @@ export function parsePriceSheet(text: string): ParsedSheet {
   for (const { column, name, matches } of COLUMNS) {
     const position = header.findIndex(matches);
     if (position === -1) {
-      return fail(`Column "${name}" not found in the header row.`);
+      return fail(msg("file.columnNotFound", { name }));
     }
     positions[column] = position;
   }
@@ -184,7 +187,7 @@ export function parsePriceSheet(text: string): ParsedSheet {
   }
 
   if (rows.length === 0) {
-    return fail("The file has no price rows.");
+    return fail("file.noPriceRows");
   }
 
   return { rows, error: null };

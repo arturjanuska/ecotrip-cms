@@ -84,11 +84,19 @@ describe("toCsv and parseCsv", () => {
   });
 
   it.each([
-    ["missing required columns", "postcode,region\nM1,x\n", "town, country"],
-    ["no data rows", "postcode,town,country\n", "no data rows"],
-    ["text that is not UTF-8", "postcode,town,country\nM1,Caf�,ENG\n", "UTF-8"],
+    [
+      "missing required columns",
+      "postcode,region\nM1,x\n",
+      'file.missingColumns {"columns":"town, country"}',
+    ],
+    ["no data rows", "postcode,town,country\n", "file.noDataRows"],
+    [
+      "text that is not UTF-8",
+      "postcode,town,country\nM1,Caf�,ENG\n",
+      "file.postcodesNotUtf8",
+    ],
   ])("reports %s", (_name, text, message) => {
-    expect(parseCsv(text).error).toContain(message);
+    expect(parseCsv(text).error).toBe(message);
   });
 });
 
@@ -170,7 +178,7 @@ describe("validateImportValues", () => {
     expect(
       validateImportValues(values({ town: "" }), undefined, false),
     ).toEqual({
-      town: "Required for a new postcode",
+      town: "validation.requiredForNew",
     });
   });
 
@@ -187,10 +195,14 @@ describe("validateImportValues", () => {
       undefined,
       false,
     );
-    expect(errors.calendar).toBe("Use Odd, Even or leave empty");
-    expect(errors.parcelForceZone).toBe(
-      "Use Zone 1, Zone 2, Zone 3 or leave empty",
+    expect(errors.calendar).toBe(
+      'validation.useValuesOrEmpty {"values":"Odd, Even"}',
     );
+    expect(errors.parcelForceZone).toBe(
+      'validation.useValuesOrEmpty {"values":"Zone 1, Zone 2, Zone 3"}',
+    );
+    expect(errors.active).toBe("validation.useTrueFalse");
+    expect(errors.postcode).toBe("validation.required");
     expect(Object.keys(errors).sort()).toEqual(
       [
         "active",
@@ -205,7 +217,7 @@ describe("validateImportValues", () => {
 
   it("flags duplicates", () => {
     expect(validateImportValues(values(), existing, true)).toEqual({
-      postcode: "Duplicate postcode in the file",
+      postcode: "validation.duplicateInFile",
     });
   });
 });

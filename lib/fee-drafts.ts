@@ -122,6 +122,7 @@ export function changedFields(saved: FeeForm, form: FeeForm) {
   return changed;
 }
 
+// Errors are message keys or Zod's own messages: the form translates them.
 export type AppliedForm = {
   settings: FeeSettings;
   // The first error of each field or list, by path key.
@@ -141,11 +142,11 @@ export function applyForm(form: FeeForm): AppliedForm {
     }
     const value = parseCellNumber(leaf as string);
     if (value === "invalid") {
-      fieldErrors[pathKey(path)] = "Not a number";
+      fieldErrors[pathKey(path)] = "validation.notANumber";
       return Number.NaN;
     }
     if (value === null && !NULLABLE_FIELDS.has(name)) {
-      fieldErrors[pathKey(path)] = "Required";
+      fieldErrors[pathKey(path)] = "validation.required";
     }
     return value;
   }) as FeeSettings;

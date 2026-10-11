@@ -54,10 +54,10 @@ describe("applyForm", () => {
     next = setField(next, ["salesService", "min"], "60");
     next = setField(next, ["quantityDiscounts", 2, "percent"], "120");
     expect(applyForm(next).fieldErrors).toEqual({
-      "addressService.fee": "Not a number",
-      "purchaseService.threshold": "Required",
-      "salesService.max": "Max must not be below min",
-      "quantityDiscounts.2.percent": "Must be from 0 to 100",
+      "addressService.fee": "validation.notANumber",
+      "purchaseService.threshold": "validation.required",
+      "salesService.max": "validation.maxBelowMin",
+      "quantityDiscounts.2.percent": "validation.percentRange",
     });
   });
 
@@ -65,7 +65,7 @@ describe("applyForm", () => {
     const next = form();
     next.parcelForce.medium.tiers = [];
     expect(applyForm(next).fieldErrors).toEqual({
-      "parcelForce.medium.tiers": "Add at least one weight tier",
+      "parcelForce.medium.tiers": "validation.addTier",
     });
   });
 });

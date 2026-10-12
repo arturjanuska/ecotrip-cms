@@ -3,7 +3,9 @@ import { msg } from "@/lib/i18n/translate";
 import {
   ADDITIONAL_CHARGES_HINT,
   CALENDAR_VALUES,
+  NUMBER_DEFAULT,
   PARCEL_FORCE_ZONES,
+  orNumberDefault,
 } from "@/lib/postcode-options";
 import { createPostcodeSchema } from "@/lib/validation/postcode";
 
@@ -180,9 +182,10 @@ function normalizeCell(column: CsvColumn, value: string) {
   if (column === "postcode") {
     return trimmed.toUpperCase();
   }
-  if (column === "discount") {
-    // Excel with a European locale writes decimals with a comma.
-    return trimmed.replace(",", ".");
+  if (column === "discount" || column === "additionalCharges") {
+    // Excel with a European locale writes decimals with a comma. An empty
+    // cell is 0.
+    return orNumberDefault(trimmed.replace(",", "."));
   }
   if (isBooleanColumn(column)) {
     const parsed = parseBoolean(trimmed);
@@ -191,10 +194,21 @@ function normalizeCell(column: CsvColumn, value: string) {
   return trimmed;
 }
 
+// What a new postcode gets for a column missing from the file.
+function newValue(column: CsvColumn) {
+  if (isBooleanColumn(column)) {
+    return String(BOOLEAN_COLUMNS[column]);
+  }
+  return column === "discount" || column === "additionalCharges"
+    ? NUMBER_DEFAULT
+    : "";
+}
+
 /**
  * Fills every column of a parsed row. A column missing from the file, or an
  * empty yes/no cell, keeps the stored value of an existing postcode; a new
- * postcode gets "" (and the BOOLEAN_COLUMNS values).
+ * postcode gets "" (0 for discount and additional charges, the
+ * BOOLEAN_COLUMNS values for yes/no columns).
  */
 export function completeValues(
   values: Partial<ImportValues>,
@@ -211,9 +225,7 @@ export function completeValues(
         ? String(existing[column])
         : existing[column];
     } else {
-      complete[column] = isBooleanColumn(column)
-        ? String(BOOLEAN_COLUMNS[column])
-        : "";
+      complete[column] = newValue(column);
     }
   }
 

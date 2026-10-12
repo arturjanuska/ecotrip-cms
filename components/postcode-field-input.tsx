@@ -93,6 +93,8 @@ export function PostcodeFieldInput({
       value={value}
       aria-invalid={invalid || undefined}
       inputMode={numeric ? "decimal" : undefined}
+      // Saved as 0 when left empty.
+      placeholder={numeric ? "0" : undefined}
       title={numeric ? t(numeric.hint) : undefined}
       onChange={(event) => {
         const next = event.target.value;

@@ -93,6 +93,9 @@ async function main() {
       row.additionalCharges = "";
       stats.parcelForce += 1;
     }
+    // Never empty: nothing set is 0.
+    row.additionalCharges ||= "0";
+    row.discount ||= "0";
 
     if (!row.postcode || !row.country) {
       stats.invalid.push(

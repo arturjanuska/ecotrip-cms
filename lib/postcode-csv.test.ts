@@ -22,7 +22,7 @@ const existing: ExistingPostcode = {
   additionalCharges: "-5",
   isParcelForce: false,
   parcelForceZone: "Zone 1",
-  discount: "",
+  discount: "0",
   calendar: "Odd",
   active: true,
 };
@@ -143,10 +143,10 @@ describe("completeValues", () => {
       country: "ENG",
       countryString: "",
       basicPrice: "",
-      additionalCharges: "",
+      additionalCharges: "0",
       isParcelForce: "false",
       parcelForceZone: "",
-      discount: "",
+      discount: "0",
       calendar: "",
       active: "true",
     });
@@ -160,6 +160,15 @@ describe("completeValues", () => {
     expect(complete.postcode).toBe("M46");
     expect(complete.discount).toBe("7.5");
     expect(complete.active).toBe("false");
+  });
+
+  it("takes an empty discount or additional charges cell as 0", () => {
+    const complete = completeValues(
+      { postcode: "M46", discount: " ", additionalCharges: "" },
+      { ...existing, discount: "5", additionalCharges: "15" },
+    );
+    expect(complete.discount).toBe("0");
+    expect(complete.additionalCharges).toBe("0");
   });
 
   it("keeps the stored isParcelForce when the cell is empty or missing", () => {

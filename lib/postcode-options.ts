@@ -14,11 +14,15 @@ export const DISCOUNT_HINT = msg("validation.discountRange", {
   max: DISCOUNT_MAX,
 });
 
-// Discount is stored as a string: "" or a non-negative decimal like "10" or "7.5".
+// Discount and additional charges are never empty: nothing typed means 0.
+export const NUMBER_DEFAULT = "0";
+
+export function orNumberDefault(value: string) {
+  return value.trim() === "" ? NUMBER_DEFAULT : value;
+}
+
+// Discount is stored as a string: a non-negative decimal like "0", "10" or "7.5".
 export function isValidDiscount(value: string) {
-  if (value === "") {
-    return true;
-  }
   if (!/^\d+(\.\d+)?$/.test(value)) {
     return false;
   }
@@ -27,12 +31,12 @@ export function isValidDiscount(value: string) {
   return number >= DISCOUNT_MIN && number <= DISCOUNT_MAX;
 }
 
-// Additional charges are stored as a string: "" or an amount the site adds to
-// the order, like "15" or "-5". ParcelForce areas are marked by isParcelForce.
+// Additional charges are stored as a string: an amount the site adds to the
+// order, like "0", "15" or "-5". ParcelForce areas are marked by isParcelForce.
 export const ADDITIONAL_CHARGES_HINT = "validation.additionalChargesNumber";
 
 export function isValidAdditionalCharges(value: string) {
-  return value === "" || /^-?\d+(\.\d+)?$/.test(value);
+  return /^-?\d+(\.\d+)?$/.test(value);
 }
 
 // Like sanitizeDiscountInput, and keeps a leading minus.

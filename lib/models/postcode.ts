@@ -22,12 +22,13 @@ const postcodeSchema = new Schema(
     country: { type: String, required: true, trim: true },
     countryString: optionalText,
     basicPrice: optionalText,
-    // "" or an amount added to the order ("15", "-5").
-    additionalCharges: optionalText,
+    // An amount added to the order ("0", "15", "-5"); never empty.
+    additionalCharges: { type: String, default: "0", trim: true },
     // A ParcelForce area: ParcelForce service, surcharges and delivery dates.
     isParcelForce: { type: Boolean, default: false },
     parcelForceZone: optionalText,
-    discount: optionalText,
+    // Percent, "0" to "100"; never empty.
+    discount: { type: String, default: "0", trim: true },
     calendar: optionalText,
     active: { type: Boolean, default: true },
   },

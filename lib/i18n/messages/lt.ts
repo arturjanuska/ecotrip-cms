@@ -102,9 +102,9 @@ export const lt = {
     percentRange: "Turi būti nuo 0 iki 100",
     wholeNumber: "Turi būti sveikasis skaičius",
     discountRange:
-      "Skaičius nuo {min} iki {max} (dešimtąsias rašykite su tašku)",
+      "Skaičius nuo {min} iki {max} (dešimtąsias rašykite su tašku, tuščia – 0)",
     additionalChargesNumber:
-      "Suma, pvz., 15 arba -5, arba tuščia. ParcelForce zonos žymimos stulpelyje „ParcelForce“",
+      "Suma, pvz., 0, 15 arba -5 (tuščia – 0). ParcelForce zonos žymimos stulpelyje „ParcelForce“",
     atLeastOneField: "Reikia nurodyti bent vieną lauką",
     postcodePrefix: "Tik raidės ir skaitmenys, ne daugiau kaip 8",
     invalidId: "Netinkamas ID",
@@ -314,7 +314,7 @@ export const lt = {
     howFile:
       "Naudokite CSV failą, eksportuotą iš šios CMS arba paruoštą „Excel“ ar „Google Sheets“ (išsaugotą kaip CSV UTF-8, reikšmės atskirtos kableliais arba kabliataškiais).",
     howColumns:
-      "Pirmoje eilutėje – stulpelių pavadinimai. Privalomi: {required}. Neprivalomi: region, countryString, basicPrice, additionalCharges (skaičius), isParcelForce (true arba false), parcelForceZone, discount, calendar, active (true arba false).",
+      "Pirmoje eilutėje – stulpelių pavadinimai. Privalomi: {required}. Neprivalomi: region, countryString, basicPrice, additionalCharges (skaičius, tuščia – 0), isParcelForce (true arba false), parcelForceZone, discount, calendar, active (true arba false).",
     howUpdate:
       "Esami pašto kodai atnaujinami, nauji pridedami. Stulpeliai, kurių faile nėra, išlaiko dabartines reikšmes. Pašto kodai, kurių faile nėra, nekeičiami.",
     howReview:

@@ -6,8 +6,10 @@ import {
   LIST_DEFAULT_LIMIT,
   LIST_MAX_LIMIT,
   PARCEL_FORCE_ZONES,
+  NUMBER_DEFAULT,
   isValidAdditionalCharges,
   isValidDiscount,
+  orNumberDefault,
 } from "@/lib/postcode-options";
 import { EMPTY_FILTER } from "@/lib/postcode-filters";
 
@@ -22,11 +24,13 @@ const postcodeValue = requiredText.transform((value) => value.toUpperCase());
 // Empty string is allowed for all three: the value is optional.
 const calendarValue = z.enum(["", ...CALENDAR_VALUES]);
 const parcelForceZoneValue = z.enum(["", ...PARCEL_FORCE_ZONES]);
-const discountValue = text.refine(isValidDiscount, DISCOUNT_HINT);
-const additionalChargesValue = text.refine(
-  isValidAdditionalCharges,
-  ADDITIONAL_CHARGES_HINT,
-);
+// Never empty: "" is taken as 0.
+const discountValue = text
+  .transform(orNumberDefault)
+  .pipe(z.string().refine(isValidDiscount, DISCOUNT_HINT));
+const additionalChargesValue = text
+  .transform(orNumberDefault)
+  .pipe(z.string().refine(isValidAdditionalCharges, ADDITIONAL_CHARGES_HINT));
 
 export const createPostcodeSchema = z.object({
   postcode: postcodeValue,
@@ -35,10 +39,10 @@ export const createPostcodeSchema = z.object({
   region: text.default(""),
   countryString: text.default(""),
   basicPrice: text.default(""),
-  additionalCharges: additionalChargesValue.default(""),
+  additionalCharges: additionalChargesValue.default(NUMBER_DEFAULT),
   isParcelForce: z.boolean().default(false),
   parcelForceZone: parcelForceZoneValue.default(""),
-  discount: discountValue.default(""),
+  discount: discountValue.default(NUMBER_DEFAULT),
   calendar: calendarValue.default(""),
   active: z.boolean().default(true),
 });

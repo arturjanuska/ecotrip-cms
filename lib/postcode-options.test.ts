@@ -7,19 +7,28 @@ import {
 } from "@/lib/postcode-options";
 
 describe("isValidDiscount", () => {
-  it.each(["", "0", "10", "7.5", "99.99", "100", "100.0", "0.5"])(
+  it.each(["0", "10", "7.5", "99.99", "100", "100.0", "0.5"])(
     "accepts %j",
     (value) => {
       expect(isValidDiscount(value)).toBe(true);
     },
   );
 
-  it.each(["100.1", "101", "-5", "7.", ".5", "7,5", "1e2", "abc", "10%", " 5"])(
-    "rejects %j",
-    (value) => {
-      expect(isValidDiscount(value)).toBe(false);
-    },
-  );
+  it.each([
+    "",
+    "100.1",
+    "101",
+    "-5",
+    "7.",
+    ".5",
+    "7,5",
+    "1e2",
+    "abc",
+    "10%",
+    " 5",
+  ])("rejects %j", (value) => {
+    expect(isValidDiscount(value)).toBe(false);
+  });
 });
 
 describe("sanitizeDiscountInput", () => {
@@ -37,11 +46,11 @@ describe("sanitizeDiscountInput", () => {
 });
 
 describe("additional charges", () => {
-  it("are an amount or empty", () => {
-    for (const value of ["", "15", "-5", "12.5"]) {
+  it("are an amount, never empty", () => {
+    for (const value of ["0", "15", "-5", "12.5"]) {
       expect(isValidAdditionalCharges(value), value).toBe(true);
     }
-    for (const value of ["Parcel force pricelist", "-", "1,5", "5-"]) {
+    for (const value of ["", "Parcel force pricelist", "-", "1,5", "5-"]) {
       expect(isValidAdditionalCharges(value), value).toBe(false);
     }
   });

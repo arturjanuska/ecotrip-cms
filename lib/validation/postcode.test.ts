@@ -84,10 +84,10 @@ describe("createPostcodeSchema", () => {
       region: "",
       countryString: "",
       basicPrice: "",
-      additionalCharges: "",
+      additionalCharges: "0",
       isParcelForce: false,
       parcelForceZone: "",
-      discount: "",
+      discount: "0",
       calendar: "",
       active: true,
     });
@@ -144,6 +144,12 @@ describe("updatePostcodeSchema", () => {
     { active: false },
   ])("accepts %j", (input) => {
     expect(updatePostcodeSchema.safeParse(input).success).toBe(true);
+  });
+
+  it("takes an empty discount or additional charges as 0", () => {
+    expect(
+      updatePostcodeSchema.parse({ discount: "", additionalCharges: " " }),
+    ).toEqual({ discount: "0", additionalCharges: "0" });
   });
 });
 

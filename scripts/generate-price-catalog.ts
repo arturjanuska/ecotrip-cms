@@ -3,8 +3,9 @@
  *
  *   npx tsx scripts/generate-price-catalog.ts "<path to the CSV>"
  *
- * Structure, values and labels come from MAPPING below (they match
- * ecotrip-react src/utils/products.ts, so orders keep their format). Numbers
+ * Structure, values and labels come from MAPPING below and, for sizes, from
+ * LEGACY_SIZE_LABELS (lib/price-legacy-sizes.ts): they match ecotrip-react
+ * src/utils/products.ts, so orders keep their format. Numbers
  * come from the CSV. The script fails on any row it cannot place, and the
  * result must pass catalogSchema before it is written.
  */
@@ -12,6 +13,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { en } from "@/lib/i18n/messages/en";
 import { translate } from "@/lib/i18n/translate";
+import { applyLegacySizes, LEGACY_SIZE_LABELS } from "@/lib/price-legacy-sizes";
 import { normalizeSheetText } from "@/lib/price-sheet-key";
 import {
   parsePriceSheet,
@@ -623,13 +625,29 @@ function main() {
     );
   }
 
-  const result = catalogSchema.safeParse(categories);
+  // Sizes keep the old site's texts (orders send them). Each listed size must
+  // still be in the CSV, so a changed spreadsheet is noticed.
+  const legacy = applyLegacySizes(categories);
+  for (const [key, sizes] of Object.entries(LEGACY_SIZE_LABELS)) {
+    for (const sheetSize of Object.keys(sizes)) {
+      const used = legacy.changes.some(
+        (change) =>
+          `${change.category}/${change.subCategory ?? "-"}` === key &&
+          change.sheetSize === sheetSize,
+      );
+      if (!used) {
+        throw new Error(`Legacy size ${key} "${sheetSize}" is not in the CSV`);
+      }
+    }
+  }
+
+  const result = catalogSchema.safeParse(legacy.categories);
   if (!result.success) {
     throw new Error(JSON.stringify(result.error.issues, null, 2));
   }
 
   fs.writeFileSync(OUTPUT, `${JSON.stringify(result.data, null, 2)}\n`);
-  const variants = categories.flatMap((category) => [
+  const variants = result.data.flatMap((category) => [
     category.pricing,
     ...category.subCategories.map((sub) => sub.pricing),
   ]);

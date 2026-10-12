@@ -170,8 +170,8 @@
                 "spec": "Be padangų"
               },
               "size": {
-                "value": "<R18",
-                "label": "<R18"
+                "value": "R16 - R18",
+                "label": "R16 - R18"
               },
               "specification": {
                 "value": "withoutTires",
@@ -191,8 +191,8 @@
                 "spec": "Be padangų"
               },
               "size": {
-                "value": "<R22",
-                "label": "<R22"
+                "value": "R19 - R22",
+                "label": "R19 - R22"
               },
               "specification": {
                 "value": "withoutTires",
@@ -254,8 +254,8 @@
                 "spec": "Su padangomis"
               },
               "size": {
-                "value": "<R18",
-                "label": "<R18"
+                "value": "R16 - R18",
+                "label": "R16 - R18"
               },
               "specification": {
                 "value": "withTires",
@@ -275,8 +275,8 @@
                 "spec": "Su padangomis"
               },
               "size": {
-                "value": "<R22",
-                "label": "<R22"
+                "value": "R19 - R22",
+                "label": "R19 - R22"
               },
               "specification": {
                 "value": "withTires",
@@ -799,8 +799,8 @@
                 "spec": "Tuščias"
               },
               "size": {
-                "value": "<1000 cm3",
-                "label": "<1000 cm3"
+                "value": ">1000 cm3",
+                "label": ">1000 cm3"
               },
               "specification": {
                 "value": "empty",
@@ -820,8 +820,8 @@
                 "spec": "Tuščias"
               },
               "size": {
-                "value": "<1500 cm3",
-                "label": "<1500 cm3"
+                "value": "1000 - 1500 cm3",
+                "label": "1000 - 1500 cm3"
               },
               "specification": {
                 "value": "empty",
@@ -841,8 +841,8 @@
                 "spec": "Tuščias"
               },
               "size": {
-                "value": "<2000 cm3",
-                "label": "<2000 cm3"
+                "value": "1500 - 2000 cm3",
+                "label": "1500 - 2000 cm3"
               },
               "specification": {
                 "value": "empty",
@@ -862,8 +862,8 @@
                 "spec": "Tuščias"
               },
               "size": {
-                "value": "<2500 cm3",
-                "label": "<2500 cm3"
+                "value": "2000 - 2500 cm3",
+                "label": "2000 - 2500 cm3"
               },
               "specification": {
                 "value": "empty",
@@ -883,8 +883,8 @@
                 "spec": "Tuščias"
               },
               "size": {
-                "value": "<3000 cm3",
-                "label": "<3000 cm3"
+                "value": "2500 - 3000 cm3",
+                "label": "2500 - 3000 cm3"
               },
               "specification": {
                 "value": "empty",
@@ -904,8 +904,8 @@
                 "spec": "Tuščias"
               },
               "size": {
-                "value": "<3500 cm3",
-                "label": "<3500 cm3"
+                "value": "3000 - 3500 cm3",
+                "label": "3000 - 3500 cm3"
               },
               "specification": {
                 "value": "empty",
@@ -925,8 +925,8 @@
                 "spec": "Tuščias"
               },
               "size": {
-                "value": "<4000 cm3",
-                "label": "<4000 cm3"
+                "value": "3500 - 4000 cm3",
+                "label": "3500 - 4000 cm3"
               },
               "specification": {
                 "value": "empty",
@@ -967,8 +967,8 @@
                 "spec": "Pilnas"
               },
               "size": {
-                "value": "<1000 cm3",
-                "label": "<1000 cm3"
+                "value": ">1000 cm3",
+                "label": ">1000 cm3"
               },
               "specification": {
                 "value": "full",
@@ -988,8 +988,8 @@
                 "spec": "Pilnas"
               },
               "size": {
-                "value": "<1500 cm3",
-                "label": "<1500 cm3"
+                "value": "1000 - 1500 cm3",
+                "label": "1000 - 1500 cm3"
               },
               "specification": {
                 "value": "full",
@@ -1009,8 +1009,8 @@
                 "spec": "Pilnas"
               },
               "size": {
-                "value": "<2000 cm3",
-                "label": "<2000 cm3"
+                "value": "1500 - 2000 cm3",
+                "label": "1500 - 2000 cm3"
               },
               "specification": {
                 "value": "full",
@@ -1030,8 +1030,8 @@
                 "spec": "Pilnas"
               },
               "size": {
-                "value": "<2500 cm3",
-                "label": "<2500 cm3"
+                "value": "2000 - 2500 cm3",
+                "label": "2000 - 2500 cm3"
               },
               "specification": {
                 "value": "full",
@@ -1051,8 +1051,8 @@
                 "spec": "Pilnas"
               },
               "size": {
-                "value": "<3000 cm3",
-                "label": "<3000 cm3"
+                "value": "2500 - 3000 cm3",
+                "label": "2500 - 3000 cm3"
               },
               "specification": {
                 "value": "full",
@@ -1072,8 +1072,8 @@
                 "spec": "Pilnas"
               },
               "size": {
-                "value": "<3500 cm3",
-                "label": "<3500 cm3"
+                "value": "3000 - 3500 cm3",
+                "label": "3000 - 3500 cm3"
               },
               "specification": {
                 "value": "full",
@@ -1093,8 +1093,8 @@
                 "spec": "Pilnas"
               },
               "size": {
-                "value": "<4000 cm3",
-                "label": "<4000 cm3"
+                "value": "3500 - 4000 cm3",
+                "label": "3500 - 4000 cm3"
               },
               "specification": {
                 "value": "full",
@@ -1144,8 +1144,8 @@
                 "spec": "Mechaninė"
               },
               "size": {
-                "value": "<1000 cm3",
-                "label": "<1000 cm3"
+                "value": ">1000 cm3",
+                "label": ">1000 cm3"
               },
               "specification": {
                 "value": "manual",
@@ -1165,8 +1165,8 @@
                 "spec": "Mechaninė"
               },
               "size": {
-                "value": "<1500 cm3",
-                "label": "<1500 cm3"
+                "value": "1000 - 1500 cm3",
+                "label": "1000 - 1500 cm3"
               },
               "specification": {
                 "value": "manual",
@@ -1186,8 +1186,8 @@
                 "spec": "Mechaninė"
               },
               "size": {
-                "value": "<2000 cm3",
-                "label": "<2000 cm3"
+                "value": "1500 - 2000 cm3",
+                "label": "1500 - 2000 cm3"
               },
               "specification": {
                 "value": "manual",
@@ -1207,8 +1207,8 @@
                 "spec": "Mechaninė"
               },
               "size": {
-                "value": "<2500 cm3",
-                "label": "<2500 cm3"
+                "value": "2000 - 2500 cm3",
+                "label": "2000 - 2500 cm3"
               },
               "specification": {
                 "value": "manual",
@@ -1228,8 +1228,8 @@
                 "spec": "Mechaninė"
               },
               "size": {
-                "value": "<3000 cm3",
-                "label": "<3000 cm3"
+                "value": "2500 - 3000 cm3",
+                "label": "2500 - 3000 cm3"
               },
               "specification": {
                 "value": "manual",
@@ -1249,8 +1249,8 @@
                 "spec": "Mechaninė"
               },
               "size": {
-                "value": "<3500 cm3",
-                "label": "<3500 cm3"
+                "value": "3000 - 3500 cm3",
+                "label": "3000 - 3500 cm3"
               },
               "specification": {
                 "value": "manual",
@@ -1270,8 +1270,8 @@
                 "spec": "Mechaninė"
               },
               "size": {
-                "value": "<4000 cm3",
-                "label": "<4000 cm3"
+                "value": "3500 - 4000 cm3",
+                "label": "3500 - 4000 cm3"
               },
               "specification": {
                 "value": "manual",
@@ -1312,8 +1312,8 @@
                 "spec": "Automatinė"
               },
               "size": {
-                "value": "<1000 cm3",
-                "label": "<1000 cm3"
+                "value": ">1000 cm3",
+                "label": ">1000 cm3"
               },
               "specification": {
                 "value": "automatic",
@@ -1333,8 +1333,8 @@
                 "spec": "Automatinė"
               },
               "size": {
-                "value": "<1500 cm3",
-                "label": "<1500 cm3"
+                "value": "1000 - 1500 cm3",
+                "label": "1000 - 1500 cm3"
               },
               "specification": {
                 "value": "automatic",
@@ -1354,8 +1354,8 @@
                 "spec": "Automatinė"
               },
               "size": {
-                "value": "<2000 cm3",
-                "label": "<2000 cm3"
+                "value": "1500 - 2000 cm3",
+                "label": "1500 - 2000 cm3"
               },
               "specification": {
                 "value": "automatic",
@@ -1375,8 +1375,8 @@
                 "spec": "Automatinė"
               },
               "size": {
-                "value": "<2500 cm3",
-                "label": "<2500 cm3"
+                "value": "2000 - 2500 cm3",
+                "label": "2000 - 2500 cm3"
               },
               "specification": {
                 "value": "automatic",
@@ -1396,8 +1396,8 @@
                 "spec": "Automatinė"
               },
               "size": {
-                "value": "<3000 cm3",
-                "label": "<3000 cm3"
+                "value": "2500 - 3000 cm3",
+                "label": "2500 - 3000 cm3"
               },
               "specification": {
                 "value": "automatic",
@@ -1417,8 +1417,8 @@
                 "spec": "Automatinė"
               },
               "size": {
-                "value": "<3500 cm3",
-                "label": "<3500 cm3"
+                "value": "3000 - 3500 cm3",
+                "label": "3000 - 3500 cm3"
               },
               "specification": {
                 "value": "automatic",
@@ -1438,8 +1438,8 @@
                 "spec": "Automatinė"
               },
               "size": {
-                "value": "<4000 cm3",
-                "label": "<4000 cm3"
+                "value": "3500 - 4000 cm3",
+                "label": "3500 - 4000 cm3"
               },
               "specification": {
                 "value": "automatic",
@@ -2042,8 +2042,8 @@
                 "spec": ""
               },
               "size": {
-                "value": "<25 km/h",
-                "label": "<25 km/h"
+                "value": "<25 unit",
+                "label": "<25 unit"
               },
               "specification": null,
               "volume": 0.15,
@@ -2060,8 +2060,8 @@
                 "spec": ""
               },
               "size": {
-                "value": ">25 km/h",
-                "label": ">25 km/h"
+                "value": ">25 unit",
+                "label": ">25 unit"
               },
               "specification": null,
               "volume": 0.18,
@@ -2096,8 +2096,8 @@
                 "spec": ""
               },
               "size": {
-                "value": "<50 cm3",
-                "label": "<50 cm3"
+                "value": "<49 cm3",
+                "label": "<49 cm3"
               },
               "specification": null,
               "volume": 0.4,
@@ -2114,8 +2114,8 @@
                 "spec": ""
               },
               "size": {
-                "value": "<125 cm3",
-                "label": "<125 cm3"
+                "value": "50 - 125 cm3",
+                "label": "50 - 125 cm3"
               },
               "specification": null,
               "volume": 0.5,
@@ -2132,8 +2132,8 @@
                 "spec": ""
               },
               "size": {
-                "value": "<250 cm3",
-                "label": "<250 cm3"
+                "value": "125 - 250 cm3",
+                "label": "125 - 250 cm3"
               },
               "specification": null,
               "volume": 0.6,
@@ -2195,8 +2195,8 @@
                 "spec": ""
               },
               "size": {
-                "value": "<750 cm3",
-                "label": "<750 cm3"
+                "value": "500 - 750 cm3",
+                "label": "500 - 750 cm3"
               },
               "specification": null,
               "volume": 0.65,
@@ -2213,8 +2213,8 @@
                 "spec": ""
               },
               "size": {
-                "value": "<1000 cm3",
-                "label": "<1000 cm3"
+                "value": "750 - 1000 cm3",
+                "label": "750 - 1000 cm3"
               },
               "specification": null,
               "volume": 0.75,
@@ -2276,8 +2276,8 @@
                 "spec": ""
               },
               "size": {
-                "value": "<250 cm3",
-                "label": "<250 cm3"
+                "value": "125 - 249 cm3",
+                "label": "125 - 249 cm3"
               },
               "specification": null,
               "volume": 0.55,
@@ -2294,8 +2294,8 @@
                 "spec": ""
               },
               "size": {
-                "value": "<450 cm3",
-                "label": "<450 cm3"
+                "value": "250 - 449 cm3",
+                "label": "250 - 449 cm3"
               },
               "specification": null,
               "volume": 0.6,
@@ -2357,8 +2357,8 @@
                 "spec": ""
               },
               "size": {
-                "value": "<1200 cm3",
-                "label": "<1200 cm3"
+                "value": "800 - 1199 cm3",
+                "label": "800 - 1199 cm3"
               },
               "specification": null,
               "volume": 0.95,
@@ -2375,8 +2375,8 @@
                 "spec": ""
               },
               "size": {
-                "value": "<1600 cm3",
-                "label": "<1600 cm3"
+                "value": "1200 - 1599 cm3",
+                "label": "1200 - 1599 cm3"
               },
               "specification": null,
               "volume": 1.1,
@@ -2438,8 +2438,8 @@
                 "spec": ""
               },
               "size": {
-                "value": "<1000 cm3",
-                "label": "<1000 cm3"
+                "value": "600 - 1000 cm3",
+                "label": "600 - 1000 cm3"
               },
               "specification": null,
               "volume": 0.55,
@@ -2501,8 +2501,8 @@
                 "spec": ""
               },
               "size": {
-                "value": "<1200 cm3",
-                "label": "<1200 cm3"
+                "value": "800 - 1199 cm3",
+                "label": "800 - 1199 cm3"
               },
               "specification": null,
               "volume": 0.75,
@@ -2564,8 +2564,8 @@
                 "spec": ""
               },
               "size": {
-                "value": "<650 cm3",
-                "label": "<650 cm3"
+                "value": "250 - 649 cm3",
+                "label": "250 - 649 cm3"
               },
               "specification": null,
               "volume": 0.6,
@@ -2582,8 +2582,8 @@
                 "spec": ""
               },
               "size": {
-                "value": "<1200 cm3",
-                "label": "<1200 cm3"
+                "value": "650 - 1200 cm3",
+                "label": "650 - 1200 cm3"
               },
               "specification": null,
               "volume": 0.75,
@@ -2645,8 +2645,8 @@
                 "spec": ""
               },
               "size": {
-                "value": "<800 cm3",
-                "label": "<800 cm3"
+                "value": "400 - 799 cm3",
+                "label": "400 - 799 cm3"
               },
               "specification": null,
               "volume": 1,
@@ -2663,8 +2663,8 @@
                 "spec": ""
               },
               "size": {
-                "value": "<1200 cm3",
-                "label": "<1200 cm3"
+                "value": "800 - 1200 cm3",
+                "label": "800 - 1200 cm3"
               },
               "specification": null,
               "volume": 1.25,
@@ -2726,8 +2726,8 @@
                 "spec": ""
               },
               "size": {
-                "value": "<250 cm3",
-                "label": "<250 cm3"
+                "value": "45 - 249 cm3",
+                "label": "45 - 249 cm3"
               },
               "specification": null,
               "volume": 0.02,
@@ -2744,8 +2744,8 @@
                 "spec": ""
               },
               "size": {
-                "value": "<450 cm3",
-                "label": "<450 cm3"
+                "value": "250 - 450 cm3",
+                "label": "250 - 450 cm3"
               },
               "specification": null,
               "volume": 0.03,
@@ -2762,8 +2762,8 @@
                 "spec": ""
               },
               "size": {
-                "value": "<600 cm3",
-                "label": "<600 cm3"
+                "value": "450 - 600 cm3",
+                "label": "450 - 600 cm3"
               },
               "specification": null,
               "volume": 0.04,
@@ -2780,8 +2780,8 @@
                 "spec": ""
               },
               "size": {
-                "value": "<1000 cm3",
-                "label": "<1000 cm3"
+                "value": "600 - 1000 cm3",
+                "label": "600 - 1000 cm3"
               },
               "specification": null,
               "volume": 0.06,
@@ -2798,8 +2798,8 @@
                 "spec": ""
               },
               "size": {
-                "value": "<1200 cm3",
-                "label": "<1200 cm3"
+                "value": "1000 - 1200 cm3",
+                "label": "1000 - 1200 cm3"
               },
               "specification": null,
               "volume": 0.07,
@@ -2816,8 +2816,8 @@
                 "spec": ""
               },
               "size": {
-                "value": "<1600 cm3",
-                "label": "<1600 cm3"
+                "value": "1200 - 1600 cm3",
+                "label": "1200 - 1600 cm3"
               },
               "specification": null,
               "volume": 0.09,
@@ -3026,8 +3026,8 @@
             "spec": ""
           },
           "size": {
-            "value": "<24 inch",
-            "label": "<24 inch"
+            "value": "<23 inch",
+            "label": "<23 inch"
           },
           "specification": null,
           "volume": 0.04,
@@ -3044,8 +3044,8 @@
             "spec": ""
           },
           "size": {
-            "value": "<32 inch",
-            "label": "<32 inch"
+            "value": "23 - 31 inch",
+            "label": "23 - 31 inch"
           },
           "specification": null,
           "volume": 0.06,
@@ -3062,8 +3062,8 @@
             "spec": ""
           },
           "size": {
-            "value": "<40 inch",
-            "label": "<40 inch"
+            "value": "32 - 39 inch",
+            "label": "32 - 39 inch"
           },
           "specification": null,
           "volume": 0.08,
@@ -3080,8 +3080,8 @@
             "spec": ""
           },
           "size": {
-            "value": "<43 inch",
-            "label": "<43 inch"
+            "value": "40 - 42 inch",
+            "label": "40 - 42 inch"
           },
           "specification": null,
           "volume": 0.1,
@@ -3098,8 +3098,8 @@
             "spec": ""
           },
           "size": {
-            "value": "<50 inch",
-            "label": "<50 inch"
+            "value": "43 - 49 inch",
+            "label": "43 - 49 inch"
           },
           "specification": null,
           "volume": 0.12,
@@ -3116,8 +3116,8 @@
             "spec": ""
           },
           "size": {
-            "value": "<55 inch",
-            "label": "<55 inch"
+            "value": "50 - 54 inch",
+            "label": "50 - 54 inch"
           },
           "specification": null,
           "volume": 0.15,
@@ -3134,8 +3134,8 @@
             "spec": ""
           },
           "size": {
-            "value": "<65 inch",
-            "label": "<65 inch"
+            "value": "55 - 64 inch",
+            "label": "55 - 64 inch"
           },
           "specification": null,
           "volume": 0.2,
@@ -3152,8 +3152,8 @@
             "spec": ""
           },
           "size": {
-            "value": "<70 inch",
-            "label": "<70 inch"
+            "value": "65 - 69 inch",
+            "label": "65 - 69 inch"
           },
           "specification": null,
           "volume": 0.25,
@@ -3170,8 +3170,8 @@
             "spec": ""
           },
           "size": {
-            "value": "<75 inch",
-            "label": "<75 inch"
+            "value": "70 - 74 inch",
+            "label": "70 - 74 inch"
           },
           "specification": null,
           "volume": 0.3,
@@ -3188,8 +3188,8 @@
             "spec": ""
           },
           "size": {
-            "value": "<85 inch",
-            "label": "<85 inch"
+            "value": "75 - 84 inch",
+            "label": "75 - 84 inch"
           },
           "specification": null,
           "volume": 0.35,
@@ -3410,8 +3410,8 @@
                 "spec": "Be surinkimo krepšio"
               },
               "size": {
-                "value": "<80 cm",
-                "label": "<80 cm"
+                "value": "<79 cm",
+                "label": "<79 cm"
               },
               "specification": {
                 "value": "withoutAssemblyBag",
@@ -3431,8 +3431,8 @@
                 "spec": "Su surinkimo krepšiu"
               },
               "size": {
-                "value": "<80 cm",
-                "label": "<80 cm"
+                "value": "<79 cm",
+                "label": "<79 cm"
               },
               "specification": {
                 "value": "withAssemblyBag",
@@ -3461,8 +3461,8 @@
                 "spec": "Be surinkimo krepšio"
               },
               "size": {
-                "value": "<120 cm",
-                "label": "<120 cm"
+                "value": "80 - 119 cm",
+                "label": "80 - 119 cm"
               },
               "specification": {
                 "value": "withoutAssemblyBag",
@@ -3482,8 +3482,8 @@
                 "spec": "Su surinkimo krepšiu"
               },
               "size": {
-                "value": "<120 cm",
-                "label": "<120 cm"
+                "value": "80 - 119 cm",
+                "label": "80 - 119 cm"
               },
               "specification": {
                 "value": "withAssemblyBag",

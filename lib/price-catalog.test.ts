@@ -103,15 +103,21 @@ describe("price catalog", () => {
       ["withBurners", 100],
     ]);
 
+    // Sizes keep the old site's texts (lib/price-legacy-sizes.ts).
     expect(fixedOf("automotiveGoods", "engine").variants[0].size).toEqual({
-      value: "<1000 cm3",
-      label: "<1000 cm3",
+      value: ">1000 cm3",
+      label: ">1000 cm3",
     });
 
     const wheelSizes = fixedOf("automotiveGoods", "setOfWheels").variants.map(
       (v) => v.size?.label,
     );
-    expect([...new Set(wheelSizes)]).toEqual(["<R16", "<R18", "<R22", ">R22"]);
+    expect([...new Set(wheelSizes)]).toEqual([
+      "<R16",
+      "R16 - R18",
+      "R19 - R22",
+      ">R22",
+    ]);
 
     const chopper = fixedOf("motorcyclesAndAccessories", "chopper").variants.at(
       -1,

@@ -69,9 +69,16 @@ const DEFAULT_PER_PAGE = 50;
 const ROW_HEIGHT = 49;
 const OVERSCAN = 10;
 const COLUMN_COUNT = 14;
+// Additional charges and discount fit "1000" in the input; their headers
+// wrap to two lines (WRAPPED_HEADERS). The switches take their header's width.
 const COLUMN_WIDTHS = [
-  44, 110, 190, 90, 180, 160, 170, 150, 110, 150, 130, 150, 80, 150,
+  44, 110, 190, 90, 180, 160, 170, 88, 100, 150, 76, 150, 72, 150,
 ] as const;
+const TABLE_MIN_WIDTH = COLUMN_WIDTHS.reduce((sum, width) => sum + width, 0);
+const WRAPPED_HEADERS: readonly EditableTextField[] = [
+  "additionalCharges",
+  "discount",
+];
 
 // Column labels: messages postcode.<field>. The isParcelForce switch comes
 // right after the column named here.
@@ -729,7 +736,10 @@ export function PostcodesTable() {
             aria-busy={loading}
             className="min-h-0 flex-1 overflow-auto"
           >
-            <table className="w-full min-w-[1784px] table-fixed caption-bottom text-sm">
+            <table
+              className="w-full table-fixed caption-bottom text-sm"
+              style={{ minWidth: TABLE_MIN_WIDTH }}
+            >
               <colgroup>
                 {COLUMN_WIDTHS.map((width, index) => (
                   <col key={index} style={{ width }} />
@@ -760,7 +770,15 @@ export function PostcodesTable() {
                   <TableHead>{th("postcode.country")}</TableHead>
                   {TEXT_COLUMNS.slice(1).map((column) => (
                     <Fragment key={column.field}>
-                      <TableHead>{th(`postcode.${column.field}`)}</TableHead>
+                      <TableHead
+                        className={
+                          WRAPPED_HEADERS.includes(column.field)
+                            ? "whitespace-normal"
+                            : undefined
+                        }
+                      >
+                        {th(`postcode.${column.field}`)}
+                      </TableHead>
                       {column.field === PARCEL_FORCE_AFTER && (
                         <TableHead>{th("postcode.isParcelForce")}</TableHead>
                       )}

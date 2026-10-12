@@ -21,12 +21,9 @@ function LoadingBar({
       role="progressbar"
       aria-busy
       className={cn(
-        "pointer-events-none absolute inset-x-0 bottom-full h-6 overflow-hidden rounded-t-md bg-brand/20",
+        "pointer-events-none absolute inset-x-0 bottom-full h-2 overflow-hidden rounded-t-md bg-brand/20",
         className,
       )}
-      style={{
-        top: "-6px",
-      }}
     >
       <div className="absolute inset-y-0 left-0 w-1/2 animate-[loading-bar_2s_linear_infinite] bg-[linear-gradient(115deg,transparent_0%,var(--brand)_35%,var(--brand-strong)_50%,var(--brand)_65%,transparent_100%)] motion-reduce:w-full motion-reduce:animate-pulse" />
     </div>

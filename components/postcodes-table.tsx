@@ -719,97 +719,101 @@ export function PostcodesTable() {
         <p className="text-sm text-destructive">{problemText(t, list.error)}</p>
       )}
 
-      <div className="relative flex h-[calc(100vh-14rem)] min-h-96 flex-col overflow-hidden rounded-lg border">
+      <div className="relative">
         <LoadingBar
           loading={loading || bulkBusy || Object.values(saving).some(Boolean)}
         />
-        <div
-          ref={scrollRef}
-          aria-busy={loading}
-          className="min-h-0 flex-1 overflow-auto"
-        >
-          <table className="w-full min-w-[1784px] table-fixed caption-bottom text-sm">
-            <colgroup>
-              {COLUMN_WIDTHS.map((width, index) => (
-                <col key={index} style={{ width }} />
-              ))}
-            </colgroup>
-            <TableHeader className="sticky top-0 z-10 bg-background">
-              <TableRow>
-                <TableHead>
-                  <input
-                    type="checkbox"
-                    className="size-4 accent-primary"
-                    aria-label={th("postcodesPage.selectAll")}
-                    disabled={items.length === 0}
-                    checked={allLoadedSelected}
-                    ref={(element) => {
-                      if (element) {
-                        element.indeterminate =
-                          someLoadedSelected && !allLoadedSelected;
-                      }
-                    }}
-                    onChange={toggleAllLoaded}
-                  />
-                </TableHead>
-                <TableHead>{th("postcode.postcode")}</TableHead>
-                <TableHead>{th(`postcode.${TEXT_COLUMNS[0].field}`)}</TableHead>
-                <TableHead>{th("postcode.country")}</TableHead>
-                {TEXT_COLUMNS.slice(1).map((column) => (
-                  <Fragment key={column.field}>
-                    <TableHead>{th(`postcode.${column.field}`)}</TableHead>
-                    {column.field === PARCEL_FORCE_AFTER && (
-                      <TableHead>{th("postcode.isParcelForce")}</TableHead>
-                    )}
-                  </Fragment>
+        <div className="flex h-[calc(100vh-14rem)] min-h-96 flex-col overflow-hidden rounded-lg border">
+          <div
+            ref={scrollRef}
+            aria-busy={loading}
+            className="min-h-0 flex-1 overflow-auto"
+          >
+            <table className="w-full min-w-[1784px] table-fixed caption-bottom text-sm">
+              <colgroup>
+                {COLUMN_WIDTHS.map((width, index) => (
+                  <col key={index} style={{ width }} />
                 ))}
-                <TableHead>{th("postcode.active")}</TableHead>
-                <TableHead />
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {items.length === 0 && !loading && (
+              </colgroup>
+              <TableHeader className="sticky top-0 z-10 bg-background">
                 <TableRow>
-                  <TableCell colSpan={COLUMN_COUNT} className="text-center">
-                    {t("postcodesPage.noPostcodes")}
-                  </TableCell>
+                  <TableHead>
+                    <input
+                      type="checkbox"
+                      className="size-4 accent-primary"
+                      aria-label={th("postcodesPage.selectAll")}
+                      disabled={items.length === 0}
+                      checked={allLoadedSelected}
+                      ref={(element) => {
+                        if (element) {
+                          element.indeterminate =
+                            someLoadedSelected && !allLoadedSelected;
+                        }
+                      }}
+                      onChange={toggleAllLoaded}
+                    />
+                  </TableHead>
+                  <TableHead>{th("postcode.postcode")}</TableHead>
+                  <TableHead>
+                    {th(`postcode.${TEXT_COLUMNS[0].field}`)}
+                  </TableHead>
+                  <TableHead>{th("postcode.country")}</TableHead>
+                  {TEXT_COLUMNS.slice(1).map((column) => (
+                    <Fragment key={column.field}>
+                      <TableHead>{th(`postcode.${column.field}`)}</TableHead>
+                      {column.field === PARCEL_FORCE_AFTER && (
+                        <TableHead>{th("postcode.isParcelForce")}</TableHead>
+                      )}
+                    </Fragment>
+                  ))}
+                  <TableHead>{th("postcode.active")}</TableHead>
+                  <TableHead />
                 </TableRow>
-              )}
-              {loading && <SkeletonRows />}
-              {paddingTop > 0 && (
-                <tr aria-hidden>
-                  <td colSpan={COLUMN_COUNT} style={{ height: paddingTop }} />
-                </tr>
-              )}
-              {virtualRows.map((virtualRow) => {
-                const item = items[virtualRow.index];
+              </TableHeader>
+              <TableBody>
+                {items.length === 0 && !loading && (
+                  <TableRow>
+                    <TableCell colSpan={COLUMN_COUNT} className="text-center">
+                      {t("postcodesPage.noPostcodes")}
+                    </TableCell>
+                  </TableRow>
+                )}
+                {loading && <SkeletonRows />}
+                {paddingTop > 0 && (
+                  <tr aria-hidden>
+                    <td colSpan={COLUMN_COUNT} style={{ height: paddingTop }} />
+                  </tr>
+                )}
+                {virtualRows.map((virtualRow) => {
+                  const item = items[virtualRow.index];
 
-                return (
-                  <PostcodeRow
-                    key={item._id}
-                    index={virtualRow.index}
-                    ref={virtualizer.measureElement}
-                    item={item}
-                    draft={drafts[item._id]}
-                    error={rowErrors[item._id]}
-                    saving={Boolean(saving[item._id])}
-                    onChange={updateDraft}
-                    selected={selected.has(item._id)}
-                    onSelect={toggleSelected}
-                    onSave={save}
-                  />
-                );
-              })}
-              {paddingBottom > 0 && (
-                <tr aria-hidden>
-                  <td
-                    colSpan={COLUMN_COUNT}
-                    style={{ height: paddingBottom }}
-                  />
-                </tr>
-              )}
-            </TableBody>
-          </table>
+                  return (
+                    <PostcodeRow
+                      key={item._id}
+                      index={virtualRow.index}
+                      ref={virtualizer.measureElement}
+                      item={item}
+                      draft={drafts[item._id]}
+                      error={rowErrors[item._id]}
+                      saving={Boolean(saving[item._id])}
+                      onChange={updateDraft}
+                      selected={selected.has(item._id)}
+                      onSelect={toggleSelected}
+                      onSave={save}
+                    />
+                  );
+                })}
+                {paddingBottom > 0 && (
+                  <tr aria-hidden>
+                    <td
+                      colSpan={COLUMN_COUNT}
+                      style={{ height: paddingBottom }}
+                    />
+                  </tr>
+                )}
+              </TableBody>
+            </table>
+          </div>
         </div>
       </div>
 

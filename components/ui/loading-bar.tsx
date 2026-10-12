@@ -1,9 +1,10 @@
 import { cn } from "@/lib/utils";
 
-// The 8px strip on top of a table while it loads or saves: an angled brand
+// The 8px strip above a table while it loads or saves: an angled brand
 // gradient runs from the left edge to the right one, over and over. Nothing
-// is shown otherwise. It lies over the top of the table, so the table does not
-// move when it appears: the parent needs `relative`.
+// is shown otherwise. It sits in the gap above the table (12px are needed),
+// so nothing moves when it appears: the parent needs `relative`, without
+// overflow-hidden.
 function LoadingBar({
   loading,
   className,
@@ -20,7 +21,7 @@ function LoadingBar({
       role="progressbar"
       aria-busy
       className={cn(
-        "pointer-events-none absolute inset-x-0 top-0 z-20 h-2 overflow-hidden bg-brand/20",
+        "pointer-events-none absolute inset-x-0 bottom-full mb-1 h-2 overflow-hidden rounded-full bg-brand/20",
         className,
       )}
     >
@@ -31,7 +32,7 @@ function LoadingBar({
 
 export { LoadingBar };
 
-// A bordered box for a table, with the strip on top while it loads.
+// A bordered box for a table, with the strip above it while it loads.
 function TableFrame({
   loading,
   className,
@@ -42,11 +43,11 @@ function TableFrame({
   children: React.ReactNode;
 }) {
   return (
-    <div
-      className={cn("relative overflow-hidden rounded-lg border", className)}
-    >
+    <div className="relative">
       <LoadingBar loading={loading} />
-      {children}
+      <div className={cn("overflow-hidden rounded-lg border", className)}>
+        {children}
+      </div>
     </div>
   );
 }

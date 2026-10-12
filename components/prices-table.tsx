@@ -193,7 +193,7 @@ const CategoryBlock = memo(function CategoryBlock({
   );
 
   return (
-    <section className="space-y-2">
+    <section className="space-y-3">
       <div className="flex flex-wrap items-center gap-3">
         <h2 className="mr-auto text-lg font-semibold">{category.sheet}</h2>
         {unsaved > 0 && (

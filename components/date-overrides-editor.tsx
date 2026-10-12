@@ -247,8 +247,9 @@ function MonthEditor({
   };
 
   return (
-    <section className="space-y-4 rounded-lg border bg-card p-5">
-      <div className="flex flex-wrap items-center gap-3">
+    <section className="space-y-4 rounded-lg border bg-card p-4 md:p-5">
+      {/* Phones: Save stays in reach under the top bar while trips scroll. */}
+      <div className="sticky top-14 z-10 -mx-4 -mt-4 flex flex-wrap items-center gap-3 rounded-t-lg bg-card px-4 pt-4 pb-2 md:static md:m-0 md:p-0">
         <h2 className="text-lg font-semibold first-letter:uppercase">
           {title}
         </h2>
@@ -281,21 +282,25 @@ function MonthEditor({
         <p className="text-sm text-destructive">{problemText(t, problem)}</p>
       )}
 
-      <fieldset disabled={busy} className="space-y-3">
+      <fieldset disabled={busy} className="min-w-0 space-y-3">
         {trips.length === 0 && (
           <p className="text-sm text-muted-foreground">
             {t("datesPage.noTrips")}
           </p>
         )}
         {trips.map((trip, index) => (
-          <div key={index} className="flex flex-wrap items-start gap-4">
-            <span className="w-6 pt-1.5 text-sm text-muted-foreground">
+          // Phones: each trip is a bordered block with full-width dates.
+          <div
+            key={index}
+            className="flex flex-wrap items-start gap-x-4 gap-y-3 rounded-md border p-3 sm:gap-4 sm:rounded-none sm:border-0 sm:p-0"
+          >
+            <span className="w-full text-sm text-muted-foreground sm:w-6 sm:pt-1.5">
               {index + 1}.
             </span>
             {PARTS.map((part) => (
-              <div key={part} className="space-y-1">
+              <div key={part} className="w-full space-y-1 sm:w-auto">
                 <p className="text-xs font-medium">{t(`dates.${part}`)}</p>
-                <div className="flex items-start gap-1">
+                <div className="grid grid-cols-2 items-start gap-1 sm:flex">
                   {RANGE_ENDS.map((end) => {
                     const path = `trips.${index}.${part}.${end}`;
                     const changed =
@@ -311,7 +316,10 @@ function MonthEditor({
                             end: t(`datesPage.${end}`),
                           })}
                           aria-invalid={errors[path] ? true : undefined}
-                          className={cn("w-36", changed && "bg-brand/10")}
+                          className={cn(
+                            "w-full sm:w-36",
+                            changed && "bg-brand/10",
+                          )}
                           onChange={(event) =>
                             setDate(index, part, end, event.target.value)
                           }
@@ -341,7 +349,7 @@ function MonthEditor({
                   )}
               </div>
             ))}
-            <span className="pt-6 text-xs text-muted-foreground">
+            <span className="pt-1.5 text-xs text-muted-foreground sm:pt-6">
               {t("datesPage.week", {
                 parity: t(
                   isEvenWeek(trip.pickup.from)
@@ -353,7 +361,7 @@ function MonthEditor({
             <Button
               variant="ghost"
               size="sm"
-              className="mt-5"
+              className="ml-auto sm:mt-5 sm:ml-0"
               onClick={() => edit(trips.filter((_, i) => i !== index))}
             >
               {t("common.remove")}
@@ -422,7 +430,7 @@ function AddMonth({
   };
 
   return (
-    <section className="space-y-3 rounded-lg border bg-card p-5">
+    <section className="space-y-3 rounded-lg border bg-card p-4 md:p-5">
       <div>
         <h2 className="text-lg font-semibold">{t("datesPage.addTitle")}</h2>
         <p className="text-sm text-muted-foreground">

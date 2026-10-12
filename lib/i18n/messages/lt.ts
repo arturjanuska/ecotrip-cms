@@ -25,6 +25,8 @@ export const lt = {
     website: "Svetainė",
     collapse: "Suskleisti meniu",
     expand: "Išskleisti meniu",
+    openMenu: "Atidaryti meniu",
+    closeMenu: "Uždaryti meniu",
     signOut: "Atsijungti",
   },
   common: {
@@ -247,6 +249,9 @@ export const lt = {
     postcodePlaceholder: "pvz., M4",
     resetFilters: "Išvalyti filtrus",
     unsavedRows: "Neišsaugotų eilučių: {count}",
+    saveAll: "Išsaugoti viską",
+    failedRows:
+      "Neišsaugota: {count}. Klaida – paskutiniame eilutės stulpelyje.",
     perPage: "Puslapyje",
     records_one: "{count} įrašas",
     records_few: "{count} įrašai",

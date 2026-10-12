@@ -24,10 +24,12 @@ function fileName(disposition: string | null, fallback: string) {
 export function DownloadButton({
   href,
   fallbackName,
+  className,
   children,
 }: {
   href: string;
   fallbackName: string;
+  className?: string;
   children: React.ReactNode;
 }) {
   const t = useT();
@@ -64,7 +66,12 @@ export function DownloadButton({
 
   return (
     <>
-      <Button variant="outline" disabled={busy} onClick={download}>
+      <Button
+        variant="outline"
+        className={className}
+        disabled={busy}
+        onClick={download}
+      >
         {busy && <Spinner />}
         {children}
       </Button>

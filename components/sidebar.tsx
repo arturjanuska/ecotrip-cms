@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ComponentType } from "react";
+import { useEffect, useState, type ComponentType } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useClerk } from "@clerk/nextjs";
@@ -10,11 +10,13 @@ import {
   Globe,
   LogOut,
   MapPin,
+  Menu,
   PanelLeftClose,
   PanelLeftOpen,
   Receipt,
   ScrollText,
   Tag,
+  X,
 } from "lucide-react";
 import { BrandMark } from "@/components/brand-mark";
 import { LanguageSwitcher } from "@/components/language-switcher";
@@ -24,6 +26,7 @@ import {
   SIDEBAR_COOKIE,
   SIDEBAR_COOKIE_MAX_AGE,
 } from "@/lib/sidebar-config";
+import { DESKTOP_QUERY, useMediaQuery } from "@/lib/use-media-query";
 import { cn } from "@/lib/utils";
 
 type Icon = ComponentType<{ className?: string; "aria-hidden"?: boolean }>;
@@ -55,7 +58,7 @@ function saveCollapsed(collapsed: boolean) {
 }
 
 const itemClass =
-  "flex h-9 items-center gap-3 rounded-md px-3 text-sm whitespace-nowrap transition-colors";
+  "flex h-11 items-center gap-3 rounded-md px-3 text-sm whitespace-nowrap transition-colors md:h-9";
 const activeClass =
   "bg-sidebar-accent font-medium text-sidebar-accent-foreground shadow-[inset_3px_0_0_var(--color-brand)]";
 
@@ -184,6 +187,24 @@ export function Sidebar({ initialCollapsed }: { initialCollapsed: boolean }) {
   const { signOut } = useClerk();
   const t = useT();
   const [collapsed, setCollapsed] = useState(initialCollapsed);
+  // Phones: the sidebar is a drawer over the page, opened from the top bar.
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const desktop = useMediaQuery(DESKTOP_QUERY, true);
+  // The drawer always shows labels; only the desktop sidebar narrows.
+  const narrow = collapsed && desktop;
+
+  useEffect(() => {
+    if (!drawerOpen) {
+      return;
+    }
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setDrawerOpen(false);
+      }
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [drawerOpen]);
 
   function toggle() {
     setCollapsed(!collapsed);
@@ -194,43 +215,87 @@ export function Sidebar({ initialCollapsed }: { initialCollapsed: boolean }) {
   const toggleLabel = t(collapsed ? "nav.expand" : "nav.collapse");
 
   return (
-    <aside
-      className={cn(
-        "sticky top-0 flex h-screen shrink-0 flex-col overflow-hidden border-r border-sidebar-border bg-sidebar text-sidebar-foreground transition-[width] duration-200 ease-out",
-        collapsed ? "w-14" : "w-56",
-      )}
-    >
-      <div className="flex h-15 items-center gap-2 px-3.5 text-lg font-semibold whitespace-nowrap">
+    <>
+      <header className="sticky top-0 z-30 flex h-14 items-center gap-2 border-b border-sidebar-border bg-sidebar px-2 text-sidebar-foreground md:hidden">
+        <button
+          type="button"
+          aria-label={t("nav.openMenu")}
+          aria-expanded={drawerOpen}
+          onClick={() => setDrawerOpen(true)}
+          className="flex size-10 items-center justify-center rounded-md hover:bg-sidebar-accent"
+        >
+          <Menu aria-hidden className="size-5" />
+        </button>
         <BrandMark />
-        <Label text={t("app.name")} collapsed={collapsed} />
-      </div>
-      <nav className="flex-1 space-y-1 overflow-x-hidden overflow-y-auto px-2">
-        <NavSection group={websiteGroup} collapsed={collapsed} />
-        <NavItem link={changelogLink} collapsed={collapsed} />
-      </nav>
-      <div className="space-y-1 p-2">
-        <button
-          type="button"
-          title={collapsed ? toggleLabel : undefined}
-          onClick={toggle}
-          className={cn(itemClass, "w-full hover:bg-sidebar-accent")}
-        >
-          <ToggleIcon aria-hidden className="size-4 shrink-0" />
-          <Label text={toggleLabel} collapsed={collapsed} />
-        </button>
-        <button
-          type="button"
-          title={collapsed ? t("nav.signOut") : undefined}
-          onClick={() => signOut({ redirectUrl: "/login" })}
-          className={cn(itemClass, "w-full hover:bg-sidebar-accent")}
-        >
-          <LogOut aria-hidden className="size-4 shrink-0" />
-          <Label text={t("nav.signOut")} collapsed={collapsed} />
-        </button>
-        <LanguageSwitcher
-          className={cn("px-1.5", collapsed && "flex-col px-0")}
-        />
-      </div>
-    </aside>
+        <span className="font-semibold">{t("app.name")}</span>
+      </header>
+      <div
+        aria-hidden
+        onClick={() => setDrawerOpen(false)}
+        className={cn(
+          "fixed inset-0 z-40 bg-black/40 transition-opacity duration-200 md:hidden",
+          drawerOpen ? "opacity-100" : "pointer-events-none opacity-0",
+        )}
+      />
+      <aside
+        // Closed, the drawer is off screen: keep it out of the tab order.
+        inert={!desktop && !drawerOpen}
+        onClick={(event) => {
+          // A tapped link opens another page: the drawer gets out of the way.
+          if ((event.target as Element).closest("a")) {
+            setDrawerOpen(false);
+          }
+        }}
+        className={cn(
+          "fixed inset-y-0 left-0 z-50 flex w-64 shrink-0 flex-col overflow-hidden border-r border-sidebar-border bg-sidebar text-sidebar-foreground transition-[translate,width] duration-200 ease-out",
+          "md:sticky md:top-0 md:z-auto md:h-screen md:translate-x-0",
+          drawerOpen ? "translate-x-0 shadow-xl" : "-translate-x-full",
+          narrow ? "md:w-14" : "md:w-56",
+        )}
+      >
+        <div className="flex h-14 items-center gap-2 px-3.5 text-lg font-semibold whitespace-nowrap md:h-15">
+          <BrandMark />
+          <Label text={t("app.name")} collapsed={narrow} />
+          <button
+            type="button"
+            aria-label={t("nav.closeMenu")}
+            onClick={() => setDrawerOpen(false)}
+            className="-mr-1.5 ml-auto flex size-10 items-center justify-center rounded-md hover:bg-sidebar-accent md:hidden"
+          >
+            <X aria-hidden className="size-5" />
+          </button>
+        </div>
+        <nav className="flex-1 space-y-1 overflow-x-hidden overflow-y-auto px-2">
+          <NavSection group={websiteGroup} collapsed={narrow} />
+          <NavItem link={changelogLink} collapsed={narrow} />
+        </nav>
+        <div className="space-y-1 p-2">
+          <button
+            type="button"
+            title={narrow ? toggleLabel : undefined}
+            onClick={toggle}
+            className={cn(
+              itemClass,
+              "hidden w-full hover:bg-sidebar-accent md:flex",
+            )}
+          >
+            <ToggleIcon aria-hidden className="size-4 shrink-0" />
+            <Label text={toggleLabel} collapsed={narrow} />
+          </button>
+          <button
+            type="button"
+            title={narrow ? t("nav.signOut") : undefined}
+            onClick={() => signOut({ redirectUrl: "/login" })}
+            className={cn(itemClass, "w-full hover:bg-sidebar-accent")}
+          >
+            <LogOut aria-hidden className="size-4 shrink-0" />
+            <Label text={t("nav.signOut")} collapsed={narrow} />
+          </button>
+          <LanguageSwitcher
+            className={cn("px-1.5", narrow && "flex-col px-0")}
+          />
+        </div>
+      </aside>
+    </>
   );
 }

@@ -39,6 +39,7 @@ import { useT, useHeaderT } from "@/lib/i18n/client";
 import { fetchPriceCatalog, saveCategory } from "@/lib/prices-client";
 import { cn } from "@/lib/utils";
 import { useUnsavedChanges } from "@/lib/use-unsaved-changes";
+import { DESKTOP_QUERY, useMediaQuery } from "@/lib/use-media-query";
 
 // Labels are message keys.
 const COLUMNS = [
@@ -137,6 +138,24 @@ function NumberCell({
   );
 }
 
+// A labelled input in a phone card.
+function CardField({
+  label,
+  className,
+  children,
+}: {
+  label: string;
+  className?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <label className={cn("block space-y-1", className)}>
+      <span className="text-xs text-muted-foreground">{label}</span>
+      {children}
+    </label>
+  );
+}
+
 type BlockProps = {
   category: StoredCategory;
   drafts: CategoryDrafts;
@@ -164,6 +183,7 @@ const CategoryBlock = memo(function CategoryBlock({
 }: BlockProps) {
   const t = useT();
   const th = useHeaderT();
+  const desktop = useMediaQuery(DESKTOP_QUERY, true);
   const rows = useMemo(() => tableRows(category), [category]);
   const applied = useMemo(
     () => applyDrafts(category, drafts),
@@ -194,7 +214,8 @@ const CategoryBlock = memo(function CategoryBlock({
 
   return (
     <section className="space-y-3">
-      <div className="flex flex-wrap items-center gap-3">
+      {/* Phones: the category's Save stays in reach under the top bar. */}
+      <div className="sticky top-14 z-10 -mx-4 flex flex-wrap items-center gap-3 bg-background px-4 py-2 md:static md:mx-0 md:p-0">
         <h2 className="mr-auto text-lg font-semibold">{category.sheet}</h2>
         {unsaved > 0 && (
           <span className="text-sm text-muted-foreground">
@@ -219,91 +240,170 @@ const CategoryBlock = memo(function CategoryBlock({
           ))}
         </ul>
       )}
-      <TableFrame loading={saving || refreshing}>
-        <Table className="table-fixed" style={{ minWidth: TABLE_MIN_WIDTH }}>
-          <colgroup>
-            {COLUMNS.map((column) => (
-              <col key={column.label} style={{ width: column.width }} />
-            ))}
-          </colgroup>
-          <TableHeader>
-            <TableRow>
+      {!desktop ? (
+        // Phones: one card per row instead of a 1100px wide table.
+        <TableFrame loading={saving || refreshing} className="divide-y">
+          {rows.map((row) => {
+            if (row.kind === "callManager") {
+              return (
+                <div key={row.key} className="space-y-0.5 p-3 text-sm">
+                  <div className="font-medium">{row.label}</div>
+                  <div className="text-muted-foreground">
+                    {t("pricesPage.contactManager")}
+                  </div>
+                </div>
+              );
+            }
+
+            const { sheet } = row.target.item;
+            const perUnit =
+              row.kind === "tier" &&
+              row.target.kind === "tier" &&
+              row.target.item.perUnit
+                ? row.basis === "weight"
+                  ? "/kg"
+                  : "/m³"
+                : undefined;
+            // Parcel tiers have no type: the first text present is the title.
+            const [title, ...details] = [
+              sheet.type,
+              sheet.size,
+              sheet.spec,
+            ].filter(Boolean);
+
+            return (
+              <div key={row.key} className="space-y-3 p-3">
+                <div>
+                  <div className="text-sm font-medium">{title}</div>
+                  {details.length > 0 && (
+                    <div className="text-xs text-muted-foreground">
+                      {details.join(" · ")}
+                    </div>
+                  )}
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  {row.kind === "variant" ? (
+                    <>
+                      <CardField label={th("price.volume")}>
+                        {cell(row.target, "volume")}
+                      </CardField>
+                      <CardField label={th("price.weight")}>
+                        {cell(row.target, "weight")}
+                      </CardField>
+                    </>
+                  ) : (
+                    <CardField
+                      label={th(
+                        row.basis === "weight"
+                          ? "price.weight"
+                          : "price.volume",
+                      )}
+                      className="col-span-2"
+                    >
+                      {cell(row.target, "upTo", {
+                        placeholder: t("common.noLimit"),
+                        suffix: t("pricesPage.max"),
+                      })}
+                    </CardField>
+                  )}
+                  <CardField label={th("price.UK-LT")}>
+                    {cell(row.target, "price.UK-LT", { suffix: perUnit })}
+                  </CardField>
+                  <CardField label={th("price.LT-UK")}>
+                    {cell(row.target, "price.LT-UK", { suffix: perUnit })}
+                  </CardField>
+                </div>
+              </div>
+            );
+          })}
+        </TableFrame>
+      ) : (
+        <TableFrame loading={saving || refreshing}>
+          <Table className="table-fixed" style={{ minWidth: TABLE_MIN_WIDTH }}>
+            <colgroup>
               {COLUMNS.map((column) => (
-                <TableHead key={column.label} className="whitespace-normal">
-                  {th(column.label)}
-                </TableHead>
+                <col key={column.label} style={{ width: column.width }} />
               ))}
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {rows.map((row) => {
-              if (row.kind === "callManager") {
+            </colgroup>
+            <TableHeader>
+              <TableRow>
+                {COLUMNS.map((column) => (
+                  <TableHead key={column.label} className="whitespace-normal">
+                    {th(column.label)}
+                  </TableHead>
+                ))}
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {rows.map((row) => {
+                if (row.kind === "callManager") {
+                  return (
+                    <TableRow key={row.key} className="text-muted-foreground">
+                      <TableCell>{row.label}</TableCell>
+                      <TableCell colSpan={COLUMNS.length - 1}>
+                        {t("pricesPage.contactManager")}
+                      </TableCell>
+                    </TableRow>
+                  );
+                }
+
+                const { sheet } = row.target.item;
+                const perUnit =
+                  row.kind === "tier" &&
+                  row.target.kind === "tier" &&
+                  row.target.item.perUnit
+                    ? row.basis === "weight"
+                      ? "/kg"
+                      : "/m³"
+                    : undefined;
+
                 return (
-                  <TableRow key={row.key} className="text-muted-foreground">
-                    <TableCell>{row.label}</TableCell>
-                    <TableCell colSpan={COLUMNS.length - 1}>
-                      {t("pricesPage.contactManager")}
+                  <TableRow key={row.key}>
+                    <TableCell className="whitespace-normal">
+                      {sheet.type}
+                    </TableCell>
+                    <TableCell className="whitespace-normal">
+                      {sheet.size}
+                    </TableCell>
+                    <TableCell className="whitespace-normal">
+                      {sheet.spec}
+                    </TableCell>
+                    {row.kind === "variant" ? (
+                      <>
+                        <TableCell>{cell(row.target, "volume")}</TableCell>
+                        <TableCell>{cell(row.target, "weight")}</TableCell>
+                      </>
+                    ) : (
+                      <>
+                        <TableCell>
+                          {row.basis === "volume" &&
+                            cell(row.target, "upTo", {
+                              placeholder: t("common.noLimit"),
+                              suffix: t("pricesPage.max"),
+                            })}
+                        </TableCell>
+                        <TableCell>
+                          {row.basis === "weight" &&
+                            cell(row.target, "upTo", {
+                              placeholder: t("common.noLimit"),
+                              suffix: t("pricesPage.max"),
+                            })}
+                        </TableCell>
+                      </>
+                    )}
+                    <TableCell>
+                      {cell(row.target, "price.UK-LT", { suffix: perUnit })}
+                    </TableCell>
+                    <TableCell>
+                      {cell(row.target, "price.LT-UK", { suffix: perUnit })}
                     </TableCell>
                   </TableRow>
                 );
-              }
-
-              const { sheet } = row.target.item;
-              const perUnit =
-                row.kind === "tier" &&
-                row.target.kind === "tier" &&
-                row.target.item.perUnit
-                  ? row.basis === "weight"
-                    ? "/kg"
-                    : "/m³"
-                  : undefined;
-
-              return (
-                <TableRow key={row.key}>
-                  <TableCell className="whitespace-normal">
-                    {sheet.type}
-                  </TableCell>
-                  <TableCell className="whitespace-normal">
-                    {sheet.size}
-                  </TableCell>
-                  <TableCell className="whitespace-normal">
-                    {sheet.spec}
-                  </TableCell>
-                  {row.kind === "variant" ? (
-                    <>
-                      <TableCell>{cell(row.target, "volume")}</TableCell>
-                      <TableCell>{cell(row.target, "weight")}</TableCell>
-                    </>
-                  ) : (
-                    <>
-                      <TableCell>
-                        {row.basis === "volume" &&
-                          cell(row.target, "upTo", {
-                            placeholder: t("common.noLimit"),
-                            suffix: t("pricesPage.max"),
-                          })}
-                      </TableCell>
-                      <TableCell>
-                        {row.basis === "weight" &&
-                          cell(row.target, "upTo", {
-                            placeholder: t("common.noLimit"),
-                            suffix: t("pricesPage.max"),
-                          })}
-                      </TableCell>
-                    </>
-                  )}
-                  <TableCell>
-                    {cell(row.target, "price.UK-LT", { suffix: perUnit })}
-                  </TableCell>
-                  <TableCell>
-                    {cell(row.target, "price.LT-UK", { suffix: perUnit })}
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-      </TableFrame>
+              })}
+            </TableBody>
+          </Table>
+        </TableFrame>
+      )}
     </section>
   );
 });

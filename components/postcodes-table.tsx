@@ -139,6 +139,21 @@ function SortButton({
   );
 }
 
+// Phones: filters in two columns, the label above its control.
+const FILTER_LABEL =
+  "flex flex-col gap-1 text-sm sm:flex-row sm:items-center sm:gap-2";
+const FILTER_CONTROL = "w-full sm:w-auto";
+
+// The checkbox and postcode columns stay on screen while the table scrolls
+// sideways, so every row keeps its name on a phone. Sticky cells need an
+// opaque background: the same colours as the row's hover and selected states,
+// mixed over the page background.
+const STICKY_CELL =
+  "sticky z-[1] bg-background group-hover:bg-[color-mix(in_oklab,var(--color-muted)_50%,var(--color-background))] group-data-[state=selected]:bg-[color-mix(in_oklab,var(--color-brand)_10%,var(--color-background))]";
+const STICKY_HEAD = "sticky z-20 bg-background";
+// Left edge of the postcode column: the checkbox column's width.
+const STICKY_SECOND = "left-11 shadow-[inset_-1px_0_0_var(--color-border)]";
+
 type ListState = {
   key: string;
   items: Postcode[];
@@ -164,7 +179,7 @@ type RowProps = {
   selected: boolean;
   onSelect: (id: string, selected: boolean) => void;
   onChange: (item: Postcode, patch: Draft) => void;
-  onSave: (item: Postcode, draft: Draft) => void;
+  onSave: (id: string, draft: Draft) => void;
 };
 
 // Memoized so typing in one row does not re-render thousands of rows in "all" mode.
@@ -212,9 +227,9 @@ const PostcodeRow = memo(function PostcodeRow({
       ref={ref}
       data-index={index}
       data-state={selected ? "selected" : undefined}
-      className="data-[state=selected]:bg-brand/10"
+      className="group data-[state=selected]:bg-brand/10"
     >
-      <TableCell>
+      <TableCell className={cn(STICKY_CELL, "left-0")}>
         <input
           type="checkbox"
           className="size-4 accent-primary"
@@ -225,7 +240,11 @@ const PostcodeRow = memo(function PostcodeRow({
           onChange={(event) => onSelect(item._id, event.target.checked)}
         />
       </TableCell>
-      <TableCell className="font-mono font-medium">{item.postcode}</TableCell>
+      <TableCell
+        className={cn(STICKY_CELL, STICKY_SECOND, "font-mono font-medium")}
+      >
+        {item.postcode}
+      </TableCell>
       {fieldCell("town")}
       <TableCell>{item.country}</TableCell>
       {TEXT_COLUMNS.slice(1).flatMap((column) =>
@@ -239,7 +258,7 @@ const PostcodeRow = memo(function PostcodeRow({
           <Button
             size="sm"
             disabled={saving || Boolean(problems)}
-            onClick={() => onSave(item, draft)}
+            onClick={() => onSave(item._id, draft)}
           >
             {saving && <Spinner />}
             {t("common.save")}
@@ -564,8 +583,7 @@ export function PostcodesTable() {
   }
 
   const save = useCallback(
-    async (item: Postcode, draft: Draft) => {
-      const id = item._id;
+    async (id: string, draft: Draft) => {
       setSaving((current) => ({ ...current, [id]: true }));
       setRowErrors((current) => without(current, id));
 
@@ -635,16 +653,29 @@ export function PostcodesTable() {
     [getToken, perPage, filters],
   );
 
+  // Every unsaved row that passes validation, also rows on other pages. On a
+  // phone the per-row Save buttons sit off screen at the table's far right.
+  const savableIds = Object.keys(drafts).filter(
+    (id) => !saving[id] && !validateDraft(drafts[id]),
+  );
+  function saveAll() {
+    for (const id of savableIds) {
+      void save(id, drafts[id]);
+    }
+  }
+  const failedCount = Object.keys(rowErrors).length;
+
   // A header cell; columns in SORTABLE_FIELDS get a sort button.
-  function sortableHead(field: string) {
+  function sortableHead(field: string, className?: string) {
     const label = th(`postcode.${field}`);
     if (!SORTABLE_FIELDS.includes(field)) {
-      return <TableHead>{label}</TableHead>;
+      return <TableHead className={className}>{label}</TableHead>;
     }
 
     const sortField = field as SortField;
     return (
       <TableHead
+        className={className}
         aria-sort={
           sort?.field === sortField
             ? sort.direction === "asc"
@@ -664,14 +695,14 @@ export function PostcodesTable() {
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-3">
-        <label className="flex items-center gap-2 text-sm">
+    <div className={cn("space-y-4", unsavedCount > 0 && "pb-20 md:pb-0")}>
+      <div className="grid grid-cols-2 items-end gap-3 sm:flex sm:flex-wrap sm:items-center">
+        <label className={FILTER_LABEL}>
           <span className="text-muted-foreground">
             {t("postcode.postcode")}
           </span>
           <Input
-            className="w-28"
+            className="w-full sm:w-28"
             placeholder={t("postcodesPage.postcodePlaceholder")}
             value={postcodeInput}
             onChange={(event) =>
@@ -684,11 +715,12 @@ export function PostcodesTable() {
             }
           />
         </label>
-        <label className="flex items-center gap-2 text-sm">
+        <label className={FILTER_LABEL}>
           <span className="text-muted-foreground">
             {t("postcode.calendar")}
           </span>
           <NativeSelect
+            className={FILTER_CONTROL}
             value={filters.calendar}
             onChange={(event) =>
               updateFilters({ calendar: event.target.value })
@@ -703,11 +735,12 @@ export function PostcodesTable() {
             ))}
           </NativeSelect>
         </label>
-        <label className="flex items-center gap-2 text-sm">
+        <label className={FILTER_LABEL}>
           <span className="text-muted-foreground">
             {t("postcode.parcelForceZone")}
           </span>
           <NativeSelect
+            className={FILTER_CONTROL}
             value={filters.parcelForceZone}
             onChange={(event) =>
               updateFilters({ parcelForceZone: event.target.value })
@@ -722,11 +755,12 @@ export function PostcodesTable() {
             ))}
           </NativeSelect>
         </label>
-        <label className="flex items-center gap-2 text-sm">
+        <label className={FILTER_LABEL}>
           <span className="text-muted-foreground">
             {t("postcode.isParcelForce")}
           </span>
           <NativeSelect
+            className={FILTER_CONTROL}
             value={filters.isParcelForce}
             onChange={(event) =>
               updateFilters({
@@ -739,9 +773,10 @@ export function PostcodesTable() {
             <option value="no">{t("common.no")}</option>
           </NativeSelect>
         </label>
-        <label className="flex items-center gap-2 text-sm">
+        <label className={FILTER_LABEL}>
           <span className="text-muted-foreground">{t("postcode.active")}</span>
           <NativeSelect
+            className={FILTER_CONTROL}
             value={filters.active}
             onChange={(event) =>
               updateFilters({ active: event.target.value as ActiveFilter })
@@ -752,21 +787,12 @@ export function PostcodesTable() {
             <option value="all">{t("common.all")}</option>
           </NativeSelect>
         </label>
-        {filtered && (
-          <Button variant="ghost" size="sm" onClick={resetFilters}>
-            {t("postcodesPage.resetFilters")}
-          </Button>
-        )}
-        {unsavedCount > 0 && (
-          <span className="text-sm text-destructive">
-            {t("postcodesPage.unsavedRows", { count: unsavedCount })}
-          </span>
-        )}
-        <label className="ml-auto flex items-center gap-2 text-sm">
+        <label className={cn(FILTER_LABEL, "sm:ml-auto")}>
           <span className="text-muted-foreground">
             {t("postcodesPage.perPage")}
           </span>
           <NativeSelect
+            className={FILTER_CONTROL}
             value={perPage}
             onChange={(event) => changePerPage(event.target.value)}
           >
@@ -779,13 +805,47 @@ export function PostcodesTable() {
           </NativeSelect>
         </label>
         {loading ? (
-          <Skeleton className="h-4 w-24" />
+          <Skeleton className="mb-2 h-4 w-24 sm:mb-0" />
         ) : (
-          <span className="text-sm text-muted-foreground">
+          <span className="pb-2 text-sm text-muted-foreground sm:pb-0">
             {t("postcodesPage.records", { count: total })}
           </span>
         )}
+        {filtered && (
+          // Phones: under the filters; wider screens: before "Per page".
+          <Button
+            variant="ghost"
+            size="sm"
+            className="order-last col-span-2 justify-self-start sm:order-none"
+            onClick={resetFilters}
+          >
+            {t("postcodesPage.resetFilters")}
+          </Button>
+        )}
       </div>
+
+      {unsavedCount > 0 && (
+        // Phones: pinned to the bottom of the screen, since the rows' own Save
+        // buttons are far off to the right.
+        <div className="fixed inset-x-0 bottom-0 z-30 flex items-center gap-3 border-t bg-background px-4 py-3 shadow-[0_-4px_12px_rgb(0_0_0/0.06)] md:static md:border-0 md:bg-transparent md:p-0 md:shadow-none">
+          <span className="mr-auto text-sm text-destructive md:mr-0">
+            {t("postcodesPage.unsavedRows", { count: unsavedCount })}
+          </span>
+          <Button
+            className="h-10 md:h-7"
+            disabled={savableIds.length === 0}
+            onClick={saveAll}
+          >
+            {Object.values(saving).some(Boolean) && <Spinner />}
+            {t("postcodesPage.saveAll")}
+          </Button>
+        </div>
+      )}
+      {failedCount > 0 && (
+        <p className="text-sm text-destructive">
+          {t("postcodesPage.failedRows", { count: failedCount })}
+        </p>
+      )}
 
       {selected.size > 0 && (
         <BulkEditBar
@@ -816,7 +876,7 @@ export function PostcodesTable() {
         <LoadingBar
           loading={loading || bulkBusy || Object.values(saving).some(Boolean)}
         />
-        <div className="flex h-[calc(100vh-14rem)] min-h-96 flex-col overflow-hidden rounded-lg border">
+        <div className="flex h-[75dvh] min-h-96 flex-col overflow-hidden rounded-lg border md:h-[calc(100vh-14rem)]">
           <div
             ref={scrollRef}
             aria-busy={loading}
@@ -833,7 +893,7 @@ export function PostcodesTable() {
               </colgroup>
               <TableHeader className="sticky top-0 z-10 bg-background">
                 <TableRow>
-                  <TableHead>
+                  <TableHead className={cn(STICKY_HEAD, "left-0")}>
                     <input
                       type="checkbox"
                       className="size-4 accent-primary"
@@ -849,7 +909,7 @@ export function PostcodesTable() {
                       onChange={toggleAllLoaded}
                     />
                   </TableHead>
-                  {sortableHead("postcode")}
+                  {sortableHead("postcode", cn(STICKY_HEAD, STICKY_SECOND))}
                   {sortableHead(TEXT_COLUMNS[0].field)}
                   <TableHead>{th("postcode.country")}</TableHead>
                   {TEXT_COLUMNS.slice(1).map((column) => (

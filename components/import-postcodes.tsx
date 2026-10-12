@@ -578,11 +578,12 @@ export function ImportPostcodes() {
 
         {rows.length > 0 && (
           <>
-            <label className="ml-auto flex items-center gap-2 text-sm">
+            <label className="flex w-full items-center gap-2 text-sm sm:ml-auto sm:w-auto">
               <span className="text-muted-foreground">
                 {t("importPostcodes.show")}
               </span>
               <NativeSelect
+                className="min-w-0 flex-1 sm:flex-none"
                 value={show}
                 onChange={(event) => setShow(event.target.value as Show)}
               >
@@ -676,7 +677,7 @@ export function ImportPostcodes() {
       ) : (
         <div className="relative">
           <LoadingBar loading={existing === null || busy} />
-          <div className="flex h-[calc(100vh-17rem)] min-h-96 flex-col overflow-hidden rounded-lg border">
+          <div className="flex h-[75dvh] min-h-96 flex-col overflow-hidden rounded-lg border md:h-[calc(100vh-17rem)]">
             <div ref={scrollRef} className="min-h-0 flex-1 overflow-auto">
               <table
                 className="w-full table-fixed caption-bottom text-sm"

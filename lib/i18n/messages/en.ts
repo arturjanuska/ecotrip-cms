@@ -29,6 +29,8 @@ export const en = {
     website: "Website",
     collapse: "Collapse menu",
     expand: "Expand menu",
+    openMenu: "Open menu",
+    closeMenu: "Close menu",
     signOut: "Sign out",
   },
   common: {
@@ -244,6 +246,8 @@ export const en = {
     postcodePlaceholder: "e.g. M4",
     resetFilters: "Reset filters",
     unsavedRows: "Unsaved rows: {count}",
+    saveAll: "Save all",
+    failedRows: "Not saved: {count}. The error is in the row's last column.",
     perPage: "Per page",
     records_one: "{count} record",
     records_other: "{count} records",

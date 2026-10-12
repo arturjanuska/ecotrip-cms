@@ -15,9 +15,9 @@ export default async function CmsLayout({
     (await cookies()).get(SIDEBAR_COOKIE)?.value === SIDEBAR_COLLAPSED;
 
   return (
-    <div className="flex min-h-screen">
+    <div className="min-h-screen md:flex">
       <Sidebar initialCollapsed={collapsed} />
-      <main className="min-w-0 flex-1 p-6">{children}</main>
+      <main className="min-w-0 flex-1 p-4 md:p-6">{children}</main>
     </div>
   );
 }

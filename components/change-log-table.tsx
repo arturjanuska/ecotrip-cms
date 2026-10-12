@@ -25,6 +25,8 @@ import type {
 import { INTL_LOCALES, type Locale } from "@/lib/i18n/config";
 import { useLocale, useT, useHeaderT } from "@/lib/i18n/client";
 import { formatNumber, type Translate } from "@/lib/i18n/translate";
+import { DESKTOP_QUERY, useMediaQuery } from "@/lib/use-media-query";
+import { cn } from "@/lib/utils";
 
 const PER_PAGE = 20;
 const CACHE_KEY = "changelog";
@@ -91,6 +93,7 @@ export function ChangeLogTable() {
   const t = useT();
   const th = useHeaderT();
   const locale = useLocale();
+  const desktop = useMediaQuery(DESKTOP_QUERY, true);
   const [page, setPage] = useState(
     () => readCache<ListState>(CACHE_KEY)?.page ?? 1,
   );
@@ -142,84 +145,136 @@ export function ChangeLogTable() {
     );
   }
 
+  const pageLabel = (page: string) =>
+    PAGE_LABELS[page as ChangeLogPage]
+      ? t(PAGE_LABELS[page as ChangeLogPage])
+      : page;
+
   return (
     <div className="space-y-4">
-      <TableFrame loading={loading}>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-44">{th("changeLog.when")}</TableHead>
-              <TableHead className="w-40">{th("changeLog.who")}</TableHead>
-              <TableHead className="w-28">{th("changeLog.page")}</TableHead>
-              <TableHead>{th("changeLog.what")}</TableHead>
-              <TableHead className="w-32 text-right">
-                {th("changeLog.changes")}
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {loading && !list
-              ? Array.from({ length: 8 }, (_, index) => (
-                  <TableRow key={index}>
-                    <TableCell colSpan={5}>
-                      <Skeleton className="h-5 w-full rounded" />
-                    </TableCell>
-                  </TableRow>
-                ))
-              : list?.items.map((entry) => {
-                  const isOpen = open.has(entry._id);
-                  return (
-                    <Fragment key={entry._id}>
-                      <TableRow className={loading ? "opacity-50" : undefined}>
-                        <TableCell className="whitespace-nowrap">
-                          {formatDate(locale, entry.createdAt)}
-                        </TableCell>
-                        <TableCell className="truncate">
-                          {entry.user.name}
-                        </TableCell>
-                        <TableCell>
-                          {PAGE_LABELS[entry.page]
-                            ? t(PAGE_LABELS[entry.page])
-                            : entry.page}
-                        </TableCell>
-                        <TableCell className="whitespace-normal">
-                          {summaryText(t, entry.summary)}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            aria-expanded={isOpen}
-                            onClick={() => toggle(entry._id)}
-                          >
-                            {formatNumber(locale, entry.changeCount)}{" "}
-                            {isOpen ? "▴" : "▾"}
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                      {isOpen && (
-                        <TableRow className="hover:bg-transparent">
-                          <TableCell colSpan={5} className="bg-muted/40 p-3">
-                            <ChangeDetails entry={entry} />
+      {!desktop ? (
+        // Phones: one card per entry instead of five columns.
+        <TableFrame loading={loading} className="divide-y">
+          {loading && !list
+            ? Array.from({ length: 8 }, (_, index) => (
+                <div key={index} className="space-y-2 p-3">
+                  <Skeleton className="h-3 w-32 rounded" />
+                  <Skeleton className="h-4 w-full rounded" />
+                </div>
+              ))
+            : list?.items.map((entry) => {
+                const isOpen = open.has(entry._id);
+                return (
+                  <div
+                    key={entry._id}
+                    className={cn("space-y-2 p-3", loading && "opacity-50")}
+                  >
+                    <div className="flex items-baseline justify-between gap-3 text-xs text-muted-foreground">
+                      <span>{formatDate(locale, entry.createdAt)}</span>
+                      <span>{pageLabel(entry.page)}</span>
+                    </div>
+                    <p className="text-sm">{summaryText(t, entry.summary)}</p>
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="truncate text-xs text-muted-foreground">
+                        {entry.user.name}
+                      </span>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        aria-expanded={isOpen}
+                        onClick={() => toggle(entry._id)}
+                      >
+                        {th("changeLog.changes")}:{" "}
+                        {formatNumber(locale, entry.changeCount)}{" "}
+                        {isOpen ? "▴" : "▾"}
+                      </Button>
+                    </div>
+                    {isOpen && <ChangeDetails entry={entry} compact />}
+                  </div>
+                );
+              })}
+          {list && list.items.length === 0 && !loading && (
+            <p className="py-8 text-center text-sm text-muted-foreground">
+              {t("changeLog.noChanges")}
+            </p>
+          )}
+        </TableFrame>
+      ) : (
+        <TableFrame loading={loading}>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-44">{th("changeLog.when")}</TableHead>
+                <TableHead className="w-40">{th("changeLog.who")}</TableHead>
+                <TableHead className="w-28">{th("changeLog.page")}</TableHead>
+                <TableHead>{th("changeLog.what")}</TableHead>
+                <TableHead className="w-32 text-right">
+                  {th("changeLog.changes")}
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {loading && !list
+                ? Array.from({ length: 8 }, (_, index) => (
+                    <TableRow key={index}>
+                      <TableCell colSpan={5}>
+                        <Skeleton className="h-5 w-full rounded" />
+                      </TableCell>
+                    </TableRow>
+                  ))
+                : list?.items.map((entry) => {
+                    const isOpen = open.has(entry._id);
+                    return (
+                      <Fragment key={entry._id}>
+                        <TableRow
+                          className={loading ? "opacity-50" : undefined}
+                        >
+                          <TableCell className="whitespace-nowrap">
+                            {formatDate(locale, entry.createdAt)}
+                          </TableCell>
+                          <TableCell className="truncate">
+                            {entry.user.name}
+                          </TableCell>
+                          <TableCell>{pageLabel(entry.page)}</TableCell>
+                          <TableCell className="whitespace-normal">
+                            {summaryText(t, entry.summary)}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              aria-expanded={isOpen}
+                              onClick={() => toggle(entry._id)}
+                            >
+                              {formatNumber(locale, entry.changeCount)}{" "}
+                              {isOpen ? "▴" : "▾"}
+                            </Button>
                           </TableCell>
                         </TableRow>
-                      )}
-                    </Fragment>
-                  );
-                })}
-            {list && list.items.length === 0 && !loading && (
-              <TableRow>
-                <TableCell
-                  colSpan={5}
-                  className="py-8 text-center text-muted-foreground"
-                >
-                  {t("changeLog.noChanges")}
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </TableFrame>
+                        {isOpen && (
+                          <TableRow className="hover:bg-transparent">
+                            <TableCell colSpan={5} className="bg-muted/40 p-3">
+                              <ChangeDetails entry={entry} />
+                            </TableCell>
+                          </TableRow>
+                        )}
+                      </Fragment>
+                    );
+                  })}
+              {list && list.items.length === 0 && !loading && (
+                <TableRow>
+                  <TableCell
+                    colSpan={5}
+                    className="py-8 text-center text-muted-foreground"
+                  >
+                    {t("changeLog.noChanges")}
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </TableFrame>
+      )}
 
       <div className="flex items-center justify-end gap-2">
         <span className="text-sm text-muted-foreground">
@@ -244,39 +299,66 @@ export function ChangeLogTable() {
   );
 }
 
-function ChangeDetails({ entry }: { entry: ChangeLogList["items"][number] }) {
+function ChangeDetails({
+  entry,
+  compact = false,
+}: {
+  entry: ChangeLogList["items"][number];
+  // Phones: a list, each change on its own lines, instead of a table.
+  compact?: boolean;
+}) {
   const t = useT();
   const th = useHeaderT();
   const locale = useLocale();
 
   return (
     <div className="space-y-2">
-      <Table className="bg-background">
-        <TableHeader>
-          <TableRow>
-            <TableHead>{th("changeLog.record")}</TableHead>
-            <TableHead>{th("changeLog.field")}</TableHead>
-            <TableHead>{th("changeLog.before")}</TableHead>
-            <TableHead>{th("changeLog.after")}</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
+      {compact ? (
+        <ul className="divide-y rounded-md border bg-muted/40 text-sm">
           {entry.changes.map((change, index) => (
-            <TableRow key={index}>
-              <TableCell className="whitespace-normal">
-                {recordText(t, change.record)}
-              </TableCell>
-              <TableCell>{fieldText(t, entry.page, change.field)}</TableCell>
-              <TableCell className="text-muted-foreground">
-                {valueText(t, change.from)}
-              </TableCell>
-              <TableCell className="font-medium">
-                {valueText(t, change.to)}
-              </TableCell>
-            </TableRow>
+            <li key={index} className="space-y-0.5 px-3 py-2">
+              <div className="text-xs text-muted-foreground">
+                {recordText(t, change.record)} ·{" "}
+                {fieldText(t, entry.page, change.field)}
+              </div>
+              <div className="break-words">
+                <span className="text-muted-foreground">
+                  {valueText(t, change.from)}
+                </span>
+                {" → "}
+                <span className="font-medium">{valueText(t, change.to)}</span>
+              </div>
+            </li>
           ))}
-        </TableBody>
-      </Table>
+        </ul>
+      ) : (
+        <Table className="bg-background">
+          <TableHeader>
+            <TableRow>
+              <TableHead>{th("changeLog.record")}</TableHead>
+              <TableHead>{th("changeLog.field")}</TableHead>
+              <TableHead>{th("changeLog.before")}</TableHead>
+              <TableHead>{th("changeLog.after")}</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {entry.changes.map((change, index) => (
+              <TableRow key={index}>
+                <TableCell className="whitespace-normal">
+                  {recordText(t, change.record)}
+                </TableCell>
+                <TableCell>{fieldText(t, entry.page, change.field)}</TableCell>
+                <TableCell className="text-muted-foreground">
+                  {valueText(t, change.from)}
+                </TableCell>
+                <TableCell className="font-medium">
+                  {valueText(t, change.to)}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      )}
       {entry.changeCount > entry.changes.length && (
         <p className="text-sm text-muted-foreground">
           {t("changeLog.showingFirst", {

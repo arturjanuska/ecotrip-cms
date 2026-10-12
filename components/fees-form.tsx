@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@clerk/nextjs";
+import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -80,7 +81,10 @@ function NumberField({
           placeholder={placeholder}
           aria-label={showLabel ? undefined : label}
           aria-invalid={error ? true : undefined}
-          className={cn("w-24", state.changed.has(key) && "bg-brand/10")}
+          className={cn(
+            "w-16 sm:w-24",
+            state.changed.has(key) && "bg-brand/10",
+          )}
           onChange={(event) => state.onChange(path, event.target.value)}
         />
         {suffix && (
@@ -91,6 +95,17 @@ function NumberField({
       </div>
       {error && <p className="text-xs text-destructive">{t(error)}</p>}
     </div>
+  );
+}
+
+// "Remove" on wider screens; a bin icon on phones, where rows are tight.
+function RemoveLabel() {
+  const t = useT();
+  return (
+    <>
+      <Trash2 aria-hidden className="sm:hidden" />
+      <span className="hidden sm:inline">{t("common.remove")}</span>
+    </>
   );
 }
 
@@ -138,7 +153,7 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section className="space-y-5 rounded-lg border bg-card p-5">
+    <section className="space-y-5 rounded-lg border bg-card p-4 md:p-5">
       <div>
         <h2 className="text-lg font-semibold">{title}</h2>
         {subtitle && (
@@ -320,7 +335,7 @@ export function FeesForm() {
 
   return (
     <div className="space-y-6">
-      <div className="sticky top-0 z-10 -mx-6 space-y-1 border-b bg-background/95 px-6 py-2 backdrop-blur">
+      <div className="sticky top-14 z-10 -mx-4 space-y-1 border-b bg-background/95 px-4 py-2 backdrop-blur md:top-0 md:-mx-6 md:px-6">
         <div className="flex flex-wrap items-center justify-end gap-3">
           {unsaved > 0 && (
             <span className="text-sm text-muted-foreground">
@@ -352,7 +367,7 @@ export function FeesForm() {
       </div>
 
       {/* Disabled while saving: the saved document replaces the form. */}
-      <fieldset disabled={saving} className="space-y-6">
+      <fieldset disabled={saving} className="min-w-0 space-y-6">
         <Section title={t("fees.addressService")}>
           <FieldGroup
             label={t("fees.fee")}
@@ -460,7 +475,10 @@ export function FeesForm() {
                   {t("feesPage.weightTiers")}
                 </p>
                 {tiers.map((_, index) => (
-                  <div key={index} className="flex items-start gap-2">
+                  <div
+                    key={index}
+                    className="flex flex-wrap items-start gap-1.5 sm:gap-2"
+                  >
                     <span className="pt-1.5 text-sm">{t("feesPage.upTo")}</span>
                     <NumberField
                       state={state}
@@ -487,9 +505,10 @@ export function FeesForm() {
                       size="sm"
                       className="mt-0.5"
                       disabled={tiers.length === 1}
+                      aria-label={t("common.remove")}
                       onClick={() => removeTier(index)}
                     >
-                      {t("common.remove")}
+                      <RemoveLabel />
                     </Button>
                   </div>
                 ))}
@@ -530,11 +549,14 @@ export function FeesForm() {
           >
             <div className="space-y-2">
               {discounts.map((row, index) => (
-                <div key={index} className="flex items-start gap-2">
+                <div
+                  key={index}
+                  className="flex flex-wrap items-start gap-1.5 sm:gap-2"
+                >
                   <span className="pt-1.5 text-sm">{t("feesPage.from")}</span>
                   {index === 0 ? (
                     // The first row always starts from 1 parcel.
-                    <span className="w-24 px-2.5 pt-1.5 text-sm">
+                    <span className="w-16 px-2.5 pt-1.5 text-sm sm:w-24">
                       {row.fromParcels}
                     </span>
                   ) : (
@@ -560,9 +582,10 @@ export function FeesForm() {
                       variant="ghost"
                       size="sm"
                       className="mt-0.5"
+                      aria-label={t("common.remove")}
                       onClick={() => removeDiscount(index)}
                     >
-                      {t("common.remove")}
+                      <RemoveLabel />
                     </Button>
                   )}
                 </div>

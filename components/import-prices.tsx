@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
+import { TableFrame } from "@/components/ui/loading-bar";
 import {
   Table,
   TableBody,
@@ -231,63 +232,65 @@ export function ImportPrices() {
                 {t("importPrices.noChanges")}
               </p>
             ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-10" />
-                    <TableHead>{th("common.row")}</TableHead>
-                    <RowHeads />
-                    <TableHead>{th("importPrices.field")}</TableHead>
-                    <TableHead>{th("importPrices.nowInFile")}</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {diff.changes.map((change, index) => (
-                    <TableRow
-                      key={`${change.line}:${change.field}`}
-                      className={cn(excluded.has(index) && "opacity-50")}
-                    >
-                      <TableCell>
-                        <input
-                          type="checkbox"
-                          className="size-4 accent-primary"
-                          aria-label={t("importPrices.applyRow", {
-                            row: String(change.line),
-                            field: { key: FIELD_LABELS[change.field] },
-                          })}
-                          checked={!excluded.has(index)}
-                          onChange={() => toggle(index)}
-                        />
-                      </TableCell>
-                      <TableCell>{change.line}</TableCell>
-                      <TableCell className="whitespace-normal">
-                        {categorySheets.get(change.category)}
-                      </TableCell>
-                      <RowTexts sheet={change.sheet} />
-                      <TableCell>{t(FIELD_LABELS[change.field])}</TableCell>
-                      <TableCell>
-                        {formatValue(t, change.from)} →{" "}
-                        <span className="font-medium">
-                          {formatValue(t, change.to)}
-                        </span>
-                        {change.to === null ? (
-                          <span className="text-xs text-muted-foreground">
-                            {" "}
-                            {t("importPrices.clears")}
+              <TableFrame loading={busy}>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-10" />
+                      <TableHead>{th("common.row")}</TableHead>
+                      <RowHeads />
+                      <TableHead>{th("importPrices.field")}</TableHead>
+                      <TableHead>{th("importPrices.nowInFile")}</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {diff.changes.map((change, index) => (
+                      <TableRow
+                        key={`${change.line}:${change.field}`}
+                        className={cn(excluded.has(index) && "opacity-50")}
+                      >
+                        <TableCell>
+                          <input
+                            type="checkbox"
+                            className="size-4 accent-primary"
+                            aria-label={t("importPrices.applyRow", {
+                              row: String(change.line),
+                              field: { key: FIELD_LABELS[change.field] },
+                            })}
+                            checked={!excluded.has(index)}
+                            onChange={() => toggle(index)}
+                          />
+                        </TableCell>
+                        <TableCell>{change.line}</TableCell>
+                        <TableCell className="whitespace-normal">
+                          {categorySheets.get(change.category)}
+                        </TableCell>
+                        <RowTexts sheet={change.sheet} />
+                        <TableCell>{t(FIELD_LABELS[change.field])}</TableCell>
+                        <TableCell>
+                          {formatValue(t, change.from)} →{" "}
+                          <span className="font-medium">
+                            {formatValue(t, change.to)}
                           </span>
-                        ) : (
-                          errorLines.has(change.line) && (
+                          {change.to === null ? (
                             <span className="text-xs text-muted-foreground">
                               {" "}
-                              {t("importPrices.rowHasErrors")}
+                              {t("importPrices.clears")}
                             </span>
-                          )
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                          ) : (
+                            errorLines.has(change.line) && (
+                              <span className="text-xs text-muted-foreground">
+                                {" "}
+                                {t("importPrices.rowHasErrors")}
+                              </span>
+                            )
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableFrame>
             )}
           </Section>
 
@@ -318,25 +321,27 @@ export function ImportPrices() {
               <p className="text-sm text-muted-foreground">
                 {t("importPrices.unknownIntro")}
               </p>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>{th("common.row")}</TableHead>
-                    <RowHeads />
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {diff.unknown.map((row) => (
-                    <TableRow key={row.line}>
-                      <TableCell>{row.line}</TableCell>
-                      <TableCell className="whitespace-normal">
-                        {row.category}
-                      </TableCell>
-                      <RowTexts sheet={row} />
+              <TableFrame loading={busy}>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>{th("common.row")}</TableHead>
+                      <RowHeads />
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {diff.unknown.map((row) => (
+                      <TableRow key={row.line}>
+                        <TableCell>{row.line}</TableCell>
+                        <TableCell className="whitespace-normal">
+                          {row.category}
+                        </TableCell>
+                        <RowTexts sheet={row} />
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableFrame>
             </Section>
           )}
 

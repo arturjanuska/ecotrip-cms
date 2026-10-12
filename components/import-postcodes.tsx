@@ -13,6 +13,7 @@ import { useAuth } from "@clerk/nextjs";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { PostcodeFieldInput } from "@/components/postcode-field-input";
 import { Button } from "@/components/ui/button";
+import { LoadingBar } from "@/components/ui/loading-bar";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -673,76 +674,76 @@ export function ImportPostcodes() {
           </ul>
         </div>
       ) : (
-        <div
-          ref={scrollRef}
-          className="h-[calc(100vh-17rem)] min-h-96 overflow-auto rounded-lg border"
-        >
-          <table
-            className="w-full table-fixed caption-bottom text-sm"
-            style={{ minWidth: TABLE_MIN_WIDTH }}
-          >
-            <colgroup>
-              {LEAD_WIDTHS.map((width, index) => (
-                <col key={`lead-${index}`} style={{ width }} />
-              ))}
-              {FIELD_COLUMNS.map((field) => (
-                <col key={field.column} style={{ width: field.width }} />
-              ))}
-            </colgroup>
-            <TableHeader className="sticky top-0 z-10 bg-background">
-              <TableRow>
-                <TableHead />
-                <TableHead>{th("common.row")}</TableHead>
-                <TableHead>{th("importPostcodes.status")}</TableHead>
-                {FIELD_COLUMNS.map((field) => (
-                  <TableHead key={field.column}>
-                    {th(`postcode.${field.column}`)}
-                  </TableHead>
+        <div className="flex h-[calc(100vh-17rem)] min-h-96 flex-col overflow-hidden rounded-lg border">
+          <LoadingBar loading={existing === null || busy} />
+          <div ref={scrollRef} className="min-h-0 flex-1 overflow-auto">
+            <table
+              className="w-full table-fixed caption-bottom text-sm"
+              style={{ minWidth: TABLE_MIN_WIDTH }}
+            >
+              <colgroup>
+                {LEAD_WIDTHS.map((width, index) => (
+                  <col key={`lead-${index}`} style={{ width }} />
                 ))}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {visibleRows.length === 0 && (
+                {FIELD_COLUMNS.map((field) => (
+                  <col key={field.column} style={{ width: field.width }} />
+                ))}
+              </colgroup>
+              <TableHeader className="sticky top-0 z-10 bg-background">
                 <TableRow>
-                  <TableCell colSpan={COLUMN_COUNT} className="text-center">
-                    {t("importPostcodes.noRows")}
-                  </TableCell>
+                  <TableHead />
+                  <TableHead>{th("common.row")}</TableHead>
+                  <TableHead>{th("importPostcodes.status")}</TableHead>
+                  {FIELD_COLUMNS.map((field) => (
+                    <TableHead key={field.column}>
+                      {th(`postcode.${field.column}`)}
+                    </TableHead>
+                  ))}
                 </TableRow>
-              )}
-              {paddingTop > 0 && (
-                <tr aria-hidden>
-                  <td colSpan={COLUMN_COUNT} style={{ height: paddingTop }} />
-                </tr>
-              )}
-              {virtualRows.map((virtualRow) => {
-                const row = visibleRows[virtualRow.index];
-                const check = checks.get(row.id);
-                if (!check) {
-                  return null;
-                }
+              </TableHeader>
+              <TableBody>
+                {visibleRows.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={COLUMN_COUNT} className="text-center">
+                      {t("importPostcodes.noRows")}
+                    </TableCell>
+                  </TableRow>
+                )}
+                {paddingTop > 0 && (
+                  <tr aria-hidden>
+                    <td colSpan={COLUMN_COUNT} style={{ height: paddingTop }} />
+                  </tr>
+                )}
+                {virtualRows.map((virtualRow) => {
+                  const row = visibleRows[virtualRow.index];
+                  const check = checks.get(row.id);
+                  if (!check) {
+                    return null;
+                  }
 
-                return (
-                  <ImportPreviewRow
-                    key={row.id}
-                    index={virtualRow.index}
-                    ref={virtualizer.measureElement}
-                    row={row}
-                    check={check}
-                    onChange={updateValue}
-                    onToggle={toggleExcluded}
-                  />
-                );
-              })}
-              {paddingBottom > 0 && (
-                <tr aria-hidden>
-                  <td
-                    colSpan={COLUMN_COUNT}
-                    style={{ height: paddingBottom }}
-                  />
-                </tr>
-              )}
-            </TableBody>
-          </table>
+                  return (
+                    <ImportPreviewRow
+                      key={row.id}
+                      index={virtualRow.index}
+                      ref={virtualizer.measureElement}
+                      row={row}
+                      check={check}
+                      onChange={updateValue}
+                      onToggle={toggleExcluded}
+                    />
+                  );
+                })}
+                {paddingBottom > 0 && (
+                  <tr aria-hidden>
+                    <td
+                      colSpan={COLUMN_COUNT}
+                      style={{ height: paddingBottom }}
+                    />
+                  </tr>
+                )}
+              </TableBody>
+            </table>
+          </div>
         </div>
       )}
     </div>

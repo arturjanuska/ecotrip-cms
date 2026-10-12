@@ -2,6 +2,7 @@
 
 import { Fragment, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { TableFrame } from "@/components/ui/loading-bar";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
@@ -143,7 +144,7 @@ export function ChangeLogTable() {
 
   return (
     <div className="space-y-4">
-      <div className="rounded-lg border">
+      <TableFrame loading={loading}>
         <Table>
           <TableHeader>
             <TableRow>
@@ -218,7 +219,7 @@ export function ChangeLogTable() {
             )}
           </TableBody>
         </Table>
-      </div>
+      </TableFrame>
 
       <div className="flex items-center justify-end gap-2">
         <span className="text-sm text-muted-foreground">

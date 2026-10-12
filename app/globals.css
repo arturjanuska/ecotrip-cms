@@ -139,3 +139,13 @@
     @apply font-sans;
   }
 }
+
+/* components/ui/loading-bar.tsx: the segment runs across the strip. */
+@keyframes loading-bar {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(250%);
+  }
+}

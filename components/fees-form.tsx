@@ -5,6 +5,7 @@ import { useAuth } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Spinner } from "@/components/ui/spinner";
 import {
   applyForm,
   changedFields,
@@ -332,6 +333,7 @@ export function FeesForm() {
             </span>
           )}
           <Button disabled={unsaved === 0 || saving || invalid} onClick={save}>
+            {saving && <Spinner />}
             {saving ? t("common.saving") : t("common.save")}
           </Button>
         </div>

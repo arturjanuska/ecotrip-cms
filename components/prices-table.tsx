@@ -5,6 +5,8 @@ import { useAuth } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import { TableFrame } from "@/components/ui/loading-bar";
+import { Spinner } from "@/components/ui/spinner";
 import {
   Table,
   TableBody,
@@ -139,6 +141,8 @@ type BlockProps = {
   category: StoredCategory;
   drafts: CategoryDrafts;
   saving: boolean;
+  // The catalog is loading in the background.
+  refreshing: boolean;
   error: Problem | undefined;
   onChange: (
     category: string,
@@ -153,6 +157,7 @@ const CategoryBlock = memo(function CategoryBlock({
   category,
   drafts,
   saving,
+  refreshing,
   error,
   onChange,
   onSave,
@@ -200,6 +205,7 @@ const CategoryBlock = memo(function CategoryBlock({
           disabled={unsaved === 0 || saving || invalid}
           onClick={() => onSave(category, applied.category)}
         >
+          {saving && <Spinner />}
           {saving ? t("common.saving") : t("common.save")}
         </Button>
       </div>
@@ -213,89 +219,91 @@ const CategoryBlock = memo(function CategoryBlock({
           ))}
         </ul>
       )}
-      <Table className="table-fixed" style={{ minWidth: TABLE_MIN_WIDTH }}>
-        <colgroup>
-          {COLUMNS.map((column) => (
-            <col key={column.label} style={{ width: column.width }} />
-          ))}
-        </colgroup>
-        <TableHeader>
-          <TableRow>
+      <TableFrame loading={saving || refreshing}>
+        <Table className="table-fixed" style={{ minWidth: TABLE_MIN_WIDTH }}>
+          <colgroup>
             {COLUMNS.map((column) => (
-              <TableHead key={column.label} className="whitespace-normal">
-                {th(column.label)}
-              </TableHead>
+              <col key={column.label} style={{ width: column.width }} />
             ))}
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {rows.map((row) => {
-            if (row.kind === "callManager") {
+          </colgroup>
+          <TableHeader>
+            <TableRow>
+              {COLUMNS.map((column) => (
+                <TableHead key={column.label} className="whitespace-normal">
+                  {th(column.label)}
+                </TableHead>
+              ))}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {rows.map((row) => {
+              if (row.kind === "callManager") {
+                return (
+                  <TableRow key={row.key} className="text-muted-foreground">
+                    <TableCell>{row.label}</TableCell>
+                    <TableCell colSpan={COLUMNS.length - 1}>
+                      {t("pricesPage.contactManager")}
+                    </TableCell>
+                  </TableRow>
+                );
+              }
+
+              const { sheet } = row.target.item;
+              const perUnit =
+                row.kind === "tier" &&
+                row.target.kind === "tier" &&
+                row.target.item.perUnit
+                  ? row.basis === "weight"
+                    ? "/kg"
+                    : "/m³"
+                  : undefined;
+
               return (
-                <TableRow key={row.key} className="text-muted-foreground">
-                  <TableCell>{row.label}</TableCell>
-                  <TableCell colSpan={COLUMNS.length - 1}>
-                    {t("pricesPage.contactManager")}
+                <TableRow key={row.key}>
+                  <TableCell className="whitespace-normal">
+                    {sheet.type}
+                  </TableCell>
+                  <TableCell className="whitespace-normal">
+                    {sheet.size}
+                  </TableCell>
+                  <TableCell className="whitespace-normal">
+                    {sheet.spec}
+                  </TableCell>
+                  {row.kind === "variant" ? (
+                    <>
+                      <TableCell>{cell(row.target, "volume")}</TableCell>
+                      <TableCell>{cell(row.target, "weight")}</TableCell>
+                    </>
+                  ) : (
+                    <>
+                      <TableCell>
+                        {row.basis === "volume" &&
+                          cell(row.target, "upTo", {
+                            placeholder: t("common.noLimit"),
+                            suffix: t("pricesPage.max"),
+                          })}
+                      </TableCell>
+                      <TableCell>
+                        {row.basis === "weight" &&
+                          cell(row.target, "upTo", {
+                            placeholder: t("common.noLimit"),
+                            suffix: t("pricesPage.max"),
+                          })}
+                      </TableCell>
+                    </>
+                  )}
+                  <TableCell>
+                    {cell(row.target, "price.UK-LT", { suffix: perUnit })}
+                  </TableCell>
+                  <TableCell>
+                    {cell(row.target, "price.LT-UK", { suffix: perUnit })}
                   </TableCell>
                 </TableRow>
               );
-            }
-
-            const { sheet } = row.target.item;
-            const perUnit =
-              row.kind === "tier" &&
-              row.target.kind === "tier" &&
-              row.target.item.perUnit
-                ? row.basis === "weight"
-                  ? "/kg"
-                  : "/m³"
-                : undefined;
-
-            return (
-              <TableRow key={row.key}>
-                <TableCell className="whitespace-normal">
-                  {sheet.type}
-                </TableCell>
-                <TableCell className="whitespace-normal">
-                  {sheet.size}
-                </TableCell>
-                <TableCell className="whitespace-normal">
-                  {sheet.spec}
-                </TableCell>
-                {row.kind === "variant" ? (
-                  <>
-                    <TableCell>{cell(row.target, "volume")}</TableCell>
-                    <TableCell>{cell(row.target, "weight")}</TableCell>
-                  </>
-                ) : (
-                  <>
-                    <TableCell>
-                      {row.basis === "volume" &&
-                        cell(row.target, "upTo", {
-                          placeholder: t("common.noLimit"),
-                          suffix: t("pricesPage.max"),
-                        })}
-                    </TableCell>
-                    <TableCell>
-                      {row.basis === "weight" &&
-                        cell(row.target, "upTo", {
-                          placeholder: t("common.noLimit"),
-                          suffix: t("pricesPage.max"),
-                        })}
-                    </TableCell>
-                  </>
-                )}
-                <TableCell>
-                  {cell(row.target, "price.UK-LT", { suffix: perUnit })}
-                </TableCell>
-                <TableCell>
-                  {cell(row.target, "price.LT-UK", { suffix: perUnit })}
-                </TableCell>
-              </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>
+            })}
+          </TableBody>
+        </Table>
+      </TableFrame>
     </section>
   );
 });
@@ -318,6 +326,8 @@ export function PricesTable() {
   const [drafts, setDrafts] = useState<Record<string, CategoryDrafts>>({});
   const [saving, setSaving] = useState<Record<string, boolean>>({});
   const [saveErrors, setSaveErrors] = useState<Record<string, Problem>>({});
+  // The cached catalog is shown while the fresh one loads.
+  const [refreshing, setRefreshing] = useState(true);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -326,6 +336,11 @@ export function PricesTable() {
       .catch((error: unknown) => {
         if (!controller.signal.aborted) {
           setLoadError(loadProblem(error, "errors.loadPrices"));
+        }
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) {
+          setRefreshing(false);
         }
       });
     return () => controller.abort();
@@ -433,6 +448,7 @@ export function PricesTable() {
           category={category}
           drafts={drafts[category.value] ?? EMPTY_DRAFTS}
           saving={saving[category.value] ?? false}
+          refreshing={refreshing}
           error={saveErrors[category.value]}
           onChange={change}
           onSave={save}

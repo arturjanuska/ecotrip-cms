@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Spinner } from "@/components/ui/spinner";
 import {
   NETWORK_ERROR,
   loadProblem,
@@ -154,7 +155,9 @@ function MonthEditor({
   const [trips, setTrips] = useState<DraftTrip[]>(() =>
     saved.trips.map(toDraft),
   );
+  // busy: saving or going back to the calculated dates.
   const [busy, setBusy] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [problem, setProblem] = useState<Problem | null>(null);
   const [justSaved, setJustSaved] = useState(false);
 
@@ -205,6 +208,7 @@ function MonthEditor({
 
   const save = async () => {
     setBusy(true);
+    setSaving(true);
     setProblem(null);
     try {
       const result = await saveDateOverride(saved, draft, refreshToken);
@@ -218,6 +222,7 @@ function MonthEditor({
       setProblem(NETWORK_ERROR);
     } finally {
       setBusy(false);
+      setSaving(false);
     }
   };
 
@@ -267,7 +272,8 @@ function MonthEditor({
             {t("datesPage.reset")}
           </Button>
           <Button disabled={!dirty || busy || invalid} onClick={save}>
-            {busy ? t("common.saving") : t("common.save")}
+            {saving && <Spinner />}
+            {saving ? t("common.saving") : t("common.save")}
           </Button>
         </div>
       </div>

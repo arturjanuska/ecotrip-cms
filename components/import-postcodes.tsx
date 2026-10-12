@@ -674,7 +674,7 @@ export function ImportPostcodes() {
           </ul>
         </div>
       ) : (
-        <div className="flex h-[calc(100vh-17rem)] min-h-96 flex-col overflow-hidden rounded-lg border">
+        <div className="relative flex h-[calc(100vh-17rem)] min-h-96 flex-col overflow-hidden rounded-lg border">
           <LoadingBar loading={existing === null || busy} />
           <div ref={scrollRef} className="min-h-0 flex-1 overflow-auto">
             <table

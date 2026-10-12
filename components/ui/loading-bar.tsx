@@ -1,7 +1,9 @@
 import { cn } from "@/lib/utils";
 
-// The 8px strip on top of a table: solid brand colour, with a segment running
-// across it while the table loads or saves.
+// The 8px strip on top of a table while it loads or saves: an angled brand
+// gradient runs from the left edge to the right one, over and over. Nothing
+// is shown otherwise. It lies over the top of the table, so the table does not
+// move when it appears: the parent needs `relative`.
 function LoadingBar({
   loading,
   className,
@@ -9,28 +11,27 @@ function LoadingBar({
   loading: boolean;
   className?: string;
 }) {
+  if (!loading) {
+    return null;
+  }
   return (
     <div
       data-slot="loading-bar"
       role="progressbar"
-      aria-busy={loading}
-      aria-hidden={!loading}
+      aria-busy
       className={cn(
-        "relative h-2 shrink-0 overflow-hidden transition-colors",
-        loading ? "bg-brand/25" : "bg-brand",
+        "pointer-events-none absolute inset-x-0 top-0 z-20 h-2 overflow-hidden bg-brand/20",
         className,
       )}
     >
-      {loading && (
-        <div className="absolute inset-y-0 left-0 w-2/5 animate-[loading-bar_1.1s_ease-in-out_infinite] bg-brand motion-reduce:w-full motion-reduce:animate-pulse" />
-      )}
+      <div className="absolute inset-y-0 left-0 w-1/2 animate-[loading-bar_1.2s_linear_infinite] bg-[linear-gradient(115deg,transparent_0%,var(--brand)_35%,var(--brand-strong)_50%,var(--brand)_65%,transparent_100%)] motion-reduce:w-full motion-reduce:animate-pulse" />
     </div>
   );
 }
 
 export { LoadingBar };
 
-// A bordered box for a table with the strip on top.
+// A bordered box for a table, with the strip on top while it loads.
 function TableFrame({
   loading,
   className,
@@ -41,7 +42,9 @@ function TableFrame({
   children: React.ReactNode;
 }) {
   return (
-    <div className={cn("overflow-hidden rounded-lg border", className)}>
+    <div
+      className={cn("relative overflow-hidden rounded-lg border", className)}
+    >
       <LoadingBar loading={loading} />
       {children}
     </div>

@@ -719,7 +719,7 @@ export function PostcodesTable() {
         <p className="text-sm text-destructive">{problemText(t, list.error)}</p>
       )}
 
-      <div className="flex h-[calc(100vh-14rem)] min-h-96 flex-col overflow-hidden rounded-lg border">
+      <div className="relative flex h-[calc(100vh-14rem)] min-h-96 flex-col overflow-hidden rounded-lg border">
         <LoadingBar
           loading={loading || bulkBusy || Object.values(saving).some(Boolean)}
         />

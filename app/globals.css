@@ -140,12 +140,13 @@
   }
 }
 
-/* components/ui/loading-bar.tsx: the segment runs across the strip. */
+/* components/ui/loading-bar.tsx: the gradient enters at the left edge and
+   leaves at the right one (it is half the strip wide). */
 @keyframes loading-bar {
   from {
     transform: translateX(-100%);
   }
   to {
-    transform: translateX(250%);
+    transform: translateX(200%);
   }
 }

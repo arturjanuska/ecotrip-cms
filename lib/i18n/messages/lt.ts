@@ -20,6 +20,7 @@ export const lt = {
     postcodes: "Pašto kodai",
     prices: "Kainos",
     fees: "Mokesčiai",
+    dates: "Datos",
     changelog: "Pakeitimų žurnalas",
     signOut: "Atsijungti",
   },
@@ -59,6 +60,7 @@ export const lt = {
     loadPostcodes: "Nepavyko įkelti pašto kodų (HTTP {status})",
     loadPrices: "Nepavyko įkelti kainų (HTTP {status})",
     loadFees: "Nepavyko įkelti mokesčių (HTTP {status})",
+    loadDates: "Nepavyko įkelti datų (HTTP {status})",
     loadChangeLog: "Nepavyko įkelti pakeitimų žurnalo (HTTP {status})",
     saveFailed: "Nepavyko išsaugoti (HTTP {status})",
     bulkFailed: "Masinis keitimas nepavyko (HTTP {status})",
@@ -84,6 +86,10 @@ export const lt = {
     fees_not_found: "Mokesčiai nerasti",
     fees_changed:
       "Mokesčiai pasikeitė, kol buvo atidarytas šis puslapis. Perkraukite jį.",
+    date_override_not_found: "Datos nerastos",
+    date_override_duplicate: "Šios krypties ir mėnesio datos jau nustatytos",
+    date_override_changed:
+      "Datos pasikeitė, kol buvo atidarytas puslapis. Perkraukite jį.",
     database_unavailable: "Duomenų bazė nepasiekiama",
     internal_error: "Serverio klaida",
   },
@@ -119,6 +125,13 @@ export const lt = {
     firstRowFromOne: "Pirmoji eilutė turi prasidėti nuo 1 pakuotės",
     rowsAscending:
       "Kiekviena eilutė turi prasidėti nuo didesnio skaičiaus nei ankstesnė",
+    date: "Turi būti data",
+    endBeforeStart: "Negali būti ankstesnė už pradžią",
+    windowTooLong: "Ne daugiau kaip 7 dienos",
+    deliveryBeforePickup:
+      "Pristatymas negali prasidėti anksčiau, nei baigiasi paėmimas",
+    pickupOutsideMonth: "Paėmimas turi prasidėti šį mėnesį",
+    tripRepeats: "Šią dieną jau prasideda kitas reisas",
   },
   file: {
     postcodesNotUtf8:
@@ -210,6 +223,15 @@ export const lt = {
     upToWeight: "Iki (kg)",
     fromParcels: "Nuo pakuočių",
     row: "{n} eilutė",
+  },
+  dates: {
+    "LT-UK": "LT → UK",
+    "UK-LT": "UK → LT",
+    direction: "Kryptis",
+    pickup: "Paėmimas",
+    delivery: "Pristatymas",
+    trip: "Reisas",
+    tripCount: "Reisų",
   },
   postcodesPage: {
     title: "Pašto kodai",
@@ -381,10 +403,35 @@ export const lt = {
         "Nuolaida visam užsakymui pagal pakuočių skaičių: taikoma eilutė su didžiausiu N, kuris neviršija pakuočių skaičiaus; paskutinė eilutė galioja ir didesniam skaičiui. Jei pašto kodas turi savo nuolaidą, taikoma didesnioji. Pavyzdys: nuo 3 → 5% → 3 pakuočių užsakymas už £200 kainuoja £190.",
     },
   },
+  datesPage: {
+    title: "Datos",
+    intro:
+      "Visam mėnesiui ranka nustatytos paėmimo ir pristatymo datos. Tokį mėnesį svetainė siūlo šiuos reisus vietoj apskaičiuotų. Ji vis tiek kiekvienam pašto kodui rodo tik jo lyginių ar nelyginių savaičių reisus, o ParcelForce pristato savaite vėliau. Klientai mato 12 savaičių į priekį.",
+    addTitle: "Nustatyti mėnesio datas",
+    addHelp:
+      "Mėnuo pradedamas nuo datų, kurias svetainė apskaičiuoja dabar: pakeiskite jas ir išsaugokite.",
+    year: "Metai",
+    month: "Mėnuo",
+    add: "Nustatyti datas",
+    noMonths:
+      "Ranka nenustatytas nė vienas mėnuo: svetainė apskaičiuoja visas datas.",
+    noTrips: "Reisų nėra: šį mėnesį niekas nepaimama.",
+    addTrip: "Pridėti reisą",
+    from: "nuo",
+    to: "iki",
+    tripField: "{n} reisas: {field} {end}",
+    reset: "Grąžinti apskaičiuotas datas",
+    confirmReset:
+      "Ištrinti {month} datas ir grąžinti tas, kurias apskaičiuoja svetainė?",
+    past: "praėjęs",
+    week: "{parity} savaitė",
+    odd: "nelyginė",
+    even: "lyginė",
+  },
   changeLog: {
     title: "Pakeitimų žurnalas",
     intro:
-      "Kiekvienas išsaugojimas skiltyse „Pašto kodai“, „Kainos“ ir „Mokesčiai“: kas, kada ir ką pakeitė. Saugoma tik {limit} naujausių įrašų.",
+      "Kiekvienas išsaugojimas skiltyse „Pašto kodai“, „Kainos“, „Mokesčiai“ ir „Datos“: kas, kada ir ką pakeitė. Saugoma tik {limit} naujausių įrašų.",
     when: "Kada",
     who: "Kas",
     page: "Skiltis",
@@ -413,6 +460,9 @@ export const lt = {
     importedPrices_few: "Importuotos kainos: {count} pakeitimai",
     importedPrices_other: "Importuotos kainos: {count} pakeitimų",
     savedFees: "Išsaugoti mokesčiai",
+    createdDates: "Ranka nustatytos datos: {month}",
+    savedDates: "Išsaugotos datos: {month}",
+    deletedDates: "Grąžintos apskaičiuotos datos: {month}",
     empty: "(tuščia)",
     true: "taip",
     false: "ne",

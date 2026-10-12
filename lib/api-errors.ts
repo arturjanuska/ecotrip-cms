@@ -18,6 +18,9 @@ export const API_ERROR_CODES = [
   "prices_import_invalid",
   "fees_not_found",
   "fees_changed",
+  "date_override_not_found",
+  "date_override_duplicate",
+  "date_override_changed",
   "database_unavailable",
   "internal_error",
 ] as const;

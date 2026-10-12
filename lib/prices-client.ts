@@ -26,15 +26,20 @@ export type WriteResult<T> =
 
 export async function write<T>(
   url: string,
-  method: "PUT" | "POST",
+  method: "PUT" | "POST" | "DELETE",
   payload: unknown,
   refreshToken: () => Promise<unknown>,
 ): Promise<WriteResult<T>> {
+  // DELETE has no body.
   const send = () =>
     fetch(url, {
       method,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
+      ...(payload === undefined
+        ? {}
+        : {
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          }),
     });
 
   let response = await send();

@@ -7,7 +7,12 @@ export const CHANGE_LOG_LIMIT = 500;
 // total in changeCount.
 export const CHANGE_LOG_MAX_CHANGES = 1000;
 
-export const CHANGE_LOG_PAGES = ["postcodes", "prices", "fees"] as const;
+export const CHANGE_LOG_PAGES = [
+  "postcodes",
+  "prices",
+  "fees",
+  "dates",
+] as const;
 export type ChangeLogPage = (typeof CHANGE_LOG_PAGES)[number];
 
 export type ChangeValue = string | number | boolean | null;
@@ -16,7 +21,8 @@ export type ChangeValue = string | number | boolean | null;
 // - `record`: which row changed. Postcodes: the postcode; prices: the
 //   spreadsheet row (data); fees: the group as a list of label keys
 //   (["fees.purchaseService", "fees.clientMoney"]), where zone names are data
-//   and a row number is a msg() string ("fees.row {\"n\":2}").
+//   and a row number is a msg() string ("fees.row {\"n\":2}"); dates: the
+//   direction and month ("LT-UK 2026-12").
 // - `field`: a key: "postcode.calendar", "price.UK-LT", "fees.max".
 // Entries written before keep their English texts, which show as they are.
 export type FieldChange = {

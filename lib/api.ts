@@ -49,6 +49,12 @@ export function duplicate() {
   );
 }
 
+export function duplicateMonth() {
+  return errorJson(409, "Dates for this direction and month already exist", {
+    code: "date_override_duplicate",
+  });
+}
+
 // Every write needs a signed-in user with the admin role (see lib/auth.ts).
 export async function requireAdmin() {
   const state = await getAuthState();

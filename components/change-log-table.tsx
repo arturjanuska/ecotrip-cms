@@ -32,6 +32,7 @@ const PAGE_LABELS: Record<ChangeLogPage, string> = {
   postcodes: "nav.postcodes",
   prices: "nav.prices",
   fees: "nav.fees",
+  dates: "nav.dates",
 };
 
 const dateFormats = new Map<Locale, Intl.DateTimeFormat>();

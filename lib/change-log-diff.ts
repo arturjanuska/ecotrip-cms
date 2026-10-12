@@ -1,4 +1,5 @@
 import type { ChangeValue, FieldChange } from "@/lib/change-log-types";
+import type { DateOverride, Trip } from "@/lib/date-override-types";
 import type { FeeSettings } from "@/lib/fee-types";
 import { msg, type Message } from "@/lib/i18n/translate";
 import { CSV_COLUMNS } from "@/lib/postcode-csv";
@@ -199,4 +200,56 @@ export function bulkSummary(
       })),
     },
   };
+}
+
+// "LT-UK 2026-12".
+export function dateOverrideRecord({
+  direction,
+  year,
+  month,
+}: Pick<DateOverride, "direction" | "year" | "month">) {
+  return `${direction} ${year}-${String(month).padStart(2, "0")}`;
+}
+
+function tripText({ pickup, delivery }: Trip) {
+  return `${pickup.from} – ${pickup.to} → ${delivery.from} – ${delivery.to}`;
+}
+
+// One change per trip, matched by its first pickup day. before null: the
+// month is new; after null: it is deleted. Creating or deleting a month also
+// records its number of trips, so a month with none is still logged.
+export function diffDateOverride(
+  before: DateOverride | null,
+  after: DateOverride | null,
+): FieldChange[] {
+  const current = after ?? before;
+  if (!current) {
+    return [];
+  }
+  const record = dateOverrideRecord(current);
+  const texts = (override: DateOverride | null) =>
+    new Map(
+      (override?.trips ?? []).map((trip) => [trip.pickup.from, tripText(trip)]),
+    );
+  const old = texts(before);
+  const now = texts(after);
+  const days = [...new Set([...old.keys(), ...now.keys()])].sort();
+
+  const trips = days.flatMap((day) => {
+    const from = old.get(day) ?? null;
+    const to = now.get(day) ?? null;
+    return from === to ? [] : [{ record, field: "dates.trip", from, to }];
+  });
+  const count =
+    before === null || after === null
+      ? [
+          {
+            record,
+            field: "dates.tripCount",
+            from: before?.trips.length ?? null,
+            to: after?.trips.length ?? null,
+          },
+        ]
+      : [];
+  return [...count, ...trips];
 }

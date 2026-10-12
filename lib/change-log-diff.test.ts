@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import {
   bulkSummary,
+  diffDateOverride,
   diffFees,
   diffPostcode,
   diffPriceCategory,
@@ -193,5 +194,62 @@ describe("bulkSummary", () => {
         ],
       },
     });
+  });
+});
+
+describe("diffDateOverride", () => {
+  const december = {
+    direction: "LT-UK" as const,
+    year: 2026,
+    month: 12,
+    trips: [
+      {
+        pickup: { from: "2026-12-01", to: "2026-12-02" },
+        delivery: { from: "2026-12-04", to: "2026-12-06" },
+      },
+      {
+        pickup: { from: "2026-12-08", to: "2026-12-09" },
+        delivery: { from: "2026-12-11", to: "2026-12-13" },
+      },
+    ],
+  };
+
+  it("lists a new month's trips", () => {
+    expect(diffDateOverride(null, december)).toEqual([
+      { record: "LT-UK 2026-12", field: "dates.tripCount", from: null, to: 2 },
+      {
+        record: "LT-UK 2026-12",
+        field: "dates.trip",
+        from: null,
+        to: "2026-12-01 – 2026-12-02 → 2026-12-04 – 2026-12-06",
+      },
+      {
+        record: "LT-UK 2026-12",
+        field: "dates.trip",
+        from: null,
+        to: "2026-12-08 – 2026-12-09 → 2026-12-11 – 2026-12-13",
+      },
+    ]);
+  });
+
+  it("records only the trips that changed", () => {
+    const after = structuredClone(december);
+    after.trips[1].delivery.to = "2026-12-12";
+    expect(diffDateOverride(december, after)).toEqual([
+      {
+        record: "LT-UK 2026-12",
+        field: "dates.trip",
+        from: "2026-12-08 – 2026-12-09 → 2026-12-11 – 2026-12-13",
+        to: "2026-12-08 – 2026-12-09 → 2026-12-11 – 2026-12-12",
+      },
+    ]);
+    expect(diffDateOverride(december, structuredClone(december))).toEqual([]);
+  });
+
+  it("logs a deleted month, also one with no trips", () => {
+    const empty = { ...december, trips: [] };
+    expect(diffDateOverride(empty, null)).toEqual([
+      { record: "LT-UK 2026-12", field: "dates.tripCount", from: 0, to: null },
+    ]);
   });
 });

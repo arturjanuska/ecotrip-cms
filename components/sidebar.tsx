@@ -13,6 +13,7 @@ const links = [
   { href: "/postcodes", label: "nav.postcodes" },
   { href: "/prices", label: "nav.prices" },
   { href: "/fees", label: "nav.fees" },
+  { href: "/dates", label: "nav.dates" },
   { href: "/changelog", label: "nav.changelog" },
 ];
 

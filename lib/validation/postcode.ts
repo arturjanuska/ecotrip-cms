@@ -12,6 +12,7 @@ import {
   orNumberDefault,
 } from "@/lib/postcode-options";
 import { EMPTY_FILTER } from "@/lib/postcode-filters";
+import { SORT_DIRECTIONS, SORT_FIELDS } from "@/lib/postcode-sort";
 
 export const OBJECT_ID_PATTERN = /^[a-f\d]{24}$/i;
 export const BULK_MAX_IDS = 5000;
@@ -99,6 +100,9 @@ export const listQuerySchema = z.object({
     .enum(["true", "false"])
     .optional()
     .transform((value) => (value === undefined ? value : value === "true")),
+  // Without `sort` the list is ordered by postcode; `order` defaults to asc.
+  sort: z.enum(SORT_FIELDS).optional(),
+  order: z.enum(SORT_DIRECTIONS).optional(),
 });
 
 // One change applied to many records. Only fields that make sense in bulk;

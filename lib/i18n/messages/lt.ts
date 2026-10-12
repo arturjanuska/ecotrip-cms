@@ -22,6 +22,9 @@ export const lt = {
     fees: "Mokesčiai",
     dates: "Datos",
     changelog: "Pakeitimų žurnalas",
+    website: "Svetainė",
+    collapse: "Suskleisti meniu",
+    expand: "Išskleisti meniu",
     signOut: "Atsijungti",
   },
   common: {

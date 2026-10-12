@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import type { QueryFilter } from "mongoose";
+import type { PipelineStage, QueryFilter } from "mongoose";
 import {
   corsHeaders,
   duplicate,
@@ -17,6 +17,7 @@ import {
   createPostcodeSchema,
   listQuerySchema,
 } from "@/lib/validation/postcode";
+import { NUMERIC_SORT_FIELDS, type SortField } from "@/lib/postcode-sort";
 import { recordChange } from "@/lib/change-log";
 import { diffPostcode } from "@/lib/change-log-diff";
 
@@ -38,6 +39,8 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
     calendar,
     parcelForceZone,
     isParcelForce,
+    sort,
+    order,
   } = parsed.data;
 
   const filter: QueryFilter<PostcodeRecord> = {};
@@ -60,17 +63,71 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
 
   await connectDB();
 
+  const skip = (page - 1) * limit;
   const [items, total] = await Promise.all([
-    Postcode.find(filter)
-      .sort({ postcode: 1, _id: 1 })
-      .skip((page - 1) * limit)
-      .limit(limit)
-      .lean(),
+    sort
+      ? sortedPage(filter, sort, order === "desc" ? -1 : 1, skip, limit)
+      : Postcode.find(filter)
+          .sort({ postcode: 1, _id: 1 })
+          .skip(skip)
+          .limit(limit)
+          .lean(),
     Postcode.countDocuments(filter),
   ]);
 
   return NextResponse.json({ items, total, page, limit }, { headers: cors });
 });
+
+const SORT_KEY = "_sortKey";
+
+// One page ordered by a column. Equal values keep postcode order, so offset
+// pages neither repeat nor skip records. Text compares case-insensitively with
+// numbers inside it by value ("M4" before "M40"); additional charges and
+// discount compare as numbers.
+function sortedPage(
+  filter: QueryFilter<PostcodeRecord>,
+  field: SortField,
+  direction: 1 | -1,
+  skip: number,
+  limit: number,
+) {
+  const numeric = NUMERIC_SORT_FIELDS.includes(field);
+  const pipeline: PipelineStage[] = [
+    { $match: filter },
+    ...(numeric
+      ? [
+          {
+            $addFields: {
+              [SORT_KEY]: {
+                $convert: {
+                  input: `$${field}`,
+                  to: "double",
+                  onError: null,
+                  onNull: null,
+                },
+              },
+            },
+          },
+        ]
+      : []),
+    {
+      $sort: {
+        [numeric ? SORT_KEY : field]: direction,
+        ...(field === "postcode" ? {} : { postcode: 1 }),
+        _id: 1,
+      },
+    },
+    { $skip: skip },
+    { $limit: limit },
+    ...(numeric ? [{ $project: { [SORT_KEY]: 0 } }] : []),
+  ];
+
+  return Postcode.aggregate(pipeline).collation({
+    locale: "en",
+    strength: 2,
+    numericOrdering: true,
+  });
+}
 
 export const POST = withErrorHandling(async (request: NextRequest) => {
   const unauthorized = await requireAdmin();

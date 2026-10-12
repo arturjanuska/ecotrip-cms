@@ -10,6 +10,7 @@ import {
   type Ref,
 } from "react";
 import { useAuth } from "@clerk/nextjs";
+import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
 import { BulkEditBar } from "@/components/bulk-edit-bar";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { Button } from "@/components/ui/button";
@@ -45,6 +46,12 @@ import {
   type ActiveFilter,
   type ParcelForceFilter,
 } from "@/lib/postcode-filters";
+import {
+  SORT_FIELDS,
+  nextSort,
+  type PostcodeSort,
+  type SortField,
+} from "@/lib/postcode-sort";
 import type { Postcode } from "@/lib/postcode-types";
 import { fetchAllPostcodes, fetchPostcodes } from "@/lib/postcodes-client";
 import {
@@ -60,6 +67,7 @@ import { useT, useHeaderT } from "@/lib/i18n/client";
 import { readCache, writeCache } from "@/lib/client-cache";
 import type { BulkChanges, BulkUpdateResult } from "@/lib/validation/postcode";
 import { useUnsavedChanges } from "@/lib/use-unsaved-changes";
+import { cn } from "@/lib/utils";
 
 const PER_PAGE_OPTIONS = [25, 50, 100, 200, 500] as const;
 const DEFAULT_PER_PAGE = 50;
@@ -69,16 +77,12 @@ const DEFAULT_PER_PAGE = 50;
 const ROW_HEIGHT = 49;
 const OVERSCAN = 10;
 const COLUMN_COUNT = 14;
-// Additional charges and discount fit "1000" in the input; their headers
-// wrap to two lines (WRAPPED_HEADERS). The switches take their header's width.
+// Every header fits on one line; sortable ones also fit their sort icon.
+// The switches take their header's width.
 const COLUMN_WIDTHS = [
-  44, 110, 190, 90, 180, 160, 170, 88, 100, 150, 76, 150, 72, 150,
+  44, 110, 190, 90, 180, 160, 170, 168, 124, 168, 120, 150, 72, 150,
 ] as const;
 const TABLE_MIN_WIDTH = COLUMN_WIDTHS.reduce((sum, width) => sum + width, 0);
-const WRAPPED_HEADERS: readonly EditableTextField[] = [
-  "additionalCharges",
-  "discount",
-];
 
 // Column labels: messages postcode.<field>. The isParcelForce switch comes
 // right after the column named here.
@@ -93,6 +97,47 @@ const TEXT_COLUMNS: readonly { field: EditableTextField }[] = [
   { field: "discount" },
   { field: "calendar" },
 ];
+
+const SORTABLE_FIELDS: readonly string[] = SORT_FIELDS;
+
+const SORT_ICONS = { asc: ArrowUp, desc: ArrowDown } as const;
+
+// Header button that cycles the column's sort: ascending, descending, default.
+function SortButton({
+  field,
+  label,
+  sort,
+  onSort,
+}: {
+  field: SortField;
+  label: string;
+  sort: PostcodeSort;
+  onSort: (field: SortField) => void;
+}) {
+  const direction = sort?.field === field ? sort.direction : null;
+  const Icon = direction ? SORT_ICONS[direction] : ArrowUpDown;
+
+  // The whole header is the button: label on the left, icon on the right edge.
+  return (
+    <button
+      type="button"
+      className="group -mx-1 flex w-[calc(100%+0.5rem)] items-center justify-between gap-2 rounded-md px-1 py-0.5 text-left font-medium transition-colors hover:bg-muted focus-visible:outline-2 focus-visible:outline-ring"
+      onClick={() => onSort(field)}
+    >
+      <span className="truncate">{label}</span>
+      <Icon
+        aria-hidden
+        strokeWidth={2.25}
+        className={cn(
+          "size-3.5 shrink-0 transition-colors",
+          direction
+            ? "text-brand-strong"
+            : "text-muted-foreground group-hover:text-foreground",
+        )}
+      />
+    </button>
+  );
+}
 
 type ListState = {
   key: string;
@@ -256,6 +301,7 @@ const POSTCODES_CACHE_KEY = "postcodes";
 
 type PostcodesView = {
   filters: PostcodeFilters;
+  sort: PostcodeSort;
   postcodeInput: string;
   perPage: PerPage;
   page: number;
@@ -278,6 +324,7 @@ export function PostcodesTable() {
   const [postcodeInput, setPostcodeInput] = useState(
     cached?.postcodeInput ?? "",
   );
+  const [sort, setSort] = useState<PostcodeSort>(cached?.sort ?? null);
   const [perPage, setPerPage] = useState<PerPage>(
     cached?.perPage ?? DEFAULT_PER_PAGE,
   );
@@ -301,6 +348,8 @@ export function PostcodesTable() {
     filters.postcode,
     filters.calendar,
     filters.parcelForceZone,
+    sort?.field,
+    sort?.direction,
     perPage,
     page,
   ].join("|");
@@ -339,8 +388,11 @@ export function PostcodesTable() {
     const controller = new AbortController();
     const request =
       perPage === "all"
-        ? fetchAllPostcodes(filters, controller.signal)
-        : fetchPostcodes({ page, limit: perPage, filters }, controller.signal);
+        ? fetchAllPostcodes(filters, controller.signal, sort)
+        : fetchPostcodes(
+            { page, limit: perPage, filters, sort },
+            controller.signal,
+          );
 
     request
       .then(({ items, total }) => {
@@ -360,7 +412,7 @@ export function PostcodesTable() {
       });
 
     return () => controller.abort();
-  }, [key, page, perPage, filters, refresh]);
+  }, [key, page, perPage, filters, sort, refresh]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: 0 });
@@ -369,18 +421,24 @@ export function PostcodesTable() {
   useEffect(() => {
     writeCache<PostcodesView>(POSTCODES_CACHE_KEY, {
       filters,
+      sort,
       postcodeInput,
       perPage,
       page,
       list: list?.error ? null : list,
     });
-  }, [filters, postcodeInput, perPage, page, list]);
+  }, [filters, sort, postcodeInput, perPage, page, list]);
 
   // Drafts survive page and filter changes, but not leaving the page.
   useUnsavedChanges(unsavedCount > 0);
 
   function updateFilters(patch: Partial<PostcodeFilters>) {
     setFilters((current) => ({ ...current, ...patch }));
+    setPage(1);
+  }
+
+  function changeSort(field: SortField) {
+    setSort((current) => nextSort(current, field));
     setPage(1);
   }
 
@@ -577,6 +635,34 @@ export function PostcodesTable() {
     [getToken, perPage, filters],
   );
 
+  // A header cell; columns in SORTABLE_FIELDS get a sort button.
+  function sortableHead(field: string) {
+    const label = th(`postcode.${field}`);
+    if (!SORTABLE_FIELDS.includes(field)) {
+      return <TableHead>{label}</TableHead>;
+    }
+
+    const sortField = field as SortField;
+    return (
+      <TableHead
+        aria-sort={
+          sort?.field === sortField
+            ? sort.direction === "asc"
+              ? "ascending"
+              : "descending"
+            : undefined
+        }
+      >
+        <SortButton
+          field={sortField}
+          label={label}
+          sort={sort}
+          onSort={changeSort}
+        />
+      </TableHead>
+    );
+  }
+
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-3">
@@ -763,25 +849,14 @@ export function PostcodesTable() {
                       onChange={toggleAllLoaded}
                     />
                   </TableHead>
-                  <TableHead>{th("postcode.postcode")}</TableHead>
-                  <TableHead>
-                    {th(`postcode.${TEXT_COLUMNS[0].field}`)}
-                  </TableHead>
+                  {sortableHead("postcode")}
+                  {sortableHead(TEXT_COLUMNS[0].field)}
                   <TableHead>{th("postcode.country")}</TableHead>
                   {TEXT_COLUMNS.slice(1).map((column) => (
                     <Fragment key={column.field}>
-                      <TableHead
-                        className={
-                          WRAPPED_HEADERS.includes(column.field)
-                            ? "whitespace-normal"
-                            : undefined
-                        }
-                      >
-                        {th(`postcode.${column.field}`)}
-                      </TableHead>
-                      {column.field === PARCEL_FORCE_AFTER && (
-                        <TableHead>{th("postcode.isParcelForce")}</TableHead>
-                      )}
+                      {sortableHead(column.field)}
+                      {column.field === PARCEL_FORCE_AFTER &&
+                        sortableHead("isParcelForce")}
                     </Fragment>
                   ))}
                   <TableHead>{th("postcode.active")}</TableHead>

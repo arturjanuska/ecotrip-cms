@@ -138,6 +138,19 @@
   html {
     @apply font-sans;
   }
+  /* Tailwind resets buttons to the default arrow; everything that reacts to
+     a click shows the hand. Disabled controls keep their own cursor. */
+  a[href],
+  button:not(:disabled),
+  select:not(:disabled),
+  summary,
+  [role="button"]:not([aria-disabled="true"]),
+  [role="switch"]:not([data-disabled]),
+  input[type="checkbox"]:not(:disabled),
+  input[type="radio"]:not(:disabled),
+  input[type="file"]:not(:disabled)::file-selector-button {
+    cursor: pointer;
+  }
 }
 
 /* components/ui/loading-bar.tsx: the gradient enters at the left edge and

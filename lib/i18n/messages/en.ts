@@ -26,6 +26,9 @@ export const en = {
     fees: "Fees",
     dates: "Dates",
     changelog: "Change log",
+    website: "Website",
+    collapse: "Collapse menu",
+    expand: "Expand menu",
     signOut: "Sign out",
   },
   common: {

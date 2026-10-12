@@ -29,6 +29,16 @@ describe("listQuerySchema", () => {
     expect(listQuerySchema.parse({ active: "all" }).active).toBe(undefined);
   });
 
+  it("accepts a sort column and direction", () => {
+    expect(
+      listQuerySchema.parse({ sort: "discount", order: "desc" }),
+    ).toMatchObject({ sort: "discount", order: "desc" });
+  });
+
+  it("rejects an unknown sort column", () => {
+    expect(listQuerySchema.safeParse({ sort: "region" }).success).toBe(false);
+  });
+
   it("normalizes the postcode prefix", () => {
     expect(listQuerySchema.parse({ postcode: " m4 " }).postcode).toBe("M4");
   });

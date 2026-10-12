@@ -1,19 +1,26 @@
 import { ApiError } from "@/lib/api-errors";
 import { filtersToParams, type PostcodeFilters } from "@/lib/postcode-filters";
 import { LIST_MAX_LIMIT } from "@/lib/postcode-options";
+import { sortToParams, type PostcodeSort } from "@/lib/postcode-sort";
 import type { Postcode, PostcodeList } from "@/lib/postcode-types";
 
 // Browser helpers for the postcode API. Failures throw ApiError: the UI
 // shows its text with lib/api-errors.ts.
 
 export async function fetchPostcodes(
-  params: { page: number; limit: number; filters: PostcodeFilters },
+  params: {
+    page: number;
+    limit: number;
+    filters: PostcodeFilters;
+    sort?: PostcodeSort;
+  },
   signal: AbortSignal,
 ) {
   const query = new URLSearchParams({
     page: String(params.page),
     limit: String(params.limit),
     ...filtersToParams(params.filters),
+    ...sortToParams(params.sort ?? null),
   });
   const response = await fetch(`/api/postcodes?${query}`, { signal });
   const body = await response.json().catch(() => null);
@@ -29,16 +36,17 @@ export async function fetchPostcodes(
 export async function fetchAllPostcodes(
   filters: PostcodeFilters,
   signal: AbortSignal,
+  sort: PostcodeSort = null,
 ) {
   const first = await fetchPostcodes(
-    { page: 1, limit: LIST_MAX_LIMIT, filters },
+    { page: 1, limit: LIST_MAX_LIMIT, filters, sort },
     signal,
   );
   const pages = Math.ceil(first.total / LIST_MAX_LIMIT);
   const rest = await Promise.all(
     Array.from({ length: Math.max(0, pages - 1) }, (_, index) =>
       fetchPostcodes(
-        { page: index + 2, limit: LIST_MAX_LIMIT, filters },
+        { page: index + 2, limit: LIST_MAX_LIMIT, filters, sort },
         signal,
       ),
     ),

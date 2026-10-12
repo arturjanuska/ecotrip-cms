@@ -2,9 +2,9 @@ import { cn } from "@/lib/utils";
 
 // The 8px strip above a table while it loads or saves: an angled brand
 // gradient runs from the left edge to the right one, over and over. Nothing
-// is shown otherwise. It sits in the gap above the table (12px are needed),
-// so nothing moves when it appears: the parent needs `relative`, without
-// overflow-hidden.
+// is shown otherwise. It sits on the table's top border, in the gap above the
+// table (8px are needed), so nothing moves when it appears: the parent needs
+// `relative`, without overflow-hidden.
 function LoadingBar({
   loading,
   className,
@@ -21,7 +21,7 @@ function LoadingBar({
       role="progressbar"
       aria-busy
       className={cn(
-        "pointer-events-none absolute inset-x-0 bottom-full mb-1 h-2 overflow-hidden rounded-full bg-brand/20",
+        "pointer-events-none absolute inset-x-0 bottom-full h-2 overflow-hidden rounded-t-md bg-brand/20",
         className,
       )}
     >

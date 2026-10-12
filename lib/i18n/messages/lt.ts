@@ -410,7 +410,7 @@ export const lt = {
   datesPage: {
     title: "Datos",
     intro:
-      "Visam mėnesiui ranka nustatytos paėmimo ir pristatymo datos. Tokį mėnesį svetainė siūlo šiuos reisus vietoj apskaičiuotų. Ji vis tiek kiekvienam pašto kodui rodo tik jo lyginių ar nelyginių savaičių reisus. ParcelForce užsakymams taikomos jų pačių pristatymo datos, o jei jos tuščios – savaite vėlesnės už pristatymą. Klientai mato 12 savaičių į priekį.",
+      "Visam mėnesiui ranka nustatytos paėmimo ir pristatymo datos. Tokį mėnesį svetainė siūlo šiuos reisus vietoj apskaičiuotų. Ji vis tiek kiekvienam pašto kodui rodo tik jo lyginių ar nelyginių savaičių reisus. ParcelForce užsakymams taikomos jų pačių pristatymo datos, o jei jos tuščios – savaite vėlesnės už pristatymą. Klientai mato 6 mėnesius į priekį.",
     addTitle: "Nustatyti mėnesio datas",
     addHelp:
       "Mėnuo pradedamas nuo datų, kurias svetainė apskaičiuoja dabar: pakeiskite jas ir išsaugokite.",

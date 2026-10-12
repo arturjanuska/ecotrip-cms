@@ -390,7 +390,7 @@ export const en = {
   datesPage: {
     title: "Dates",
     intro:
-      "Pickup and delivery dates set by hand for a whole month. In such a month the site offers these trips instead of the ones it calculates. It still shows each postcode only the trips of its odd or even weeks. ParcelForce orders get their own delivery dates, or a week after the delivery when they are left empty. Customers see 12 weeks ahead.",
+      "Pickup and delivery dates set by hand for a whole month. In such a month the site offers these trips instead of the ones it calculates. It still shows each postcode only the trips of its odd or even weeks. ParcelForce orders get their own delivery dates, or a week after the delivery when they are left empty. Customers see 6 months ahead.",
     addTitle: "Set the dates of a month",
     addHelp:
       "The month starts with the dates the site calculates now: change them, then save.",

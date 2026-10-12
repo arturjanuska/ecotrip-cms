@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { PricesTable } from "@/components/prices-table";
+import { DownloadButton } from "@/components/download-button";
 import { buttonVariants } from "@/components/ui/button";
 import { requireAdminPage } from "@/lib/auth";
 import { getTranslator, pageTitle } from "@/lib/i18n/server";
@@ -29,14 +30,9 @@ export default async function PricesPage({
         >
           {t("pricesPage.importCsv")}
         </Link>
-        {/* A plain link: the browser downloads the file the API returns. */}
-        <a
-          href="/api/prices/export"
-          download
-          className={buttonVariants({ variant: "outline" })}
-        >
+        <DownloadButton href="/api/prices/export" fallbackName="prices.json">
           {t("pricesPage.exportJson")}
-        </a>
+        </DownloadButton>
       </div>
       {imported && (
         <p className="rounded-lg bg-brand/10 px-3 py-2 text-sm">

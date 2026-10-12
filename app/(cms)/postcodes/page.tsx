@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { PostcodesTable } from "@/components/postcodes-table";
+import { DownloadButton } from "@/components/download-button";
 import { buttonVariants } from "@/components/ui/button";
 import { requireAdminPage } from "@/lib/auth";
 import { getTranslator, pageTitle } from "@/lib/i18n/server";
@@ -24,14 +25,12 @@ export default async function PostcodesPage() {
         >
           {t("postcodesPage.importCsv")}
         </Link>
-        {/* A plain link: the browser downloads the file the API returns. */}
-        <a
+        <DownloadButton
           href="/api/postcodes/export"
-          download
-          className={buttonVariants({ variant: "outline" })}
+          fallbackName="postcodes.csv"
         >
           {t("postcodesPage.exportCsv")}
-        </a>
+        </DownloadButton>
       </div>
       <PostcodesTable />
     </div>

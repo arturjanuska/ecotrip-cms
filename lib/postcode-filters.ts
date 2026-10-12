@@ -21,8 +21,9 @@ export type PostcodeFilters = {
   parcelForceZone: string;
 };
 
+// The page opens with no filter: active and inactive postcodes alike.
 export const DEFAULT_FILTERS: PostcodeFilters = {
-  active: "yes",
+  active: "all",
   isParcelForce: "",
   postcode: "",
   calendar: "",

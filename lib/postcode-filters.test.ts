@@ -15,8 +15,8 @@ const item = {
 };
 
 describe("filtersToParams", () => {
-  it("sends only active=true by default", () => {
-    expect(filtersToParams(DEFAULT_FILTERS)).toEqual({ active: "true" });
+  it("sends only active=all by default: no filter", () => {
+    expect(filtersToParams(DEFAULT_FILTERS)).toEqual({ active: "all" });
   });
 
   it("sends every filter that is set", () => {

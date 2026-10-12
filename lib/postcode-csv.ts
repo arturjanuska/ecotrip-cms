@@ -1,6 +1,10 @@
 import Papa from "papaparse";
 import { msg } from "@/lib/i18n/translate";
-import { CALENDAR_VALUES, PARCEL_FORCE_ZONES } from "@/lib/postcode-options";
+import {
+  ADDITIONAL_CHARGES_HINT,
+  CALENDAR_VALUES,
+  PARCEL_FORCE_ZONES,
+} from "@/lib/postcode-options";
 import { createPostcodeSchema } from "@/lib/validation/postcode";
 
 export const CSV_COLUMNS = [
@@ -11,6 +15,7 @@ export const CSV_COLUMNS = [
   "countryString",
   "basicPrice",
   "additionalCharges",
+  "isParcelForce",
   "parcelForceZone",
   "discount",
   "calendar",
@@ -18,20 +23,33 @@ export const CSV_COLUMNS = [
 ] as const;
 
 export type CsvColumn = (typeof CSV_COLUMNS)[number];
-type TextColumn = Exclude<CsvColumn, "active">;
+
+// Yes/no columns and the value of a new postcode.
+export const BOOLEAN_COLUMNS = {
+  isParcelForce: false,
+  active: true,
+} as const;
+type BooleanColumn = keyof typeof BOOLEAN_COLUMNS;
+type TextColumn = Exclude<CsvColumn, BooleanColumn>;
+
+export function isBooleanColumn(column: CsvColumn): column is BooleanColumn {
+  return column in BOOLEAN_COLUMNS;
+}
 
 export const REQUIRED_CSV_COLUMNS = ["postcode", "town", "country"] as const;
 export const IMPORT_MAX_ROWS = 10000;
 export const IMPORT_MAX_BYTES = 5 * 1024 * 1024;
 
-// One import row as text, the way the preview shows and edits it.
-// `active` holds "true" or "false" (or the raw cell when it is invalid).
+// One import row as text, the way the preview shows and edits it. Yes/no
+// columns hold "true" or "false" (or the raw cell when it is invalid).
 export type ImportValues = Record<CsvColumn, string>;
 
 // The stored fields of a record that an import row is compared with.
-export type ExistingPostcode = Record<TextColumn, string> & { active: boolean };
+export type ExistingPostcode = Record<TextColumn, string> &
+  Record<BooleanColumn, boolean>;
 
-export type ImportRecord = Record<TextColumn, string> & { active: boolean };
+export type ImportRecord = Record<TextColumn, string> &
+  Record<BooleanColumn, boolean>;
 
 export type ImportStatus = "new" | "update" | "unchanged" | "error";
 
@@ -60,7 +78,7 @@ export type ParsedCsv = {
 export function toCsv(items: ExistingPostcode[]) {
   const data = items.map((item) =>
     CSV_COLUMNS.map((column) =>
-      column === "active" ? String(item.active) : item[column],
+      isBooleanColumn(column) ? String(item[column]) : item[column],
     ),
   );
 
@@ -142,7 +160,7 @@ export function parseCsv(text: string): ParsedCsv {
   };
 }
 
-export function parseActive(value: string) {
+export function parseBoolean(value: string) {
   const normalized = value.trim().toLowerCase();
   if (["true", "yes", "y", "1"].includes(normalized)) {
     return true;
@@ -166,17 +184,17 @@ function normalizeCell(column: CsvColumn, value: string) {
     // Excel with a European locale writes decimals with a comma.
     return trimmed.replace(",", ".");
   }
-  if (column === "active") {
-    const active = parseActive(trimmed);
-    return active === null ? trimmed : String(active);
+  if (isBooleanColumn(column)) {
+    const parsed = parseBoolean(trimmed);
+    return parsed === null ? trimmed : String(parsed);
   }
   return trimmed;
 }
 
 /**
  * Fills every column of a parsed row. A column missing from the file, or an
- * empty `active` cell, keeps the stored value of an existing postcode; a new
- * postcode gets "" (and active "true").
+ * empty yes/no cell, keeps the stored value of an existing postcode; a new
+ * postcode gets "" (and the BOOLEAN_COLUMNS values).
  */
 export function completeValues(
   values: Partial<ImportValues>,
@@ -186,13 +204,16 @@ export function completeValues(
 
   for (const column of CSV_COLUMNS) {
     const value = values[column];
-    if (value !== undefined && !(column === "active" && value === "")) {
+    if (value !== undefined && !(isBooleanColumn(column) && value === "")) {
       complete[column] = normalizeCell(column, value);
     } else if (existing) {
-      complete[column] =
-        column === "active" ? String(existing.active) : existing[column];
+      complete[column] = isBooleanColumn(column)
+        ? String(existing[column])
+        : existing[column];
     } else {
-      complete[column] = column === "active" ? "true" : "";
+      complete[column] = isBooleanColumn(column)
+        ? String(BOOLEAN_COLUMNS[column])
+        : "";
     }
   }
 
@@ -208,6 +229,7 @@ const FRIENDLY_ERRORS: Partial<Record<CsvColumn, string>> = {
   parcelForceZone: msg("validation.useValuesOrEmpty", {
     values: PARCEL_FORCE_ZONES.join(", "),
   }),
+  additionalCharges: ADDITIONAL_CHARGES_HINT,
 };
 
 /**
@@ -223,9 +245,9 @@ export function validateImportValues(
   const shape = createPostcodeSchema.shape;
 
   for (const column of CSV_COLUMNS) {
-    if (column === "active") {
-      if (parseActive(values.active) === null) {
-        errors.active = "validation.useTrueFalse";
+    if (isBooleanColumn(column)) {
+      if (parseBoolean(values[column]) === null) {
+        errors[column] = "validation.useTrueFalse";
       }
       continue;
     }
@@ -250,8 +272,8 @@ export function validateImportValues(
 export function toImportRecord(values: ImportValues): ImportRecord {
   const record = {} as ImportRecord;
   for (const column of CSV_COLUMNS) {
-    if (column === "active") {
-      record.active = parseActive(values.active) ?? true;
+    if (isBooleanColumn(column)) {
+      record[column] = parseBoolean(values[column]) ?? BOOLEAN_COLUMNS[column];
     } else {
       record[column] = normalizeCell(column, values[column]);
     }

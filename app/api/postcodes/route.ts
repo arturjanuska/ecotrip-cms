@@ -30,8 +30,15 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
     return validationError(parsed.error, cors);
   }
 
-  const { page, limit, active, postcode, calendar, parcelForceZone } =
-    parsed.data;
+  const {
+    page,
+    limit,
+    active,
+    postcode,
+    calendar,
+    parcelForceZone,
+    isParcelForce,
+  } = parsed.data;
 
   const filter: QueryFilter<PostcodeRecord> = {};
   if (active !== undefined) {
@@ -46,6 +53,9 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
   }
   if (parcelForceZone !== undefined) {
     filter.parcelForceZone = parcelForceZone;
+  }
+  if (isParcelForce !== undefined) {
+    filter.isParcelForce = isParcelForce;
   }
 
   await connectDB();

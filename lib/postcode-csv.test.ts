@@ -3,7 +3,7 @@ import {
   completeValues,
   duplicatePostcodes,
   importStatus,
-  parseActive,
+  parseBoolean,
   parseCsv,
   toCsv,
   toImportRecord,
@@ -20,6 +20,7 @@ const existing: ExistingPostcode = {
   countryString: "England",
   basicPrice: "Ecotrip pricelist",
   additionalCharges: "-5",
+  isParcelForce: false,
   parcelForceZone: "Zone 1",
   discount: "",
   calendar: "Odd",
@@ -34,6 +35,7 @@ const values = (patch: Partial<ImportValues> = {}): ImportValues => ({
   countryString: "England",
   basicPrice: "Ecotrip pricelist",
   additionalCharges: "-5",
+  isParcelForce: "false",
   parcelForceZone: "Zone 1",
   discount: "",
   calendar: "Odd",
@@ -46,6 +48,7 @@ describe("toCsv and parseCsv", () => {
     const tricky = {
       ...existing,
       town: 'Leigh, "Old" town',
+      isParcelForce: true,
       active: false,
     };
     const parsed = parseCsv(toCsv([existing, tricky]));
@@ -54,6 +57,7 @@ describe("toCsv and parseCsv", () => {
     expect(parsed.rows).toHaveLength(2);
     expect(parsed.rows[1].values.town).toBe('Leigh, "Old" town');
     expect(parsed.rows[1].values.active).toBe("false");
+    expect(parsed.rows[1].values.isParcelForce).toBe("true");
     expect(parsed.rows[0].values.additionalCharges).toBe("-5");
   });
 
@@ -100,7 +104,7 @@ describe("toCsv and parseCsv", () => {
   });
 });
 
-describe("parseActive", () => {
+describe("parseBoolean", () => {
   it.each([
     ["true", true],
     ["TRUE", true],
@@ -113,7 +117,7 @@ describe("parseActive", () => {
     ["maybe", null],
     ["", null],
   ])("%j -> %s", (value, expected) => {
-    expect(parseActive(value)).toBe(expected);
+    expect(parseBoolean(value)).toBe(expected);
   });
 });
 
@@ -124,6 +128,7 @@ describe("completeValues", () => {
     ).toEqual({
       ...existing,
       town: "Leigh",
+      isParcelForce: "false",
       active: "true",
     });
   });
@@ -139,6 +144,7 @@ describe("completeValues", () => {
       countryString: "",
       basicPrice: "",
       additionalCharges: "",
+      isParcelForce: "false",
       parcelForceZone: "",
       discount: "",
       calendar: "",
@@ -156,6 +162,21 @@ describe("completeValues", () => {
     expect(complete.active).toBe("false");
   });
 
+  it("keeps the stored isParcelForce when the cell is empty or missing", () => {
+    const parcelForce = { ...existing, isParcelForce: true };
+    expect(
+      completeValues({ postcode: "M46", isParcelForce: "" }, parcelForce)
+        .isParcelForce,
+    ).toBe("true");
+    expect(completeValues({ postcode: "M46" }, parcelForce).isParcelForce).toBe(
+      "true",
+    );
+    expect(
+      completeValues({ postcode: "M46", isParcelForce: "no" }, parcelForce)
+        .isParcelForce,
+    ).toBe("false");
+  });
+
   it("keeps the stored active flag when the cell is empty", () => {
     expect(
       completeValues(
@@ -169,6 +190,29 @@ describe("completeValues", () => {
 describe("validateImportValues", () => {
   it("accepts a valid row", () => {
     expect(validateImportValues(values(), existing, false)).toEqual({});
+  });
+
+  it("takes only numbers as additional charges", () => {
+    expect(
+      validateImportValues(
+        values({ additionalCharges: "Parcel force pricelist" }),
+        existing,
+        false,
+      ),
+    ).toEqual({ additionalCharges: "validation.additionalChargesNumber" });
+    expect(
+      validateImportValues(
+        values({ additionalCharges: "12.5" }),
+        existing,
+        false,
+      ),
+    ).toEqual({});
+  });
+
+  it("takes yes or no as isParcelForce", () => {
+    expect(
+      validateImportValues(values({ isParcelForce: "maybe" }), existing, false),
+    ).toEqual({ isParcelForce: "validation.useTrueFalse" });
   });
 
   it("allows an empty town only for an existing postcode", () => {

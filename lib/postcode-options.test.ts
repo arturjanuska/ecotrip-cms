@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { isValidDiscount, sanitizeDiscountInput } from "@/lib/postcode-options";
+import {
+  isValidAdditionalCharges,
+  isValidDiscount,
+  sanitizeAdditionalChargesInput,
+  sanitizeDiscountInput,
+} from "@/lib/postcode-options";
 
 describe("isValidDiscount", () => {
   it.each(["", "0", "10", "7.5", "99.99", "100", "100.0", "0.5"])(
@@ -28,5 +33,22 @@ describe("sanitizeDiscountInput", () => {
     ["", ""],
   ])("turns %j into %j", (raw, expected) => {
     expect(sanitizeDiscountInput(raw)).toBe(expected);
+  });
+});
+
+describe("additional charges", () => {
+  it("are an amount or empty", () => {
+    for (const value of ["", "15", "-5", "12.5"]) {
+      expect(isValidAdditionalCharges(value), value).toBe(true);
+    }
+    for (const value of ["Parcel force pricelist", "-", "1,5", "5-"]) {
+      expect(isValidAdditionalCharges(value), value).toBe(false);
+    }
+  });
+
+  it("keep a leading minus while typing", () => {
+    expect(sanitizeAdditionalChargesInput("-5")).toBe("-5");
+    expect(sanitizeAdditionalChargesInput("1,5")).toBe("1.5");
+    expect(sanitizeAdditionalChargesInput("abc")).toBe("");
   });
 });

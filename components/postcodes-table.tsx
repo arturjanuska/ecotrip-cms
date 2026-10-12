@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  Fragment,
   memo,
   useCallback,
   useEffect,
@@ -31,6 +32,7 @@ import {
   pruneDrafts,
   withDraft,
   type Draft,
+  type EditableBooleanField,
   type EditableTextField,
 } from "@/lib/postcode-drafts";
 import {
@@ -39,6 +41,7 @@ import {
   matchesFilters,
   type PostcodeFilters,
   type ActiveFilter,
+  type ParcelForceFilter,
 } from "@/lib/postcode-filters";
 import type { Postcode } from "@/lib/postcode-types";
 import { fetchAllPostcodes, fetchPostcodes } from "@/lib/postcodes-client";
@@ -63,12 +66,14 @@ const DEFAULT_PER_PAGE = 50;
 // Column widths are fixed because off-screen rows do not take part in layout.
 const ROW_HEIGHT = 49;
 const OVERSCAN = 10;
-const COLUMN_COUNT = 13;
+const COLUMN_COUNT = 14;
 const COLUMN_WIDTHS = [
-  44, 110, 190, 90, 180, 160, 170, 190, 150, 130, 150, 80, 150,
+  44, 110, 190, 90, 180, 160, 170, 150, 110, 150, 130, 150, 80, 150,
 ] as const;
 
-// Column labels: messages postcode.<field>.
+// Column labels: messages postcode.<field>. The isParcelForce switch comes
+// right after the column named here.
+const PARCEL_FORCE_AFTER: EditableTextField = "additionalCharges";
 const TEXT_COLUMNS: readonly { field: EditableTextField }[] = [
   { field: "town" },
   { field: "region" },
@@ -138,6 +143,16 @@ const PostcodeRow = memo(function PostcodeRow({
     </TableCell>
   );
 
+  const switchCell = (field: EditableBooleanField) => (
+    <TableCell key={field}>
+      <Switch
+        aria-label={`${item.postcode}: ${t(`postcode.${field}`)}`}
+        checked={draft?.[field] ?? item[field]}
+        onCheckedChange={(checked) => onChange(item, { [field]: checked })}
+      />
+    </TableCell>
+  );
+
   return (
     <TableRow
       ref={ref}
@@ -159,13 +174,12 @@ const PostcodeRow = memo(function PostcodeRow({
       <TableCell className="font-mono font-medium">{item.postcode}</TableCell>
       {fieldCell("town")}
       <TableCell>{item.country}</TableCell>
-      {TEXT_COLUMNS.slice(1).map((column) => fieldCell(column.field))}
-      <TableCell>
-        <Switch
-          checked={draft?.active ?? item.active}
-          onCheckedChange={(checked) => onChange(item, { active: checked })}
-        />
-      </TableCell>
+      {TEXT_COLUMNS.slice(1).flatMap((column) =>
+        column.field === PARCEL_FORCE_AFTER
+          ? [fieldCell(column.field), switchCell("isParcelForce")]
+          : [fieldCell(column.field)],
+      )}
+      {switchCell("active")}
       <TableCell>
         {draft && (
           <Button
@@ -207,9 +221,16 @@ function SkeletonRows() {
             <Skeleton className="h-4 w-10" />
           </TableCell>
           {TEXT_COLUMNS.slice(1).map((column) => (
-            <TableCell key={column.field}>
-              <Skeleton className="h-8 w-full rounded-lg" />
-            </TableCell>
+            <Fragment key={column.field}>
+              <TableCell>
+                <Skeleton className="h-8 w-full rounded-lg" />
+              </TableCell>
+              {column.field === PARCEL_FORCE_AFTER && (
+                <TableCell>
+                  <Skeleton className="h-[18px] w-8 rounded-full" />
+                </TableCell>
+              )}
+            </Fragment>
           ))}
           <TableCell>
             <Skeleton className="h-[18px] w-8 rounded-full" />
@@ -266,6 +287,7 @@ export function PostcodesTable() {
 
   const key = [
     filters.active,
+    filters.isParcelForce,
     filters.postcode,
     filters.calendar,
     filters.parcelForceZone,
@@ -605,6 +627,23 @@ export function PostcodesTable() {
           </NativeSelect>
         </label>
         <label className="flex items-center gap-2 text-sm">
+          <span className="text-muted-foreground">
+            {t("postcode.isParcelForce")}
+          </span>
+          <NativeSelect
+            value={filters.isParcelForce}
+            onChange={(event) =>
+              updateFilters({
+                isParcelForce: event.target.value as ParcelForceFilter,
+              })
+            }
+          >
+            <option value="">{t("common.any")}</option>
+            <option value="yes">{t("common.yes")}</option>
+            <option value="no">{t("common.no")}</option>
+          </NativeSelect>
+        </label>
+        <label className="flex items-center gap-2 text-sm">
           <span className="text-muted-foreground">{t("postcode.active")}</span>
           <NativeSelect
             value={filters.active}
@@ -710,9 +749,12 @@ export function PostcodesTable() {
               <TableHead>{th(`postcode.${TEXT_COLUMNS[0].field}`)}</TableHead>
               <TableHead>{th("postcode.country")}</TableHead>
               {TEXT_COLUMNS.slice(1).map((column) => (
-                <TableHead key={column.field}>
-                  {th(`postcode.${column.field}`)}
-                </TableHead>
+                <Fragment key={column.field}>
+                  <TableHead>{th(`postcode.${column.field}`)}</TableHead>
+                  {column.field === PARCEL_FORCE_AFTER && (
+                    <TableHead>{th("postcode.isParcelForce")}</TableHead>
+                  )}
+                </Fragment>
               ))}
               <TableHead>{th("postcode.active")}</TableHead>
               <TableHead />

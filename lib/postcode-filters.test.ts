@@ -10,6 +10,7 @@ const item = {
   postcode: "M46",
   calendar: "Odd" as const,
   parcelForceZone: "Zone 1" as const,
+  isParcelForce: true,
   active: true,
 };
 
@@ -22,6 +23,7 @@ describe("filtersToParams", () => {
     expect(
       filtersToParams({
         active: "all",
+        isParcelForce: "no",
         postcode: " m4 ",
         calendar: EMPTY_FILTER,
         parcelForceZone: "Zone 2",
@@ -31,7 +33,17 @@ describe("filtersToParams", () => {
       postcode: "M4",
       calendar: "none",
       parcelForceZone: "Zone 2",
+      isParcelForce: "false",
     });
+  });
+
+  it("matches the ParcelForce filter", () => {
+    expect(
+      matchesFilters(item, { ...DEFAULT_FILTERS, isParcelForce: "yes" }),
+    ).toBe(true);
+    expect(
+      matchesFilters(item, { ...DEFAULT_FILTERS, isParcelForce: "no" }),
+    ).toBe(false);
   });
 
   it("maps active=no to active=false", () => {

@@ -102,6 +102,8 @@ export const en = {
     percentRange: "Must be from 0 to 100",
     wholeNumber: "Must be a whole number",
     discountRange: "Number from {min} to {max} (dot for decimals)",
+    additionalChargesNumber:
+      "An amount like 15 or -5, or empty. ParcelForce areas are marked in the ParcelForce column",
     atLeastOneField: "At least one field is required",
     postcodePrefix: "Letters and digits only, up to 8",
     invalidId: "Invalid id",
@@ -182,6 +184,7 @@ export const en = {
     countryString: "Country name",
     basicPrice: "Basic price",
     additionalCharges: "Additional charges",
+    isParcelForce: "ParcelForce",
     parcelForceZone: "Parcel Force zone",
     discount: "Discount %",
     calendar: "Calendar",
@@ -296,7 +299,7 @@ export const en = {
     howFile:
       "Use a CSV file exported from this CMS, or prepared in Excel or Google Sheets (saved as CSV UTF-8, comma or semicolon separated).",
     howColumns:
-      "The first row holds column names. Required: {required}. Optional: region, countryString, basicPrice, additionalCharges, parcelForceZone, discount, calendar, active (true or false).",
+      "The first row holds column names. Required: {required}. Optional: region, countryString, basicPrice, additionalCharges (a number), isParcelForce (true or false), parcelForceZone, discount, calendar, active (true or false).",
     howUpdate:
       "Existing postcodes are updated, new ones are added. Columns missing from the file keep their current values. Postcodes not in the file are not changed.",
     howReview:

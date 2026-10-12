@@ -19,8 +19,12 @@ const BULK_FIELDS = [
   { field: "calendar", options: CALENDAR_VALUES },
   { field: "parcelForceZone", options: PARCEL_FORCE_ZONES },
   { field: "discount", options: null },
+  { field: "isParcelForce", options: null },
   { field: "active", options: null },
 ] as const;
+
+// Fields set to yes or no.
+const YES_NO_FIELDS = new Set<BulkField>(["isParcelForce", "active"]);
 
 type BulkField = (typeof BULK_FIELDS)[number]["field"];
 
@@ -58,12 +62,13 @@ export function BulkEditBar({
       return;
     }
 
-    const changes: BulkChanges =
-      field === "active" ? { active: value === "yes" } : { [field]: value };
-    const shown =
-      field === "active"
-        ? t(value === "yes" ? "common.yes" : "common.no")
-        : value || t("bulk.emptyValue");
+    const yesNo = YES_NO_FIELDS.has(field);
+    const changes: BulkChanges = yesNo
+      ? { [field]: value === "yes" }
+      : { [field]: value };
+    const shown = yesNo
+      ? t(value === "yes" ? "common.yes" : "common.no")
+      : value || t("bulk.emptyValue");
 
     if (
       window.confirm(
@@ -118,7 +123,7 @@ export function BulkEditBar({
             <option value={UNSET} disabled>
               {t("bulk.chooseValue")}
             </option>
-            {field === "active" ? (
+            {YES_NO_FIELDS.has(field) ? (
               <>
                 <option value="yes">{t("common.yes")}</option>
                 <option value="no">{t("common.no")}</option>

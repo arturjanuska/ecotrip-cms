@@ -1,10 +1,12 @@
 import { z } from "zod";
 import {
+  ADDITIONAL_CHARGES_HINT,
   CALENDAR_VALUES,
   DISCOUNT_HINT,
   LIST_DEFAULT_LIMIT,
   LIST_MAX_LIMIT,
   PARCEL_FORCE_ZONES,
+  isValidAdditionalCharges,
   isValidDiscount,
 } from "@/lib/postcode-options";
 import { EMPTY_FILTER } from "@/lib/postcode-filters";
@@ -21,6 +23,10 @@ const postcodeValue = requiredText.transform((value) => value.toUpperCase());
 const calendarValue = z.enum(["", ...CALENDAR_VALUES]);
 const parcelForceZoneValue = z.enum(["", ...PARCEL_FORCE_ZONES]);
 const discountValue = text.refine(isValidDiscount, DISCOUNT_HINT);
+const additionalChargesValue = text.refine(
+  isValidAdditionalCharges,
+  ADDITIONAL_CHARGES_HINT,
+);
 
 export const createPostcodeSchema = z.object({
   postcode: postcodeValue,
@@ -29,7 +35,8 @@ export const createPostcodeSchema = z.object({
   region: text.default(""),
   countryString: text.default(""),
   basicPrice: text.default(""),
-  additionalCharges: text.default(""),
+  additionalCharges: additionalChargesValue.default(""),
+  isParcelForce: z.boolean().default(false),
   parcelForceZone: parcelForceZoneValue.default(""),
   discount: discountValue.default(""),
   calendar: calendarValue.default(""),
@@ -44,7 +51,8 @@ export const updatePostcodeSchema = z
     region: text.optional(),
     countryString: text.optional(),
     basicPrice: text.optional(),
-    additionalCharges: text.optional(),
+    additionalCharges: additionalChargesValue.optional(),
+    isParcelForce: z.boolean().optional(),
     parcelForceZone: parcelForceZoneValue.optional(),
     discount: discountValue.optional(),
     calendar: calendarValue.optional(),
@@ -83,6 +91,10 @@ export const listQuerySchema = z.object({
     .enum([...PARCEL_FORCE_ZONES, EMPTY_FILTER])
     .optional()
     .transform((value) => (value === EMPTY_FILTER ? "" : value)),
+  isParcelForce: z
+    .enum(["true", "false"])
+    .optional()
+    .transform((value) => (value === undefined ? value : value === "true")),
 });
 
 // One change applied to many records. Only fields that make sense in bulk;
@@ -95,6 +107,7 @@ export const bulkUpdateSchema = z.object({
     .transform((ids) => [...new Set(ids.map((id) => id.toLowerCase()))]),
   changes: z
     .strictObject({
+      isParcelForce: z.boolean().optional(),
       parcelForceZone: parcelForceZoneValue.optional(),
       discount: discountValue.optional(),
       calendar: calendarValue.optional(),

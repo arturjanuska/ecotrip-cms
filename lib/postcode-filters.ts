@@ -7,8 +7,13 @@ export const EMPTY_FILTER = "none";
 export const ACTIVE_FILTERS = ["yes", "no", "all"] as const;
 export type ActiveFilter = (typeof ACTIVE_FILTERS)[number];
 
+// Filter by isParcelForce: "" any, "yes" or "no".
+export const PARCEL_FORCE_FILTERS = ["", "yes", "no"] as const;
+export type ParcelForceFilter = (typeof PARCEL_FORCE_FILTERS)[number];
+
 export type PostcodeFilters = {
   active: ActiveFilter;
+  isParcelForce: ParcelForceFilter;
   // Prefix of the postcode: "M4" matches M4, M40, M46...
   postcode: string;
   // "", EMPTY_FILTER, or one of the allowed values.
@@ -18,6 +23,7 @@ export type PostcodeFilters = {
 
 export const DEFAULT_FILTERS: PostcodeFilters = {
   active: "yes",
+  isParcelForce: "",
   postcode: "",
   calendar: "",
   parcelForceZone: "",
@@ -39,6 +45,9 @@ export function filtersToParams(filters: PostcodeFilters) {
   if (filters.parcelForceZone) {
     params.parcelForceZone = filters.parcelForceZone;
   }
+  if (filters.isParcelForce) {
+    params.isParcelForce = String(filters.isParcelForce === "yes");
+  }
 
   return params;
 }
@@ -50,13 +59,18 @@ function matchesSelect(value: string, filter: string) {
 // Same rules as the API filter, so a saved row that no longer matches can
 // leave the list without a reload.
 export function matchesFilters(
-  item: Pick<Postcode, "postcode" | "calendar" | "parcelForceZone" | "active">,
+  item: Pick<
+    Postcode,
+    "postcode" | "calendar" | "parcelForceZone" | "isParcelForce" | "active"
+  >,
   filters: PostcodeFilters,
 ) {
   return (
     (filters.active === "all" || item.active === (filters.active === "yes")) &&
     item.postcode.startsWith(filters.postcode.trim().toUpperCase()) &&
     matchesSelect(item.calendar, filters.calendar) &&
-    matchesSelect(item.parcelForceZone, filters.parcelForceZone)
+    matchesSelect(item.parcelForceZone, filters.parcelForceZone) &&
+    (filters.isParcelForce === "" ||
+      item.isParcelForce === (filters.isParcelForce === "yes"))
   );
 }

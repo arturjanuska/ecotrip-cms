@@ -14,6 +14,7 @@ const item = {
   countryString: "England",
   basicPrice: "Ecotrip pricelist",
   additionalCharges: "",
+  isParcelForce: false,
   parcelForceZone: "Zone 1" as const,
   discount: "",
   calendar: "Odd" as const,

@@ -15,13 +15,17 @@ export const EDITABLE_TEXT_FIELDS = [
 
 export type EditableTextField = (typeof EDITABLE_TEXT_FIELDS)[number];
 
+// Yes/no fields editable in the table, as switches.
+export const EDITABLE_BOOLEAN_FIELDS = ["isParcelForce", "active"] as const;
+
+export type EditableBooleanField = (typeof EDITABLE_BOOLEAN_FIELDS)[number];
+
 // Unsaved edits of one row. Only fields that differ from the stored record are
 // kept, so a row with a draft always has something to save.
-export type Draft = Partial<Record<EditableTextField, string>> & {
-  active?: boolean;
-};
+export type Draft = Partial<Record<EditableTextField, string>> &
+  Partial<Record<EditableBooleanField, boolean>>;
 
-type Editable = Pick<Postcode, EditableTextField | "active">;
+type Editable = Pick<Postcode, EditableTextField | EditableBooleanField>;
 
 export function pruneDraft(item: Editable, draft: Draft | undefined) {
   if (!draft) {
@@ -35,8 +39,11 @@ export function pruneDraft(item: Editable, draft: Draft | undefined) {
       next[field] = value;
     }
   }
-  if (draft.active !== undefined && draft.active !== item.active) {
-    next.active = draft.active;
+  for (const field of EDITABLE_BOOLEAN_FIELDS) {
+    const value = draft[field];
+    if (value !== undefined && value !== item[field]) {
+      next[field] = value;
+    }
   }
 
   return Object.keys(next).length > 0 ? next : undefined;

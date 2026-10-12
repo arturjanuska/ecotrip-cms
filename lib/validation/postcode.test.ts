@@ -85,6 +85,7 @@ describe("createPostcodeSchema", () => {
       countryString: "",
       basicPrice: "",
       additionalCharges: "",
+      isParcelForce: false,
       parcelForceZone: "",
       discount: "",
       calendar: "",

@@ -31,7 +31,8 @@ import {
   existingByPostcode,
   importKey,
   importStatus,
-  parseActive,
+  isBooleanColumn,
+  parseBoolean,
   parseCsv,
   validateImportValues,
   type CsvColumn,
@@ -68,7 +69,8 @@ const FIELD_COLUMNS: { column: CsvColumn; width: number }[] = [
   { column: "region", width: 180 },
   { column: "countryString", width: 160 },
   { column: "basicPrice", width: 170 },
-  { column: "additionalCharges", width: 190 },
+  { column: "additionalCharges", width: 150 },
+  { column: "isParcelForce", width: 110 },
   { column: "parcelForceZone", width: 150 },
   { column: "discount", width: 130 },
   { column: "calendar", width: 150 },
@@ -212,7 +214,7 @@ const ImportPreviewRow = memo(function ImportPreviewRow({
 
         return (
           <TableCell key={column} className={cn(changed && "bg-brand/10")}>
-            {column === "active" ? (
+            {isBooleanColumn(column) ? (
               <NativeSelect
                 className="w-full"
                 value={value}
@@ -221,7 +223,7 @@ const ImportPreviewRow = memo(function ImportPreviewRow({
                   onChange(row.id, column, event.target.value)
                 }
               >
-                {parseActive(value) === null && (
+                {parseBoolean(value) === null && (
                   <option value={value}>{value || "—"}</option>
                 )}
                 <option value="true">{t("common.yes")}</option>

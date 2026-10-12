@@ -34,7 +34,7 @@ const FIELDS = [
 ] as const;
 
 type Field = (typeof FIELDS)[number];
-type Row = Record<Field, string>;
+type Row = Record<Field, string> & { isParcelForce: boolean };
 
 const write = process.argv.includes("--write");
 
@@ -67,7 +67,7 @@ async function main() {
     invalid: [] as string[],
     duplicatesInFile: 0,
     fixedCountry: 0,
-    fixedPricelist: 0,
+    parcelForce: 0,
     emptyTown: 0,
   };
 
@@ -85,12 +85,13 @@ async function main() {
       row.countryString = "England";
       stats.fixedCountry += 1;
     }
-    if (
-      row.additionalCharges !== PRICELIST &&
-      row.additionalCharges.toLowerCase() === PRICELIST.toLowerCase()
-    ) {
-      row.additionalCharges = PRICELIST;
-      stats.fixedPricelist += 1;
+    // The source marks ParcelForce areas in additionalCharges (any casing);
+    // the CMS has isParcelForce for that and keeps additionalCharges a number.
+    row.isParcelForce =
+      row.additionalCharges.toLowerCase() === PRICELIST.toLowerCase();
+    if (row.isParcelForce) {
+      row.additionalCharges = "";
+      stats.parcelForce += 1;
     }
 
     if (!row.postcode || !row.country) {
@@ -137,7 +138,7 @@ async function main() {
   }
   console.log(`Duplicates in file:       ${stats.duplicatesInFile}`);
   console.log(`Fixed M90 country:        ${stats.fixedCountry}`);
-  console.log(`Fixed pricelist casing:   ${stats.fixedPricelist}`);
+  console.log(`ParcelForce areas:        ${stats.parcelForce}`);
   console.log(`Unique valid postcodes:   ${rows.size}`);
   console.log(`  with empty town:        ${stats.emptyTown}`);
   console.log(`Already in DB (skipped):  ${existing.size}`);

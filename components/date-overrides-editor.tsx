@@ -19,7 +19,9 @@ import {
   calculatedTrips,
   isEvenWeek,
   isoDate,
+  parcelForceDeliveryOf,
   type DateOverride,
+  type DateRange,
   type Direction,
   type StoredDateOverride,
   type Trip,
@@ -39,7 +41,41 @@ import { dateOverrideSchema } from "@/lib/validation/date-override";
 const CACHE_KEY = "dateOverrides";
 
 const RANGE_ENDS = ["from", "to"] as const;
-const PARTS = ["pickup", "delivery"] as const;
+const PARTS = ["pickup", "delivery", "parcelForceDelivery"] as const;
+
+// A trip as edited: the ParcelForce dates are always there, empty when not
+// set (then ParcelForce delivers a week after the delivery).
+type DraftTrip = Required<Trip>;
+
+// A new object each time: trips must not share one (structuredClone keeps
+// shared objects shared).
+function noDates(): DateRange {
+  return { from: "", to: "" };
+}
+
+function toDraft(trip: Trip): DraftTrip {
+  return {
+    ...trip,
+    parcelForceDelivery: trip.parcelForceDelivery ?? noDates(),
+  };
+}
+
+function toTrip({ pickup, delivery, parcelForceDelivery }: DraftTrip): Trip {
+  return parcelForceDelivery.from || parcelForceDelivery.to
+    ? { pickup, delivery, parcelForceDelivery }
+    : { pickup, delivery };
+}
+
+// "29 Dec – 31 Dec".
+function rangeText(locale: Locale, { from, to }: DateRange) {
+  const format = new Intl.DateTimeFormat(locale, {
+    day: "numeric",
+    month: "short",
+    timeZone: "UTC",
+  });
+  const day = (date: string) => format.format(Date.parse(`${date}T00:00:00Z`));
+  return `${day(from)} – ${day(to)}`;
+}
 
 function monthName(locale: Locale, year: number, month: number) {
   return new Intl.DateTimeFormat(locale, {
@@ -81,20 +117,23 @@ function tripErrors(override: DateOverride) {
 }
 
 // A trip a week after the last one, or the first calculated one.
-function nextTrip(override: DateOverride): Trip {
+function nextTrip(override: DateOverride): DraftTrip {
   const last = override.trips[override.trips.length - 1];
   if (!last) {
-    return calculatedTrips(
-      override.direction,
-      override.year,
-      override.month,
-    )[0];
+    return toDraft(
+      calculatedTrips(override.direction, override.year, override.month)[0],
+    );
   }
   const week = (date: string) =>
-    isoDate(new Date(Date.parse(`${date}T00:00:00Z`) + 7 * 86_400_000));
+    date && isoDate(new Date(Date.parse(`${date}T00:00:00Z`) + 7 * 86_400_000));
+  const shift = (range: DateRange = noDates()) => ({
+    from: week(range.from),
+    to: week(range.to),
+  });
   return {
-    pickup: { from: week(last.pickup.from), to: week(last.pickup.to) },
-    delivery: { from: week(last.delivery.from), to: week(last.delivery.to) },
+    pickup: shift(last.pickup),
+    delivery: shift(last.delivery),
+    parcelForceDelivery: shift(last.parcelForceDelivery),
   };
 }
 
@@ -112,7 +151,9 @@ function MonthEditor({
   const t = useT();
   const locale = useLocale();
   const { getToken } = useAuth();
-  const [trips, setTrips] = useState<Trip[]>(saved.trips);
+  const [trips, setTrips] = useState<DraftTrip[]>(() =>
+    saved.trips.map(toDraft),
+  );
   const [busy, setBusy] = useState(false);
   const [problem, setProblem] = useState<Problem | null>(null);
   const [justSaved, setJustSaved] = useState(false);
@@ -121,16 +162,17 @@ function MonthEditor({
   const [shown, setShown] = useState(saved);
   if (shown !== saved) {
     setShown(saved);
-    setTrips(saved.trips);
+    setTrips(saved.trips.map(toDraft));
   }
+  const savedTrips = saved.trips.map(toDraft);
 
   const draft: DateOverride = {
     direction: saved.direction,
     year: saved.year,
     month: saved.month,
-    trips,
+    trips: trips.map(toTrip),
   };
-  const dirty = JSON.stringify(trips) !== JSON.stringify(saved.trips);
+  const dirty = JSON.stringify(trips) !== JSON.stringify(savedTrips);
   const errors = tripErrors(draft);
   const invalid = Object.keys(errors).length > 0;
   const title = `${monthName(locale, saved.year, saved.month)} · ${t(
@@ -145,7 +187,7 @@ function MonthEditor({
     [saved._id, onDirtyChange],
   );
 
-  const edit = (next: Trip[]) => {
+  const edit = (next: DraftTrip[]) => {
     setTrips(next);
     setJustSaved(false);
   };
@@ -251,7 +293,7 @@ function MonthEditor({
                   {RANGE_ENDS.map((end) => {
                     const path = `trips.${index}.${part}.${end}`;
                     const changed =
-                      saved.trips[index]?.[part][end] !== trip[part][end];
+                      savedTrips[index]?.[part][end] !== trip[part][end];
                     return (
                       <div key={end} className="space-y-1">
                         <Input
@@ -277,6 +319,20 @@ function MonthEditor({
                     );
                   })}
                 </div>
+                {part === "parcelForceDelivery" &&
+                  !trip.parcelForceDelivery.from &&
+                  !trip.parcelForceDelivery.to &&
+                  trip.delivery.from &&
+                  trip.delivery.to && (
+                    <p className="text-xs text-muted-foreground">
+                      {t("datesPage.parcelForceAuto", {
+                        range: rangeText(
+                          locale,
+                          parcelForceDeliveryOf(toTrip(trip)),
+                        ),
+                      })}
+                    </p>
+                  )}
               </div>
             ))}
             <span className="pt-6 text-xs text-muted-foreground">

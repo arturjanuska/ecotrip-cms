@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { calculatedTrips, isEvenWeek } from "@/lib/date-override-types";
+import {
+  calculatedTrips,
+  isEvenWeek,
+  parcelForceDeliveryOf,
+} from "@/lib/date-override-types";
 
 describe("calculatedTrips", () => {
   it("gives the LT-UK trips of December 2026", () => {
@@ -58,5 +62,26 @@ describe("isEvenWeek", () => {
         "2027-01-12",
       ].map(isEvenWeek),
     ).toEqual([false, true, true, false, true, false]);
+  });
+});
+
+describe("parcelForceDeliveryOf", () => {
+  const trip = {
+    pickup: { from: "2026-12-18", to: "2026-12-20" },
+    delivery: { from: "2026-12-22", to: "2026-12-24" },
+  };
+
+  it("is a week after the delivery when not set", () => {
+    expect(parcelForceDeliveryOf(trip)).toEqual({
+      from: "2026-12-29",
+      to: "2026-12-31",
+    });
+  });
+
+  it("is its own dates when set", () => {
+    const own = { from: "2026-12-23", to: "2026-12-24" };
+    expect(parcelForceDeliveryOf({ ...trip, parcelForceDelivery: own })).toBe(
+      own,
+    );
   });
 });

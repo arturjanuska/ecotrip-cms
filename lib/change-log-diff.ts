@@ -211,8 +211,13 @@ export function dateOverrideRecord({
   return `${direction} ${year}-${String(month).padStart(2, "0")}`;
 }
 
-function tripText({ pickup, delivery }: Trip) {
-  return `${pickup.from} – ${pickup.to} → ${delivery.from} – ${delivery.to}`;
+// "2026-12-18 – 2026-12-20 → 2026-12-22 – 2026-12-24", with " (ParcelForce
+// 2026-12-29 – 2026-12-31)" when its own dates are set.
+function tripText({ pickup, delivery, parcelForceDelivery }: Trip) {
+  const parcelForce = parcelForceDelivery
+    ? ` (ParcelForce ${parcelForceDelivery.from} – ${parcelForceDelivery.to})`
+    : "";
+  return `${pickup.from} – ${pickup.to} → ${delivery.from} – ${delivery.to}${parcelForce}`;
 }
 
 // One change per trip, matched by its first pickup day. before null: the

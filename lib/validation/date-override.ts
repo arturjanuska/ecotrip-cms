@@ -16,10 +16,11 @@ function isRealDate(value: string) {
   return !Number.isNaN(date.getTime()) && date.toISOString().startsWith(value);
 }
 
-const isoDate = z
-  .string()
-  .regex(/^\d{4}-\d{2}-\d{2}$/, "validation.date")
-  .refine(isRealDate, "validation.date");
+function isDate(value: string) {
+  return /^\d{4}-\d{2}-\d{2}$/.test(value) && isRealDate(value);
+}
+
+const isoDate = z.string().refine(isDate, "validation.date");
 
 function days(from: string, to: string) {
   return Math.round(
@@ -30,6 +31,10 @@ function days(from: string, to: string) {
 const rangeSchema = z
   .strictObject({ from: isoDate, to: isoDate })
   .superRefine((range, ctx) => {
+    // A wrong date already has its own error.
+    if (!isDate(range.from) || !isDate(range.to)) {
+      return;
+    }
     if (range.to < range.from) {
       ctx.addIssue({
         code: "custom",
@@ -45,15 +50,28 @@ const rangeSchema = z
     }
   });
 
+// parcelForceDelivery: optional, a week after the delivery when missing.
 const tripSchema = z
-  .strictObject({ pickup: rangeSchema, delivery: rangeSchema })
+  .strictObject({
+    pickup: rangeSchema,
+    delivery: rangeSchema,
+    parcelForceDelivery: rangeSchema.optional(),
+  })
   .superRefine((trip, ctx) => {
-    if (trip.delivery.from < trip.pickup.to) {
-      ctx.addIssue({
-        code: "custom",
-        message: "validation.deliveryBeforePickup",
-        path: ["delivery", "from"],
-      });
+    for (const part of ["delivery", "parcelForceDelivery"] as const) {
+      const range = trip[part];
+      if (
+        range &&
+        isDate(range.from) &&
+        isDate(trip.pickup.to) &&
+        range.from < trip.pickup.to
+      ) {
+        ctx.addIssue({
+          code: "custom",
+          message: "validation.deliveryBeforePickup",
+          path: [part, "from"],
+        });
+      }
     }
   });
 

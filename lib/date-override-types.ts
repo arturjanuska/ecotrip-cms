@@ -1,7 +1,8 @@
 // Pickup and delivery dates set by hand for one month and direction. The site
 // (ecotrip-react, src/utils/transportDates.ts) offers these trips instead of
 // the ones it calculates for that month; it still keeps only the odd or even
-// weeks of the order's postcode, and ParcelForce delivers a week later.
+// weeks of the order's postcode. ParcelForce delivers on its own dates, or a
+// week after the delivery when they are not set.
 
 export const DIRECTIONS = ["LT-UK", "UK-LT"] as const;
 export type Direction = (typeof DIRECTIONS)[number];
@@ -9,7 +10,13 @@ export type Direction = (typeof DIRECTIONS)[number];
 // Both ends included, as YYYY-MM-DD.
 export type DateRange = { from: string; to: string };
 
-export type Trip = { pickup: DateRange; delivery: DateRange };
+export type Trip = {
+  pickup: DateRange;
+  delivery: DateRange;
+  parcelForceDelivery?: DateRange;
+};
+
+export const PARCEL_FORCE_DELAY_DAYS = 7;
 
 export type DateOverride = {
   direction: Direction;
@@ -51,6 +58,21 @@ export function isoDate(date: Date) {
 
 function addDays(date: Date, days: number) {
   return new Date(date.getTime() + days * DAY_MS);
+}
+
+function addDaysIso(date: string, days: number) {
+  return isoDate(addDays(new Date(`${date}T00:00:00Z`), days));
+}
+
+// The delivery a ParcelForce order gets: its own dates, else a week after the
+// delivery.
+export function parcelForceDeliveryOf(trip: Trip): DateRange {
+  return (
+    trip.parcelForceDelivery ?? {
+      from: addDaysIso(trip.delivery.from, PARCEL_FORCE_DELAY_DAYS),
+      to: addDaysIso(trip.delivery.to, PARCEL_FORCE_DELAY_DAYS),
+    }
+  );
 }
 
 /**

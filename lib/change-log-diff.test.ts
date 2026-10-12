@@ -7,6 +7,7 @@ import {
   diffPostcode,
   diffPriceCategory,
 } from "@/lib/change-log-diff";
+import type { DateOverride } from "@/lib/date-override-types";
 import type { Category } from "@/lib/price-types";
 import { INITIAL_FEE_SETTINGS } from "../scripts/data/fee-settings";
 
@@ -198,8 +199,8 @@ describe("bulkSummary", () => {
 });
 
 describe("diffDateOverride", () => {
-  const december = {
-    direction: "LT-UK" as const,
+  const december: DateOverride = {
+    direction: "LT-UK",
     year: 2026,
     month: 12,
     trips: [
@@ -244,6 +245,15 @@ describe("diffDateOverride", () => {
       },
     ]);
     expect(diffDateOverride(december, structuredClone(december))).toEqual([]);
+
+    const parcelForce = structuredClone(december);
+    parcelForce.trips[0] = {
+      ...parcelForce.trips[0],
+      parcelForceDelivery: { from: "2026-12-10", to: "2026-12-11" },
+    };
+    expect(diffDateOverride(december, parcelForce)[0].to).toBe(
+      "2026-12-01 – 2026-12-02 → 2026-12-04 – 2026-12-06 (ParcelForce 2026-12-10 – 2026-12-11)",
+    );
   });
 
   it("logs a deleted month, also one with no trips", () => {

@@ -19,7 +19,12 @@ const dateOverrideSchema = new Schema(
     trips: {
       type: [
         new Schema(
-          { pickup: dateRangeSchema, delivery: dateRangeSchema },
+          {
+            pickup: dateRangeSchema,
+            delivery: dateRangeSchema,
+            // Missing: a week after the delivery.
+            parcelForceDelivery: { type: dateRangeSchema, required: false },
+          },
           { _id: false },
         ),
       ],

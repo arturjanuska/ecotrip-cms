@@ -59,6 +59,24 @@ describe("dateOverrideSchema", () => {
     ]);
   });
 
+  it("takes ParcelForce dates as an option, checked like the delivery", () => {
+    const override = december();
+    override.trips[0].parcelForceDelivery = {
+      from: "2026-12-10",
+      to: "2026-12-11",
+    };
+    expect(issues(override)).toEqual([]);
+
+    override.trips[0].parcelForceDelivery = {
+      from: "2026-12-01",
+      to: "",
+    };
+    expect(issues(override)).toEqual([
+      "trips.0.parcelForceDelivery.to: validation.date",
+      "trips.0.parcelForceDelivery.from: validation.deliveryBeforePickup",
+    ]);
+  });
+
   it("rejects an unknown direction or month", () => {
     expect(issues({ ...december(), direction: "LT-LT" })).toHaveLength(1);
     expect(issues({ ...december(), month: 13 })).toHaveLength(1);

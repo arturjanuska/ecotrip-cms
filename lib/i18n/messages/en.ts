@@ -227,6 +227,7 @@ export const en = {
     direction: "Direction",
     pickup: "Pickup",
     delivery: "Delivery",
+    parcelForceDelivery: "ParcelForce delivery",
     trip: "Trip",
     tripCount: "Trips",
   },
@@ -386,7 +387,7 @@ export const en = {
   datesPage: {
     title: "Dates",
     intro:
-      "Pickup and delivery dates set by hand for a whole month. In such a month the site offers these trips instead of the ones it calculates. It still shows each postcode only the trips of its odd or even weeks, and ParcelForce delivers a week later. Customers see 12 weeks ahead.",
+      "Pickup and delivery dates set by hand for a whole month. In such a month the site offers these trips instead of the ones it calculates. It still shows each postcode only the trips of its odd or even weeks. ParcelForce orders get their own delivery dates, or a week after the delivery when they are left empty. Customers see 12 weeks ahead.",
     addTitle: "Set the dates of a month",
     addHelp:
       "The month starts with the dates the site calculates now: change them, then save.",
@@ -396,6 +397,7 @@ export const en = {
     noMonths: "No month is set by hand: the site calculates every date.",
     noTrips: "No trips: nothing is picked up this month.",
     addTrip: "Add trip",
+    parcelForceAuto: "Empty: delivery + 7 days → {range}",
     from: "from",
     to: "to",
     tripField: "Trip {n}: {field} {end}",
